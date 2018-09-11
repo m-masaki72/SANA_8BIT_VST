@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT name="SANA_8bit_VST" projectType="audioplug" buildStandalone="1"
+              jucerVersion="5.3.2" pluginFormats="buildVST,buildStandalone"
+              buildVST="1" buildVST3="0" buildAU="0" buildAUv3="0" buildRTAS="0"
+              buildAAX="0" enableIAA="0" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
+              id="j6lCat" reportAppUsage="0" bundleIdentifier="com.MasakiMori.SANA"
+              pluginManufacturer="MasakiMori" version="1.37" pluginVSTCategory="kPlugCategSynth"
+              splashScreenColour="Light">
+  <MAINGROUP id="IZtsAI" name="SANA_8bit_VST">
+    <GROUP id="{0FF198AF-00FB-C9FF-2361-004F9332861C}" name="Source">
+      <GROUP id="{1EF15716-4953-878F-FF46-72E0314DD4F8}" name="GUI">
+        <FILE id="ZfoH4a" name="ParametersComponent.cpp" compile="1" resource="0"
+              file="Source/GUI/ParametersComponent.cpp"/>
+        <FILE id="MJVnVM" name="ParametersComponent.h" compile="0" resource="0"
+              file="Source/GUI/ParametersComponent.h"/>
+        <FILE id="OiKiyy" name="ScopeComponent.cpp" compile="1" resource="0"
+              file="Source/GUI/ScopeComponent.cpp"/>
+        <FILE id="wPapQE" name="ScopeComponent.h" compile="0" resource="0"
+              file="Source/GUI/ScopeComponent.h"/>
+      </GROUP>
+      <GROUP id="{97C69670-A71D-517E-1589-B4DF8AAE0D93}" name="DSP">
+        <FILE id="LQAmtS" name="AmpEnvelope.cpp" compile="1" resource="0" file="Source/DSP/AmpEnvelope.cpp"/>
+        <FILE id="kOw8q1" name="AmpEnvelope.h" compile="0" resource="0" file="Source/DSP/AmpEnvelope.h"/>
+        <FILE id="fOBoQl" name="SimpleSound.cpp" compile="1" resource="0" file="Source/DSP/SimpleSound.cpp"/>
+        <FILE id="NkrG8d" name="SimpleSound.h" compile="0" resource="0" file="Source/DSP/SimpleSound.h"/>
+        <FILE id="IjJsMl" name="SimpleSynthParameters.cpp" compile="1" resource="0"
+              file="Source/DSP/SimpleSynthParameters.cpp"/>
+        <FILE id="zWODSm" name="SimpleSynthParameters.h" compile="0" resource="0"
+              file="Source/DSP/SimpleSynthParameters.h"/>
+        <FILE id="En0YXn" name="SimpleVoice.cpp" compile="1" resource="0" file="Source/DSP/SimpleVoice.cpp"/>
+        <FILE id="wW4Ofk" name="SimpleVoice.h" compile="0" resource="0" file="Source/DSP/SimpleVoice.h"/>
+        <FILE id="ndmaLx" name="Waveforms.cpp" compile="1" resource="0" file="Source/DSP/Waveforms.cpp"/>
+        <FILE id="Wm9LNQ" name="Waveforms.h" compile="0" resource="0" file="Source/DSP/Waveforms.h"/>
+      </GROUP>
+      <FILE id="D20u63" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="IsKzne" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+      <FILE id="ij1JH6" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="oYLRzj" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <LIVE_SETTINGS>
+    <WINDOWS/>
+    <OSX/>
+  </LIVE_SETTINGS>
+  <EXPORTFORMATS>
+    <VS2017 targetFolder="Builds/VisualStudio2017" vst3Folder="">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" headerPath="M:\desktop\ASIOSDK2.3.1\common"/>
+        <CONFIGURATION isDebug="0" name="Release" headerPath="M:\desktop\ASIOSDK2.3.1\common"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_video" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="C:/SDKs/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="C:/SDKs/JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2017>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_video" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_ASIO="1"/>
+</JUCERPROJECT>
