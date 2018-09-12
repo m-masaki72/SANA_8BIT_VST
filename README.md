@@ -59,7 +59,7 @@ Getting Ready
 [https://github.com/COx2/JUCE_JAPAN_DEMO]https://github.com/COx2/JUCE_JAPAN_DEMO
 
 ## Technologies Used
-C++ for the language
-JUCE for the framework/library
-Steinberg VST SDK
-Visual Studio for the IDE
+* C++ for the language
+* JUCE for the framework/library
+* Steinberg VST SDK
+* Visual Studio for the IDE
