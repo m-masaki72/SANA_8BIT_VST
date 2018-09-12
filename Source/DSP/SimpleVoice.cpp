@@ -3,7 +3,7 @@
 
     SimpleVoice.cpp
     Created: 20 Apr 2018 2:08:09am
-	Modified: 11 September 2018
+	Modified: 12 September 2018
 	Author:  MasakiMori, COx2
 
   ==============================================================================
@@ -57,10 +57,10 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 		// 同じボイスから生成する波形の前後フレーム間の変化量が急峻になり、ノイズの発生原因となる。
 		if (ampEnv.isHolding())
 		{
-			//ボイスの発音が初めての場合はラジアンを0としてリセットする
-			vibratoAngle = 0.0f; 
+			//ボイスの発音が初めての場合はラジアンを0としてリセットする 
+			currentAngle = 0.0f;
 		}
-		currentAngle = 0.0f;
+		vibratoAngle = 0.0f;
 		pitchSweep = 0.0f;
 
 		if (_optionsParamsPtr->IsVelocitySense->get())
