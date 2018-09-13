@@ -1,4 +1,4 @@
-﻿/*
+/*
 ==============================================================================
 
 	PluginProcessor.cpp
@@ -33,10 +33,10 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 	, chipOscParameters{
 		new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 0),
 		new AudioParameterFloat("VOLUME",	"Volume", -16.0f, 16.0f, -8.0f),
-		new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.0000f, 10.0f, 0.0000f),
-		new AudioParameterFloat("AMPENV_DECAY", "Decay",  0.0000f, 10.0f, 0.0000f),
-		new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.0000f, 1.0f, 1.0f),
-		new AudioParameterFloat("AMPENV_RELEASE", "Release", 0.0000f, 10.0f, 0.0000f)
+		new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.001f, 10.0f, 0.001f),
+		new AudioParameterFloat("AMPENV_DECAY", "Decay",  0.001f, 10.0f, 0.001f),
+		new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 1.0f),
+		new AudioParameterFloat("AMPENV_RELEASE", "Release", 0.001f, 10.0f, 0.001f)
 	}
 	, sweepParameters{
 		new AudioParameterChoice("SWEEP_SWITCH", "Sweep-Switch", SWEEP_SWITCH, 0),
