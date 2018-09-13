@@ -59,8 +59,9 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 		{
 			//ボイスの発音が初めての場合はラジアンを0としてリセットする 
 			currentAngle = 0.0f;
+			vibratoAngle = 0.0f;
 		}
-		vibratoAngle = 0.0f;
+
 		pitchSweep = 0.0f;
 
 		if (_optionsParamsPtr->IsVelocitySense->get())
@@ -182,8 +183,9 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 				}
 
 				// OSC MIX: 
-				levelDiff *= 0.99f;						// 前回のベロシティとの差異によるノイズ発生を防ぐ。
-				currentSample *= level + levelDiff;
+				//levelDiff *= 0.99f;						// 前回のベロシティとの差異によるノイズ発生を防ぐ。
+				//currentSample *= level + levelDiff;
+				currentSample *= level;
 
 				// AMP EG: エンベロープの値をサンプルデータに反映する。
 				currentSample *= ampEnv.getValue();
@@ -216,7 +218,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 					currentAngle += angleDelta 
 						* pow(2.0f , pitchBend / 13.0f * _optionsParamsPtr->PitchBendRange->get())
 						* pow(2.0f, pitchSweep) 
-						* pow(2.0f, 2 * (modulationFactor-0.5f));
+						* pow(2.0f, 2 * (modulationFactor / 13.0f));
 				}
 				else
 				{
@@ -267,6 +269,6 @@ float SimpleVoice::calcModulationFactor(float angle)
 	factor = waveForms.sine(angle);
 
 	// factorの値が0.5を中心とした0.0～1.0の値となるように調整する。
-	factor = ((factor * _vibratoParamsPtr->VibratoAmount->get()) / 2.0f) + 0.5f;
+	factor = (factor * _vibratoParamsPtr->VibratoAmount->get());
 	return factor;
 }

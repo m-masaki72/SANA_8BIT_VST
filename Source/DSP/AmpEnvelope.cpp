@@ -3,7 +3,8 @@
 
     AmpEnvelope.cpp
     Created: 20 Apr 2018 2:08:26am
-    Author:  COx2
+	Modified: 14 September 2018
+	Author:  MasakiMori, COx2
 
   ==============================================================================
 */

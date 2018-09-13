@@ -44,7 +44,7 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 	}
 	, vibratoParameters{
 		new AudioParameterBool("VIBRATO_ENABLE", "Vibrato-Enable", true),
-		new AudioParameterFloat("VIBRATO_DEPTH", "Vibrato-Depth",  0.0f, 10.0f, 0.0000f),
+		new AudioParameterFloat("VIBRATO_DEPTH", "Vibrato-Depth",  0.0f, 13.0f, 0.0f),
 		new AudioParameterFloat("VIBRATO_SPEED", "Vibrato-Speed",  0.0f, 20.0f, 0.1000f)
 	}
 	, optionsParameters{
