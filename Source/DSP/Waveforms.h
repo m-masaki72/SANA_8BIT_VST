@@ -19,6 +19,10 @@
 class Waveforms
 {
 public:
+	int reg = 1 << 14;
+	float noiseVal = 1.0f;
+	int counter = 0;
+
 	// ③各種波形のサンプルデータを返す関数を宣言する。
 	float nesTriangle(float angle);
 	float nesSquare(float angle);

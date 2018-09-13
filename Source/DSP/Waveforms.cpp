@@ -133,10 +133,6 @@ float Waveforms::triangle(float angle)
     }
 }
 
-static int reg = 1 << 14;
-static float noiseVal = 1.0f;
-int counter = 0;
-
 // ⑥ホワイトノイズのサンプルデータを生成して返す関数
 float Waveforms::longNoise(float angleDelta)
 {
