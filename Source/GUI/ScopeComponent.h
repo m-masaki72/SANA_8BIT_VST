@@ -1,4 +1,4 @@
-/*
+﻿/*
   ==============================================================================
 
    This file is part of the JUCE tutorials.
@@ -22,6 +22,10 @@
 #include <JuceHeader.h>
 
 namespace {
+	const Colour PANEL_COLOUR() { return Colours::cornsilk; }
+	const Colour HEADER_COLOUR() { return Colours::darkorange; }
+	const Colour FONT_COLOUR() { return Colours::black; }
+
 	const float PANEL_NAME_FONT_SIZE = 24.0f;
 	const float PARAM_LABEL_FONT_SIZE = 16.0f;
 	const int PANEL_NAME_HEIGHT = 42;
@@ -207,9 +211,6 @@ public:
 	// ②引数付きコンストラクタ。AudioBufferQueueクラスの参照を引数として受け取ってクラス内変数に代入する。
 	ScopeComponent(Queue& queueuToUse)
 		: audioBufferQueue(queueuToUse)
-        , PANEL_COLOUR(Colours::cornsilk)
-        , HEADER_COLOUR(Colours::darkorange)
-        , FONT_COLOUR(Colours::black)
 	{
 		sampleData.fill(SampleType(0));
 		setFramePerSecond(30);
@@ -233,13 +234,13 @@ public:
 
 		{
 			int x = 0.0f, y = 0.0f, width = getWidth(), height = getHeight();
-			g.setColour(PANEL_COLOUR);
+			g.setColour(PANEL_COLOUR());
 			g.fillRoundedRectangle(x, y, width, height, 10.0f);
 		}
 
 		{
 			float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
-			g.setColour(HEADER_COLOUR);
+			g.setColour(HEADER_COLOUR());
 			g.fillRoundedRectangle(x, y, width, height, 10.0f);
 		}
 
@@ -311,9 +312,6 @@ private:
 
 	// ⑦クラス変数を宣言する。
 	Queue& audioBufferQueue;										// AudioBufferQueueクラスの参照を保持する変数
-	std::array<SampleType, Queue::bufferSize> sampleData;		// プロットするサンプルデータを格納する配列コンテナ
-    
-    const Colour PANEL_COLOUR;
-    const Colour HEADER_COLOUR;
-    const Colour FONT_COLOUR;
+	std::array<SampleType, Queue::bufferSize> sampleData;		// プロットするサンプルデータを格納する配列コンテナ  
+
 };
