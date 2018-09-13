@@ -1,4 +1,4 @@
-/*
+﻿/*
   ==============================================================================
 
     ParametersComponent.cpp
@@ -11,11 +11,11 @@
 
 #include "ParametersComponent.h"
 
-const Colour PANEL_COLOUR() { return Colours::cornsilk; }
-const Colour HEADER_COLOUR() { return Colours::darkorange; }
-const Colour FONT_COLOUR () {return Colours::black; }
-
 namespace {
+	const Colour PANEL_COLOUR() { return Colours::cornsilk; }
+	const Colour HEADER_COLOUR() { return Colours::darkorange; }
+	const Colour FONT_COLOUR() { return Colours::black; }
+
 	const float PANEL_NAME_FONT_SIZE = 24.0f;
 	const float PARAM_LABEL_FONT_SIZE = 16.0f;
 	const int PANEL_NAME_HEIGHT = 42;
