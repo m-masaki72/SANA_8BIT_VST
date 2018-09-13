@@ -15,7 +15,14 @@ Oscillator can switch several waveforms and has ADSR function. And you can write
 This is a windows 32bit/64bit Application. It builded as DLL format. And you can install your DAW easily.
 
 ## Demo
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/sYuJSuVvris/0.jpg)](http://www.youtube.com/watch?v=sYuJSuVvris)
+
+## How to Use
 Getting Ready
+
+## Install
+Import SANA_8BIT_VST.dll files to your DAW's Plugin folder.
+If you want to uninstall, delete its dll files.
 
 ## Environment
 Windows 32bit/64bit
@@ -30,12 +37,6 @@ I tested following DAW.
 * Ableton Live 9
 * Waveform 8
 
-## Install
-Import SANA_8BIT_VST.dll files to your DAW's Plugin folder.
-If you want to uninstall, delete its dll files.
-
-## How to Use
-Getting Ready
 
 ## Build Instructions on Windows
 1. Download Juce (http://www.juce.com/)
@@ -59,7 +60,7 @@ Getting Ready
 [https://github.com/COx2/JUCE_JAPAN_DEMO]https://github.com/COx2/JUCE_JAPAN_DEMO
 
 ## Technologies Used
-C++ for the language
-JUCE for the framework/library
-Steinberg VST SDK
-Visual Studio for the IDE
+* C++ for the language
+* JUCE for the framework/library
+* Steinberg VST SDK
+* Visual Studio for the IDE
