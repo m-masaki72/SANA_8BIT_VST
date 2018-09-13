@@ -22,10 +22,9 @@
 #include <JuceHeader.h>
 
 namespace {
-	const Colour PANEL_COLOUR = Colours::cornsilk;
-	const Colour HEADER_COLOUR = Colours::darkorange;
-
-	const Colour FONT_COLOUR = Colours::black;
+	const Colour PANEL_COLOUR() { return Colours::cornsilk; }
+	const Colour HEADER_COLOUR() { return Colours::darkorange; }
+	const Colour FONT_COLOUR() { return Colours::black; }
 
 	const float PANEL_NAME_FONT_SIZE = 24.0f;
 	const float PARAM_LABEL_FONT_SIZE = 16.0f;
@@ -227,19 +226,21 @@ public:
 	// ④SCOPEパネルの状態を描画する関数。パネルの領域を塗りつぶす処理と波形をプロットする処理を実行する。
 	void paint(Graphics& g) override
 	{
+
+        
 		int panelNameHeight = 42;
 		int localMargin = 2;
 		Font panelNameFont = Font(24.0f, Font::plain).withTypefaceStyle("Italic");
 
 		{
 			int x = 0.0f, y = 0.0f, width = getWidth(), height = getHeight();
-			g.setColour(PANEL_COLOUR);
+			g.setColour(PANEL_COLOUR());
 			g.fillRoundedRectangle(x, y, width, height, 10.0f);
 		}
 
 		{
 			float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
-			g.setColour(HEADER_COLOUR);
+			g.setColour(HEADER_COLOUR());
 			g.fillRoundedRectangle(x, y, width, height, 10.0f);
 		}
 
@@ -311,5 +312,6 @@ private:
 
 	// ⑦クラス変数を宣言する。
 	Queue& audioBufferQueue;										// AudioBufferQueueクラスの参照を保持する変数
-	std::array<SampleType, Queue::bufferSize> sampleData;		// プロットするサンプルデータを格納する配列コンテナ
+	std::array<SampleType, Queue::bufferSize> sampleData;		// プロットするサンプルデータを格納する配列コンテナ  
+
 };

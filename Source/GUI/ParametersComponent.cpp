@@ -12,10 +12,9 @@
 #include "ParametersComponent.h"
 
 namespace {
-	const Colour PANEL_COLOUR = Colours::cornsilk;
-	const Colour HEADER_COLOUR = Colours::darkorange;
-
-	const Colour FONT_COLOUR = Colours::black;
+	const Colour PANEL_COLOUR() { return Colours::cornsilk; }
+	const Colour HEADER_COLOUR() { return Colours::darkorange; }
+	const Colour FONT_COLOUR() { return Colours::black; }
 
 	const float PANEL_NAME_FONT_SIZE = 24.0f;
 	const float PARAM_LABEL_FONT_SIZE = 16.0f;
@@ -121,13 +120,13 @@ void ChipOscillatorComponent::paint(Graphics & g)
 
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
-		g.setColour(PANEL_COLOUR);
+		g.setColour(PANEL_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
 
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
-		g.setColour(HEADER_COLOUR);
+		g.setColour(HEADER_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
 
@@ -277,13 +276,13 @@ void SweepParametersComponent::paint(Graphics & g)
 
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
-		g.setColour(PANEL_COLOUR);
+		g.setColour(PANEL_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
 
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
-		g.setColour(HEADER_COLOUR);
+		g.setColour(HEADER_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
 
@@ -400,13 +399,13 @@ void VibratoParametersComponent::paint(Graphics & g)
 
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
-		g.setColour(PANEL_COLOUR);
+		g.setColour(PANEL_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
 
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
-		g.setColour(HEADER_COLOUR);
+		g.setColour(HEADER_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
 
@@ -563,13 +562,13 @@ void OptionsParametersComponent::paint(Graphics & g)
 
 	{
 		int x = 0.0f, y = 0.0f, width = getWidth(), height = getHeight();
-		g.setColour(PANEL_COLOUR);
+		g.setColour(PANEL_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
 
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
-		g.setColour(HEADER_COLOUR);
+		g.setColour(HEADER_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
 
@@ -676,12 +675,12 @@ void WaveformMemoryParametersComponent::paint(Graphics & g)
 
 	{
 		int x = 0.0f, y = 0.0f, width = getWidth(), height = getHeight();
-		g.setColour(PANEL_COLOUR);
+		g.setColour(PANEL_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
-		g.setColour(HEADER_COLOUR);
+		g.setColour(HEADER_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 
 		Rectangle<int> bounds = getLocalBounds();
