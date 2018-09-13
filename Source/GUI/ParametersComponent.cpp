@@ -359,7 +359,8 @@ VibratoParametersComponent::VibratoParametersComponent(VibratoParameters * vibra
 	enableButton.addListener(this);
 	addAndMakeVisible(enableButton);
 
-	amountSlider.setRange(_vibratoParamsPtr->VibratoAmount->range.start, _vibratoParamsPtr->VibratoAmount->range.end, 0.1);
+	amountSlider.setRange(_vibratoParamsPtr->VibratoAmount->range.start, _vibratoParamsPtr->VibratoAmount->range.end, 0.05);
+	amountSlider.setSkewFactorFromMidPoint(2.0f);
 	amountSlider.setValue(_vibratoParamsPtr->VibratoAmount->get(), dontSendNotification);	
 	amountSlider.setTextValueSuffix(" HarfTone");
 	amountSlider.addListener(this);

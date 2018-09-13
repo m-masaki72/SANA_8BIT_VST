@@ -47,35 +47,30 @@ bool SimpleVoice::canPlaySound(SynthesiserSound* sound)
 //   引数で渡されたノート番号、ベロシティなどの値に対応して波形を生成する前準備を行う。
 void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound* sound, int currentPitchWheelPosition)
 {
-	DBG("startNote");
+	// 引数として受け取ったノート番号の値とベロシティの値をログとして出力する。
+	DBG("[StartNote] NoteNumber: " + juce::String(midiNoteNumber) + ", Velocity: " + juce::String(velocity));
 
-	// velocity = 0...1 
+	// ノートON対象のサウンドクラスが当ボイスクラスに対応したものであるかどうかを判定する。
 	if (SimpleSound* soundForPlay = dynamic_cast<SimpleSound*> (sound))
 	{
-		// 同じボイスでノートONが繰り返された場合はボイススチール処理としてのstopNote(false)が実行されないため、
-		// startNote()が実行される。この時、AMP EGはリリース状態ではないため、波形の角度は前回フレームのラジアンを維持しておかないと、
-		// 同じボイスから生成する波形の前後フレーム間の変化量が急峻になり、ノイズの発生原因となる。
-		if (ampEnv.isHolding())
+		//パラメータ初期化
 		{
-			//ボイスの発音が初めての場合はラジアンを0としてリセットする 
-			currentAngle = 0.0f;
-			vibratoAngle = 0.0f;
+			pitchSweep = 0.0f;
 		}
-
-		pitchSweep = 0.0f;
-
+		// ベロシティ有効/無効のフラグに応じて音量レベルを決定する。有効...ベロシティの値から算出する。 無効...固定値を使用する。
 		if (_optionsParamsPtr->IsVelocitySense->get())
 		{
 			if (velocity <= 0.01f) {
 				velocity = 0.01f;
 			}
-			level = velocity * 0.4f; // * 0.4をしておかないと、加算合成されるので破綻する;
+			level = velocity * 0.4f;
 		}
-		else 
+		else
 		{
 			level = 0.8f;
 		}
-		levelDiff = lastLevel - level;
+		// ノイズ対策...今回と前回の音量レベルの差分を算出して保持する。
+		levelDiff = level - lastLevel;
 
 		pitchBend = ((float)currentPitchWheelPosition - 8192.0f) / 8192.0f;
 
@@ -107,10 +102,6 @@ void SimpleVoice::stopNote(float velocity, bool allowTailOff)
 		if (ampEnv.isHolding()) {
 			// ボイススチールを受けて直ぐに音量を0にしてしまうと、急峻な変化となりノイズの発生を引き起こすため、それを予防する処理。
 			ampEnv.releaseStart();
-		}
-		else if(ampEnv.isReleasing()) {
-			// リリース状態に入っていたときはangleDeltaの値をリセット
-			angleDelta = 0.0f;		
 		}
 		// ボイススチール処理の過程で現在のノート再生状態をクリアする
 		clearCurrentNote();
@@ -182,10 +173,9 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 					currentSample += waveForms.waveformMemory(currentAngle, _waveformMemoryParamsPtr);
 				}
 
-				// OSC MIX: 
-				//levelDiff *= 0.99f;						// 前回のベロシティとの差異によるノイズ発生を防ぐ。
-				//currentSample *= level + levelDiff;
-				currentSample *= level;
+				// OSC MIX:  // 前回のベロシティとの差異によるノイズ発生を防ぐ。
+				levelDiff *= 0.9f;						
+				currentSample *= level - levelDiff;
 
 				// AMP EG: エンベロープの値をサンプルデータに反映する。
 				currentSample *= ampEnv.getValue();
@@ -205,6 +195,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 						angleDelta = 0.0f;			 // 変数を初期値に戻す。
 						currentAngle = 0.0f;		 // 変数を初期値に戻す。
 						pitchSweep = 0.0f;
+						levelDiff = 0.0f;
 						break;
 					}
 				}
@@ -238,8 +229,8 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 					pitchSweep -= 1 / (float)getSampleRate() / (float)_sweepParamsPtr->SweepTime->get();
 				}
 
-				if (abs(levelDiff) < 0.0001f) {
-					levelDiff = 0.0f;
+				if (fabsf(levelDiff) <= 0.005f) {
+					levelDiff = 0.000f;
 				}
 
 				if (currentAngle > TWO_PI) {
