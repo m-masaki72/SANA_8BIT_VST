@@ -375,20 +375,6 @@ VibratoParametersComponent::VibratoParametersComponent(VibratoParameters * vibra
 
 	Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
 
-	/*
-	targetLabel.setFont(paramLabelFont);
-	targetLabel.setText("Target", dontSendNotification);
-	targetLabel.setJustificationType(Justification::centred);
-	targetLabel.setEditable(false, false, false);
-	addAndMakeVisible(targetLabel);
-	*/
-	/*
-	waveTypeLabel.setFont(paramLabelFont);
-	waveTypeLabel.setText("WaveType", dontSendNotification);
-	waveTypeLabel.setJustificationType(Justification::centred);
-	waveTypeLabel.setEditable(false, false, false);
-	addAndMakeVisible(waveTypeLabel);
-	*/
 	amountLabel.setFont(paramLabelFont);
 	amountLabel.setText("Depth", dontSendNotification);
 	amountLabel.setJustificationType(Justification::centred);
