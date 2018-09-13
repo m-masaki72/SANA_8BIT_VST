@@ -44,26 +44,26 @@ ChipOscillatorComponent::ChipOscillatorComponent(ChipOscillatorParameters* oscPa
 	volumeLevelSlider.addListener(this);
 	addAndMakeVisible(volumeLevelSlider);
 
-	attackSlider.setRange(_oscParamsPtr->Attack->range.start, _oscParamsPtr->Attack->range.end, 0.01);
+	attackSlider.setRange(_oscParamsPtr->Attack->range.start, _oscParamsPtr->Attack->range.end, 0.0001);
 	attackSlider.setSkewFactorFromMidPoint(1.0f);
 	attackSlider.setValue(_oscParamsPtr->Attack->get(), dontSendNotification);
 	attackSlider.setTextValueSuffix(" sec");
 	attackSlider.addListener(this);
 	addAndMakeVisible(attackSlider);
 
-	decaySlider.setRange(_oscParamsPtr->Decay->range.start, _oscParamsPtr->Decay->range.end, 0.01);
+	decaySlider.setRange(_oscParamsPtr->Decay->range.start, _oscParamsPtr->Decay->range.end, 0.0001);
 	decaySlider.setSkewFactorFromMidPoint(1.0f);
 	decaySlider.setValue(_oscParamsPtr->Decay->get(), dontSendNotification);
 	decaySlider.setTextValueSuffix(" sec");
 	decaySlider.addListener(this);
 	addAndMakeVisible(decaySlider);
 
-	sustainSlider.setRange(_oscParamsPtr->Sustain->range.start, _oscParamsPtr->Sustain->range.end, 0.01);
+	sustainSlider.setRange(_oscParamsPtr->Sustain->range.start, _oscParamsPtr->Sustain->range.end, 0.0001);
 	sustainSlider.setValue(_oscParamsPtr->Sustain->get(), dontSendNotification);
 	sustainSlider.addListener(this);
 	addAndMakeVisible(sustainSlider);
 
-	releaseSlider.setRange(_oscParamsPtr->Release->range.start, _oscParamsPtr->Release->range.end, 0.01);
+	releaseSlider.setRange(_oscParamsPtr->Release->range.start, _oscParamsPtr->Release->range.end, 0.0001);
 	releaseSlider.setSkewFactorFromMidPoint(1.0f);
 	releaseSlider.setValue(_oscParamsPtr->Release->get(), dontSendNotification);
 	releaseSlider.setTextValueSuffix(" sec");

@@ -16,15 +16,15 @@ namespace
 {
 	const float AMP_MAX = 1.0f;
 	const float AMP_MIN = 0.0f;
-	const float ATTACK_MIN = 0.01f;
-	const float DECAY_MIN = 0.01f;
-	const float RELEASE_MIN = 0.01f;
+	const float ATTACK_MIN = 0.001f;
+	const float DECAY_MIN = 0.001f;
+	const float RELEASE_MIN = 0.001f;
 }
 
 // ②引数付きコンストラクタ。初期化指定子にて引数で渡された各パラメータの初期値をクラス内変数に代入する。
 AmpEnvelope::AmpEnvelope(float attackTime, float decayTime, float sustain, float releaseTime)
 	: _attackTime(attackTime), _decayTime(decayTime), _sustainValue(sustain), _releaseTime(releaseTime)
-	, _sampleRate(0.0f), _value(0.0f), _valueOnReleaseStart(0.0f), _ampState(AMPENV_STATE::WAIT)
+	, _sampleRate(0.0f), _value(0.0f), _valueOnReleaseStart(0.0f), _timer(0.0f),_ampState(AMPENV_STATE::WAIT)
 {
 	// 各パラメータの値を定数で記述した最大値・最小値の範囲に収める。
 	if (_attackTime <= ATTACK_MIN) {
@@ -102,6 +102,7 @@ void AmpEnvelope::attackStart()
 	if (!isReleasing())
 	{
 		_value = AMP_MIN;
+		_timer = 0.0f;
 	}
 	_ampState = AMPENV_STATE::ATTACK;
 }
@@ -114,6 +115,7 @@ void AmpEnvelope::releaseStart()
 	{
 		_ampState = AMPENV_STATE::RELEASE;
 		_valueOnReleaseStart = _value;
+		_timer = 0.0f;
 	}
 }
 
@@ -121,6 +123,7 @@ void AmpEnvelope::releaseStart()
 void AmpEnvelope::releaseEnd()
 {
 	_value = AMP_MIN;
+	_timer = 0.0f;
 	_ampState = AMPENV_STATE::WAIT;
 }
 
@@ -149,38 +152,46 @@ void AmpEnvelope::cycle(float sampleRate)
 	switch (_ampState)
 	{
 	case AMPENV_STATE::ATTACK:								// Attack状態時の更新処理
-		_value += AMP_MAX / (_sampleRate * _attackTime);
-		if (_value >= AMP_MAX)
+		_value = _timer * (2.0 - _timer);
+		_timer += 1.0 / (_sampleRate * _attackTime);
+		if (_timer >= 1.0)
 		{
 			_value = AMP_MAX;
+			_timer = 0.0f;
 			_ampState = AMPENV_STATE::DECAY;
 		}
 		break;
 
 	case AMPENV_STATE::DECAY:								// Decay状態時の更新処理
-		_value -= AMP_MAX / (_sampleRate * _decayTime);
-		if (_value <= _sustainValue)
+		_value = (1.0 - _sustainValue) * (_timer - 1.0) * (_timer - 1.0) + _sustainValue;
+		_timer += 1.0 / (_sampleRate * _decayTime);
+		if (_timer >= 1.0)
 		{
 			_value = _sustainValue;
+			_timer = 0.0f;
 			_ampState = AMPENV_STATE::SUSTAIN;
 		}
 		break;
 
 	case AMPENV_STATE::SUSTAIN:								// Sustain状態時の更新処理
 		_value = _sustainValue;
+		_timer = 0.0f;
 		break;
 
-	case AMPENV_STATE::RELEASE:								// Release状態時の更新処理
-		_value -= _valueOnReleaseStart / (_sampleRate * _releaseTime);
+	case AMPENV_STATE::RELEASE:		// Release状態時の更新処理
+		_value = (_sustainValue) * (_timer - 1.0) * (_timer - 1.0);
+		_timer += 1.0 / (_sampleRate * _releaseTime);
 		if (_value <= AMP_MIN)
 		{
 			_value = AMP_MIN;
+			_timer = 0.0f;
 			_ampState = AMPENV_STATE::WAIT;
 		}
 		break;
 
 	case AMPENV_STATE::WAIT:								// Wait状態時の更新処理
 		_value = AMP_MIN;
+		_timer = 0.0f;
 		break;
 	}
 }

@@ -46,6 +46,6 @@ private:
 	// ⑤クラス内変数を宣言する
 	AMPENV_STATE _ampState;											// エンベロープの状態を保持する変数
 	float _attackTime, _decayTime, _sustainValue, _releaseTime;		// エンベロープのパラメータを保持する変数
-	float _value, _valueOnReleaseStart;								// エンベロープの値を保持する変数
+	float _value, _valueOnReleaseStart, _timer;								// エンベロープの値を保持する変数
 	float _sampleRate;												// シンセサイザーのサンプリングレートを保持する変数
 };
