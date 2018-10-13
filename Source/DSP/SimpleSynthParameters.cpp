@@ -137,45 +137,66 @@ void OptionsParameters::loadParameters(XmlElement & xml)
 	*PitchBendRange = xml.getIntAttribute(PitchBendRange->paramID, 2);
 	*PitchStandard = xml.getIntAttribute(PitchStandard->paramID, 440);
 }
-
 //-----------------------------------------------------------------------------------------
 
-WaveformMemoryParameters::WaveformMemoryParameters(AudioParameterInt* waveSamples0_5, AudioParameterInt* waveSamples6_11, AudioParameterInt* waveSamples12_17, AudioParameterInt* waveSamples18_23,	AudioParameterInt* waveSamples24_29, AudioParameterInt* waveSamples30_31)
-	: WaveSamples0_5(waveSamples0_5)
-	, WaveSamples6_11(waveSamples6_11)
-	, WaveSamples12_17(waveSamples12_17)
-	, WaveSamples18_23(waveSamples18_23)
-	, WaveSamples24_29(waveSamples24_29)
-	, WaveSamples30_31(waveSamples30_31)
+WaveformMemoryParameters::WaveformMemoryParameters()
+	: WaveSamplesArray{
+	new AudioParameterInt("w0", "w0", 0, 31, 0),
+	new AudioParameterInt("w1", "w1", 0, 31, 0),
+	new AudioParameterInt("w2", "w2", 0, 31, 0),
+	new AudioParameterInt("w3", "w3", 0, 31, 0),
+	new AudioParameterInt("w4", "w4", 0, 31, 0),
+	new AudioParameterInt("w5", "w5", 0, 31, 0),
+	new AudioParameterInt("w6", "w6", 0, 31, 0),
+	new AudioParameterInt("w7", "w7", 0, 31, 0),
+	new AudioParameterInt("w8", "w8", 0, 31, 0),
+	new AudioParameterInt("w9", "w9", 0, 31, 0),
+	new AudioParameterInt("w10", "w10", 0, 31, 0),
+	new AudioParameterInt("w11", "w11", 0, 31, 0),
+	new AudioParameterInt("w12", "w12", 0, 31, 0),
+	new AudioParameterInt("w13", "w13", 0, 31, 0),
+	new AudioParameterInt("w14", "w14", 0, 31, 0),
+	new AudioParameterInt("w15", "w15", 0, 31, 0),
+	new AudioParameterInt("w16", "w16", 0, 31, 0),
+	new AudioParameterInt("w17", "w17", 0, 31, 0),
+	new AudioParameterInt("w18", "w18", 0, 31, 0),
+	new AudioParameterInt("w19", "w19", 0, 31, 0),
+	new AudioParameterInt("w20", "w20", 0, 31, 0),
+	new AudioParameterInt("w21", "w21", 0, 31, 0),
+	new AudioParameterInt("w22", "w22", 0, 31, 0),
+	new AudioParameterInt("w23", "w23", 0, 31, 0),
+	new AudioParameterInt("w24", "w24", 0, 31, 0),
+	new AudioParameterInt("w25", "w25", 0, 31, 0),
+	new AudioParameterInt("w26", "w26", 0, 31, 0),
+	new AudioParameterInt("w27", "w27", 0, 31, 0),
+	new AudioParameterInt("w28", "w28", 0, 31, 0),
+	new AudioParameterInt("w29", "w29", 0, 31, 0),
+	new AudioParameterInt("w30", "w30", 0, 31, 0),
+	new AudioParameterInt("w31", "w31", 0, 31, 0)
+	}
 {
 }
 
 void WaveformMemoryParameters::addAllParameters(AudioProcessor& processor)
 {
-	processor.addParameter(WaveSamples0_5);
-	processor.addParameter(WaveSamples6_11);
-	processor.addParameter(WaveSamples12_17);
-	processor.addParameter(WaveSamples18_23);
-	processor.addParameter(WaveSamples24_29);
-	processor.addParameter(WaveSamples30_31);
+	for (int i = 0; i < 32; i++)
+	{
+		processor.addParameter(WaveSamplesArray[i]);
+	}
 }
 
 void WaveformMemoryParameters::saveParameters(XmlElement & xml)
 {
-	xml.setAttribute(WaveSamples0_5->paramID, (int)WaveSamples0_5->get());
-	xml.setAttribute(WaveSamples6_11->paramID, (int)WaveSamples6_11->get());
-	xml.setAttribute(WaveSamples12_17->paramID, (int)WaveSamples12_17->get());
-	xml.setAttribute(WaveSamples18_23->paramID, (int)WaveSamples18_23->get());
-	xml.setAttribute(WaveSamples24_29->paramID, (int)WaveSamples24_29->get());
-	xml.setAttribute(WaveSamples30_31->paramID, (int)WaveSamples30_31->get());
+	for (int i = 0; i < 32; i++)
+	{
+		xml.setAttribute(WaveSamplesArray[i]->paramID, (int)WaveSamplesArray[i]->get());
+	}
 }
 
 void WaveformMemoryParameters::loadParameters(XmlElement & xml)
 {
-	*WaveSamples0_5 = xml.getIntAttribute(WaveSamples0_5->paramID, 0);
-	*WaveSamples6_11 = xml.getIntAttribute(WaveSamples6_11->paramID, 0);
-	*WaveSamples12_17 = xml.getIntAttribute(WaveSamples12_17->paramID, 0);
-	*WaveSamples18_23 = xml.getIntAttribute(WaveSamples18_23->paramID, 0);
-	*WaveSamples24_29 = xml.getIntAttribute(WaveSamples24_29->paramID, 0);
-	*WaveSamples30_31 = xml.getIntAttribute(WaveSamples30_31->paramID, 0);
+	for (int i = 0; i < 32; i++)
+	{
+		*WaveSamplesArray[i] = xml.getIntAttribute(WaveSamplesArray[i]->paramID, 0);
+	}
 }

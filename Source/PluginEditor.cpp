@@ -104,24 +104,4 @@ void SimpleSynthAudioProcessorEditor::resized()
 		}
 		optionsParamsComponent.setBounds(rightArea.reduced(PANEL_MARGIN));
 	}
-
-	/*
-	{
-		Rectangle<int> upperArea = bounds.removeFromTop(bounds.getHeight() * 0.5);
-		chipOscComponent.setBounds(upperArea.removeFromLeft(bounds.getWidth() * 0.5).reduced(PANEL_MARGIN));
-		waveMemoryParamsComponent.setBounds(upperArea.reduced(PANEL_MARGIN));
-
-	}
-
-	{
-		Rectangle<int> lowerArea = bounds;
-		scopeComponent.setBounds(lowerArea.removeFromLeft(bounds.getWidth() * 0.35).reduced(PANEL_MARGIN));
-
-		Rectangle<int> restArea = lowerArea.removeFromLeft(bounds.getWidth() * 0.35);
-		sweepParamsComponent.setBounds(restArea.removeFromTop(restArea.getHeight() * 0.5).reduced(PANEL_MARGIN));
-		vibratoParamsComponent.setBounds(restArea.reduced(PANEL_MARGIN));
-
-		optionsParamsComponent.setBounds(lowerArea.reduced(PANEL_MARGIN));
-	}
-	*/
 }

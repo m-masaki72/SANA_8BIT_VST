@@ -36,6 +36,7 @@ public:
     float triangle(float angle);
     float longNoise(float angleDelta);
 	float shortNoise(float angleDelta);
+	float lobitNoise(float angleDelta);
 	float waveformMemory(float angleDelta, WaveformMemoryParameters* _waveformMemoryParamsPtr);
 
 private:

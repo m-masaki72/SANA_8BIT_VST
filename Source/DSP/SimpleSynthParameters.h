@@ -124,21 +124,9 @@ private:
 class WaveformMemoryParameters : public SynthParametersBase
 {
 public:
-	AudioParameterInt* WaveSamples0_5;
-	AudioParameterInt* WaveSamples6_11;
-	AudioParameterInt* WaveSamples12_17;
-	AudioParameterInt* WaveSamples18_23;
-	AudioParameterInt* WaveSamples24_29;
-	AudioParameterInt* WaveSamples30_31;
+	AudioParameterInt* WaveSamplesArray[32];
 
-	WaveformMemoryParameters(
-		AudioParameterInt* waveSamples0_5,
-		AudioParameterInt* waveSamples6_11,
-		AudioParameterInt* waveSamples12_17,
-		AudioParameterInt* waveSamples18_23,
-		AudioParameterInt* waveSamples24_29,
-		AudioParameterInt* waveSamples30_31
-	);
+	WaveformMemoryParameters();
 
 	virtual void addAllParameters(AudioProcessor& processor) override;
 	virtual void saveParameters(XmlElement& xml) override;

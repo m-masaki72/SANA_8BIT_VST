@@ -169,6 +169,9 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 				else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() == "Pure_Square12.5%") {
 					currentSample += waveForms.square125(currentAngle);
 				}
+				else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() == "Pure_Lo-bitNoise") {
+					currentSample += waveForms.lobitNoise(angleDelta);
+				}
 				else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() == "Waveform Memory") {
 					currentSample += waveForms.waveformMemory(currentAngle, _waveformMemoryParamsPtr);
 				}

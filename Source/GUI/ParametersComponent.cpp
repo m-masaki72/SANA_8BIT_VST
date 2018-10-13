@@ -755,101 +755,18 @@ void WaveformMemoryParametersComponent::resized()
 
 void WaveformMemoryParametersComponent::timerCallback()
 {
-	int val;
-	val = _waveformMemoryParamsPtr->WaveSamples0_5->get();
-	val >>= 8;
-	for (int i = 0; i <= 5; i++) 
+	for (int i = 0; i < 32; i++)
 	{
-		waveSampleSlider[i].setValue(val & 0xF, dontSendNotification);
-		val >>= 4;
-	}
-
-	val = _waveformMemoryParamsPtr->WaveSamples6_11->get();
-	val >>= 8;
-	for (int i = 6; i <= 11; i++)
-	{
-		waveSampleSlider[i].setValue(val & 0xF, dontSendNotification);
-		val >>= 4;
-	}
-
-	val = _waveformMemoryParamsPtr->WaveSamples12_17->get();
-	val >>= 8;
-	for (int i = 12; i <= 17; i++)
-	{
-		waveSampleSlider[i].setValue(val & 0xF, dontSendNotification);
-		val >>= 4;
-	}
-
-	val = _waveformMemoryParamsPtr->WaveSamples18_23->get();
-	val >>= 8;
-	for (int i = 18; i <= 23; i++)
-	{
-		waveSampleSlider[i].setValue(val & 0xF, dontSendNotification);
-		val >>= 4;
-	}
-
-	val = _waveformMemoryParamsPtr->WaveSamples24_29->get();
-	val >>= 8;
-	for (int i = 24; i <= 29; i++)
-	{
-		waveSampleSlider[i].setValue(val & 0xF, dontSendNotification);
-		val >>= 4;
-	}
-
-	val = _waveformMemoryParamsPtr->WaveSamples30_31->get();
-	val >>= 24;
-	for (int i = 30; i <= 31; i++)
-	{
-		waveSampleSlider[i].setValue(val & 0xF, dontSendNotification);
-		val >>= 4;
+		waveSampleSlider[i].setValue(_waveformMemoryParamsPtr->WaveSamplesArray[i]->get()  , dontSendNotification);
 	}
 }
 
 void WaveformMemoryParametersComponent::updateValue()
 {
-	int val;
-
-	val = 0x00000000;
-	for (int i = 0; i <= 5; i++)
+	for (int i = 0; i < 32; i++)
 	{
-		val = val | ((int)waveSampleSlider[i].getValue() << ((i + 2) * 4));
+		*_waveformMemoryParamsPtr->WaveSamplesArray[i] = (int)waveSampleSlider[i].getValue();
 	}
-	*_waveformMemoryParamsPtr->WaveSamples0_5 = val;
-
-	val = 0x00000000;
-	for (int i = 6; i <= 11; i++)
-	{
-		val = val | ((int)waveSampleSlider[i].getValue() << ((i + 2 - 6) * 4));
-	}
-	*_waveformMemoryParamsPtr->WaveSamples6_11 = val;
-
-	val = 0x00000000;
-	for (int i = 12; i <= 17; i++)
-	{
-		val = val | ((int)waveSampleSlider[i].getValue() << ((i + 2 - 12) * 4));
-	}
-	*_waveformMemoryParamsPtr->WaveSamples12_17 = val;
-
-	val = 0x00000000;
-	for (int i = 18; i <= 23; i++)
-	{
-		val = val | ((int)waveSampleSlider[i].getValue() << ((i + 2 - 18) * 4));
-	}
-	*_waveformMemoryParamsPtr->WaveSamples18_23 = val;
-
-	val = 0x00000000;
-	for (int i = 24; i <= 29; i++)
-	{
-		val = val | ((int)waveSampleSlider[i].getValue() << ((i + 2 - 24) * 4));
-	}
-	*_waveformMemoryParamsPtr->WaveSamples24_29 = val;
-
-	val = 0x00000000;
-	for (int i = 30; i <= 31; i++)
-	{
-		val = val | ((int)waveSampleSlider[i].getValue() << ((i + 6 - 30) * 4));
-	}
-	*_waveformMemoryParamsPtr->WaveSamples30_31 = val;
 }
 
 void WaveformMemoryParametersComponent::mouseDown(const MouseEvent& e)

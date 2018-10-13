@@ -9,23 +9,21 @@
   ==============================================================================
 */
 
-// ヘッダファイルをインクルードする。
 #include "Waveforms.h"
 
-// ①無名名前空間に定数宣言を記述する。
 namespace {
 	const float HALF_PI = MathConstants<float>::halfPi;
 	const float ONE_PI = MathConstants<float>::pi;
 	const float TWO_PI = MathConstants<float>::twoPi;
 }
 
+// 4bitクオンタイズ関数 qNum * 2倍の数でクオンタイズする
 float quantize(float sample)
 {
 	int qNum = 8;
 	return round(sample * qNum) / qNum;
 }
 
-// ②正弦波のサンプルデータを生成して返す関数
 float Waveforms::sine(float angle)
 {
 	// 角度（ラジアン）の値が2πを超えている場合は、変数angleの値が0～2πの範囲内に収まるよう剰余を求める。
@@ -38,7 +36,6 @@ float Waveforms::sine(float angle)
     return sinf(angle);
 }
 
-// ③鋸波のサンプルデータを生成して返す関数
 float Waveforms::saw(float angle)
 {
     if(angle > TWO_PI)
@@ -56,10 +53,8 @@ float Waveforms::saw(float angle)
     }
 }
 
-// ④方形波のサンプルデータを生成して返す関数
 float Waveforms::square(float angle)
 {
-
 	if (angle > TWO_PI)
 	{
 		angle = fmodf(angle, TWO_PI);
@@ -77,7 +72,6 @@ float Waveforms::square(float angle)
 
 float Waveforms::square25(float angle)
 {
-
 	if (angle > TWO_PI)
 	{
 		angle = fmodf(angle, TWO_PI);
@@ -95,7 +89,6 @@ float Waveforms::square25(float angle)
 
 float Waveforms::square125(float angle)
 {
-
 	if (angle > TWO_PI)
 	{
 		angle = fmodf(angle, TWO_PI);
@@ -111,7 +104,6 @@ float Waveforms::square125(float angle)
 	}
 }
 
-// ⑤三角波のサンプルデータを生成して返す関数
 float Waveforms::triangle(float angle)
 {
     if(angle > TWO_PI)
@@ -133,7 +125,7 @@ float Waveforms::triangle(float angle)
     }
 }
 
-// ⑥ホワイトノイズのサンプルデータを生成して返す関数
+//NESの長周期ノイズの再現
 float Waveforms::longNoise(float angleDelta)
 {
 	noiseVal *= 0.99;
@@ -147,6 +139,8 @@ float Waveforms::longNoise(float angleDelta)
 	}
 	return noiseVal;
 }
+
+//NESの短周期ノイズの再現
 float Waveforms::shortNoise(float angleDelta)
 {
 	noiseVal *= 0.99;
@@ -161,9 +155,18 @@ float Waveforms::shortNoise(float angleDelta)
 	return noiseVal;
 }
 
-float Waveforms::nesSquare(float angle)
+//乱数を時間軸と振幅軸側でクオンタイズしたもの
+float Waveforms::lobitNoise(float angleDelta)
 {
-	
+	if (counter++ > TWO_PI / angleDelta / (2 << 4)) {
+		counter = 0;
+		noiseVal = Random::getSystemRandom().nextFloat() * 2.0 - 1.0;
+	}
+	return quantize(noiseVal);
+}
+
+float Waveforms::nesSquare(float angle)
+{	
 	if (angle > TWO_PI)
 	{
 		angle = fmodf(angle, TWO_PI);
@@ -241,96 +244,7 @@ float Waveforms::waveformMemory(float angle, WaveformMemoryParameters* _waveform
 		angle = fmodf(angle, TWO_PI);
 	}
 
-	float DELTA_PI = TWO_PI / 32.0f;
-
-	if (angle <= DELTA_PI * 6)
-	{
-		int val, ans;
-		int i = 0;
-		val = _waveformMemoryParamsPtr->WaveSamples0_5->get();
-		val >>= 8;
-		do
-		{
-			ans = val & 0xF;
-			val >>= 4;
-			i++;
-		} while (angle > DELTA_PI * i);
-
-		return ans / 8.0f - 1.0f;
-	}
-	else if (DELTA_PI * 6  < angle && angle <= DELTA_PI * 12)
-	{
-		int val, ans;
-		int i = 6;
-		val = _waveformMemoryParamsPtr->WaveSamples6_11->get();
-		val >>= 8;
-		do
-		{
-			ans = val & 0xF;
-			val >>= 4;
-			i++;
-		} while (angle > DELTA_PI * i);
-
-		return ans / 8.0f - 1.0f;
-	}
-	else if (DELTA_PI * 12  < angle && angle <= DELTA_PI * 18)
-	{
-		int val, ans;
-		int i = 12;
-		val = _waveformMemoryParamsPtr->WaveSamples12_17->get();
-		val >>= 8;
-		do
-		{
-			ans = val & 0xF;
-			val >>= 4;
-			i++;
-		} while (angle > DELTA_PI * i);
-
-		return ans / 8.0f - 1.0f;
-	}
-	else if (DELTA_PI * 18  < angle && angle <= DELTA_PI * 24)
-	{
-		int val, ans;
-		int i = 18;
-		val = _waveformMemoryParamsPtr->WaveSamples18_23->get();
-		val >>= 8;
-		do
-		{
-			ans = val & 0xF;
-			val >>= 4;
-			i++;
-		} while (angle > DELTA_PI * i);
-
-		return ans / 8.0f - 1.0f;
-	}
-	else if (DELTA_PI * 24  < angle && angle <= DELTA_PI * 30)
-	{
-		int val, ans;
-		int i = 24;
-		val = _waveformMemoryParamsPtr->WaveSamples24_29->get();
-		val >>= 8;
-		do
-		{
-			ans = val & 0xF;
-			val >>= 4;
-			i++;
-		} while (angle > DELTA_PI * i);
-
-		return ans / 8.0f - 1.0f;
-	}
-	else
-	{
-		int val, ans;
-		int i = 30;
-		val = _waveformMemoryParamsPtr->WaveSamples30_31->get();
-		val >>= 24;
-		do
-		{
-			ans = val & 0xF;
-			val >>= 4;
-			i++;
-		} while (angle > DELTA_PI * i && DELTA_PI * i < TWO_PI);
-
-		return ans / 8.0f - 1.0f;
-	}
+	//valの範囲を変換 0~15 -> -1.0~1.0
+	int val = _waveformMemoryParamsPtr->WaveSamplesArray[(int)(angle * 32 / TWO_PI)]->get();
+	return val / 8.0 - 1;
 }

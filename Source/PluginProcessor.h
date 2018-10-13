@@ -80,6 +80,7 @@ public:
 		"Pure_Triangle",
 		"Pure_Sine",
 		"Pure_Saw",
+		"Pure_Lo-bitNoise",
 		"Waveform Memory",
 	};
 	const StringArray SWEEP_SWITCH{

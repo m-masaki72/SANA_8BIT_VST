@@ -53,14 +53,7 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 		new AudioParameterInt("PITCH_BEND_RANGE", "Pitch-Bend-Range", 1, 13, 2),
 		new AudioParameterInt("PITCH_STANDARD", "Pitch-Standard", 400, 500, 440)
 	}
-	, waveformMemoryParameters{
-		new AudioParameterInt("W1", "w1", INT32_MIN, INT32_MAX, 1),
-		new AudioParameterInt("W2", "w2", INT32_MIN, INT32_MAX, 1),
-		new AudioParameterInt("W3", "w3", INT32_MIN, INT32_MAX, 1),
-		new AudioParameterInt("W4", "w4", INT32_MIN, INT32_MAX, 1),
-		new AudioParameterInt("W5", "w5", INT32_MIN, INT32_MAX, 1),
-		new AudioParameterInt("W6", "w6", INT32_MIN, INT32_MAX, 1),
-	}
+	, waveformMemoryParameters()
 	, scopeDataCollector(scopeDataQueue)
 {
 	chipOscParameters.addAllParameters(*this);
