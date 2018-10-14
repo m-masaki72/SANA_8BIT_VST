@@ -28,7 +28,7 @@ namespace {
 
 	const float PANEL_NAME_FONT_SIZE = 24.0f;
 	const float PARAM_LABEL_FONT_SIZE = 16.0f;
-	const int PANEL_NAME_HEIGHT = 42;
+	const int PANEL_NAME_HEIGHT = 32;
 	const int LOCAL_MARGIN = 2;
 }
 
@@ -225,11 +225,7 @@ public:
 
 	// ④SCOPEパネルの状態を描画する関数。パネルの領域を塗りつぶす処理と波形をプロットする処理を実行する。
 	void paint(Graphics& g) override
-	{
-
-        
-		int panelNameHeight = 42;
-		int localMargin = 2;
+	{        
 		Font panelNameFont = Font(24.0f, Font::plain).withTypefaceStyle("Italic");
 
 		{
@@ -250,12 +246,12 @@ public:
 			Colour fillColour = Colours::white;
 			g.setColour(fillColour);
 			g.setFont(panelNameFont);
-			g.drawText(text, bounds.removeFromTop(panelNameHeight).reduced(localMargin), Justification::centred, true);
+			g.drawText(text, bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN), Justification::centred, true);
 		}
 
 		// 波形を描画する矩形領域を特定する
 		Rectangle<int> drawArea = getLocalBounds();
-		drawArea.removeFromTop(panelNameHeight);
+		drawArea.removeFromTop(PANEL_NAME_HEIGHT);
 		drawArea.reduce(drawArea.getWidth()* 0.05f, drawArea.getHeight()* 0.1f);
 
 		// 波形を描画する矩形領域の背景を灰色に塗りつぶす
@@ -271,7 +267,7 @@ public:
 
 		// 波形をプロットする
 		g.setColour(juce::Colours::cyan);
-		plot(sampleData.data(), sampleData.size(), g, scopeRect, SampleType(2.0), scopeRect.getHeight() / 2);
+		plot(sampleData.data(), sampleData.size(), g, scopeRect, SampleType(1.0), scopeRect.getHeight() / 2);
 
 	}
 

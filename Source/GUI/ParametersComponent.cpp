@@ -17,8 +17,8 @@ namespace {
 	const Colour FONT_COLOUR() { return Colours::black; }
 
 	const float PANEL_NAME_FONT_SIZE = 24.0f;
-	const float PARAM_LABEL_FONT_SIZE = 16.0f;
-	const int PANEL_NAME_HEIGHT = 42;
+	const float PARAM_LABEL_FONT_SIZE = 18.0f;
+	const int PANEL_NAME_HEIGHT = 32;
 	const int LOCAL_MARGIN = 2;
 }
 
