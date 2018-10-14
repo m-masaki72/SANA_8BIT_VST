@@ -71,7 +71,7 @@
 // juce_audio_devices flags:
 
 #ifndef    JUCE_ASIO
- #define   JUCE_ASIO 1
+ //#define JUCE_ASIO 0
 #endif
 
 #ifndef    JUCE_WASAPI
