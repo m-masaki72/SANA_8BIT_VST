@@ -100,16 +100,33 @@ private:
 	VibratoParameters() {};
 };
 
+class VoicingParameters : public SynthParametersBase
+{
+public:
+	AudioParameterChoice* VoicingSwitch;
+	AudioParameterFloat* PortaTime;
+
+	VoicingParameters(
+		AudioParameterChoice* sweepSwitch,
+		AudioParameterFloat* portaTime
+	);
+
+	virtual void addAllParameters(AudioProcessor& processor) override;
+	virtual void saveParameters(XmlElement& xml) override;
+	virtual void loadParameters(XmlElement& xml) override;
+
+private:
+	VoicingParameters() {};
+};
+
 class OptionsParameters : public SynthParametersBase
 {
 public:
-	AudioParameterBool* IsPolyMode;
 	AudioParameterBool* IsVelocitySense;
 	AudioParameterInt*	PitchBendRange;
 	AudioParameterInt*	PitchStandard;
 
 	OptionsParameters(
-		AudioParameterBool* isPolyMode,
 		AudioParameterBool* isVelocitySense,
 		AudioParameterInt* pitchBendRange,
 		AudioParameterInt*	pitchStandard

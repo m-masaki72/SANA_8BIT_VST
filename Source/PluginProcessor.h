@@ -92,6 +92,7 @@ public:
 	ChipOscillatorParameters chipOscParameters;
 	SweepParameters sweepParameters;
 	VibratoParameters vibratoParameters;
+	VoicingParameters voicingParameters;
 	OptionsParameters optionsParameters;
 	WaveformMemoryParameters waveformMemoryParameters;
 

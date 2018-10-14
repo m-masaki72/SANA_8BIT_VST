@@ -20,15 +20,17 @@ namespace {
 }
 
 // ②引数付きコンストラクタ
-SimpleVoice::SimpleVoice(ChipOscillatorParameters* chipOscParams, SweepParameters* sweepParams, VibratoParameters* vibratoParams, OptionsParameters* optionsParams, WaveformMemoryParameters* waveformMemoryParams)
+SimpleVoice::SimpleVoice(ChipOscillatorParameters* chipOscParams, SweepParameters* sweepParams, VibratoParameters* vibratoParams, VoicingParameters* voicingParams, OptionsParameters* optionsParams, WaveformMemoryParameters* waveformMemoryParams)
 	: _chipOscParamsPtr(chipOscParams)
 	, _sweepParamsPtr(sweepParams)
 	, _vibratoParamsPtr(vibratoParams)
+	, _voicingParamsPtr(voicingParams)
 	, _optionsParamsPtr(optionsParams)
 	, _waveformMemoryParamsPtr(waveformMemoryParams)
 	, ampEnv(chipOscParams->Attack->get(), chipOscParams->Decay->get(), chipOscParams->Sustain->get(), chipOscParams->Release->get())
 	, vibratoEnv(vibratoParams->VibratoAttackTime->get(), 0.0f, 1.0f, 0.0f)
-	, currentAngle(0.0f), vibratoAngle(0.0f), angleDelta(0.0f)
+	, portaEnv(voicingParams->PortaTime->get(), 0.0f, 1.0f, 0.0f)
+	, currentAngle(0.0f), vibratoAngle(0.0f), angleDelta(0.0f), portaAngleDelta(0.0f)
 	, level(0.0f), lastLevel(0.0f), levelDiff(0.0f)
 	, pitchBend(0.0f), pitchSweep(0.0f)
 {}
@@ -64,7 +66,7 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 			if (velocity <= 0.01f) {
 				velocity = 0.01f;
 			}
-			level = velocity * 0.4f;
+			level = velocity * 0.6f;
 		}
 		else
 		{
@@ -78,10 +80,12 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 		// 生成する波形のピッチを再現するサンプルデータ間の角度差⊿θ[rad]の値を決定する。
 		float cyclesPerSecond = (float)MidiMessage::getMidiNoteInHertz(midiNoteNumber, _optionsParamsPtr->PitchStandard->get());
 		float cyclesPerSample = (float)cyclesPerSecond / (float)getSampleRate();
+
 		angleDelta = cyclesPerSample * TWO_PI;
 
 		ampEnv.attackStart();
 		vibratoEnv.attackStart();
+		portaEnv.attackStart();
 	}
 }
 
@@ -98,14 +102,19 @@ void SimpleVoice::stopNote(float velocity, bool allowTailOff)
 	{
 		ampEnv.releaseStart();
 		vibratoEnv.releaseStart();
+		portaEnv.releaseStart();
 	}
 	else
 	{
 		// キーホールド中(ADSのいずれか)であればangleDeltaをリリース状態に移行
 		if (ampEnv.isHolding()) {
+			//ポルタメント処理，一つ前のピッチを記憶しておく
+			portaAngleDelta = angleDelta;
+
 			// ボイススチールを受けて直ぐに音量を0にしてしまうと、急峻な変化となりノイズの発生を引き起こすため、それを予防する処理。
 			ampEnv.releaseStart();
 			vibratoEnv.releaseStart();
+			portaEnv.releaseStart();
 		}
 		// ボイススチール処理の過程で現在のノート再生状態をクリアする
 		clearCurrentNote();
@@ -200,8 +209,10 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 					{
 						ampEnv.releaseEnd();		 // エンベロープをWait状態に移行する。
 						vibratoEnv.releaseEnd();
+						portaEnv.releaseEnd();
 						clearCurrentNote();			 // このボイスが生成するノート情報をクリアする。
 						angleDelta = 0.0f;			 // 変数を初期値に戻す。
+						portaAngleDelta = 0.0f;			 // 変数を初期値に戻す。
 						currentAngle = 0.0f;		 // 変数を初期値に戻す。
 						pitchSweep = 0.0f;
 						levelDiff = 0.0f;
@@ -211,20 +222,29 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 
 				//============ 次のサンプルデータを生成するための準備 ============
 
-				// LFO:モジュレーション対象がWaveAngleの時のモジュレーション処理
-				// ピッチベンド:MIDIキーボードのピッチベンド入力を反映する処理
+				//ピッチ処理
+				//モジュレーションとピッチベンド，ピッチスイープにより変化
 				if (_vibratoParamsPtr->VibratoEnable->get())
 				{
-					currentAngle += angleDelta 
-						* pow(2.0f , pitchBend / 13.0f * _optionsParamsPtr->PitchBendRange->get())
-						* pow(2.0f, pitchSweep) 
+					currentAngle += angleDelta
+						* pow(2.0f, pitchBend / 13.0f * _optionsParamsPtr->PitchBendRange->get())
+						* pow(2.0f, pitchSweep)
 						* pow(2.0f, 2 * (modulationFactor / 13.0f));
 				}
 				else
 				{
 					currentAngle += angleDelta
-						* pow(_optionsParamsPtr->PitchBendRange->get(), pitchBend)
+						//* pow(_optionsParamsPtr->PitchBendRange->get(), pitchBend)
+						* pow(2.0f, pitchBend / 13.0f * _optionsParamsPtr->PitchBendRange->get())
 						* pow(2.0f, pitchSweep);
+				}
+
+				// ポルタメント処理
+				//カレントアングルにエンベロープ処理を施す
+				if (_voicingParamsPtr->VoicingSwitch->getCurrentChoiceName() == "PORTAMENTO") {
+					if (portaAngleDelta > 0.0f) {
+						currentAngle -= (angleDelta - portaAngleDelta) * (1 - portaEnv.getValue());
+					}
 				}
 
 				vibratoAngle += (_vibratoParamsPtr->VibratoSpeed->get() / (float)getSampleRate()) * TWO_PI;
@@ -250,13 +270,13 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 					vibratoAngle -= TWO_PI;
 				}
 
-				// AMP EG: エンベロープの各パラメータを最新の値に変更する。
+				// エンベロープパラメータを更新して時間分進める
 				ampEnv.setParameters(_chipOscParamsPtr->Attack->get(), _chipOscParamsPtr->Decay->get(), _chipOscParamsPtr->Sustain->get(), _chipOscParamsPtr->Release->get());
-				// AMP EG: エンベロープを1サンプル分進めておく。
 				ampEnv.cycle((float)getSampleRate());
-
 				vibratoEnv.setParameters(_vibratoParamsPtr->VibratoAttackTime->get(), 0.0f, 1.0f, 0.0f);
 				vibratoEnv.cycle((float)getSampleRate());
+				portaEnv.setParameters(_voicingParamsPtr->PortaTime->get(), 0.0f, 1.0f, 0.0f);
+				portaEnv.cycle((float)getSampleRate());
 
 				// 書き込み先のオーディオバッファのサンプルインデックス値をインクリメントする。
 				++startSample;

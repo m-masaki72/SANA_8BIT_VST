@@ -48,8 +48,11 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 		new AudioParameterFloat("VIBRATO_SPEED", "Vibrato-Speed",  0.0f, 20.0f, 0.1000f),
 		new AudioParameterFloat("VIBRATO_ATTACKTIME", "Vibrato-AttackTime",  0.0f, 10.0f, 0.0f)
 	}
+	, voicingParameters{
+		new AudioParameterChoice("VOICING_TYPE", "Voicing-Type", {"POLY", "MONO", "PORTAMENTO"}, 0),
+		new AudioParameterFloat("PORTAMENTO_TIME", "Portamento-Time",  0.0f, 3.0f, 0.0f)
+	}
 	, optionsParameters{
-		new AudioParameterBool("IS_POLY_MODE", "Is-Poly-Mode", true),
 		new AudioParameterBool("IS_VELOCITY_SENSE", "Is-Velocity-Sense", true),
 		new AudioParameterInt("PITCH_BEND_RANGE", "Pitch-Bend-Range", 1, 13, 2),
 		new AudioParameterInt("PITCH_STANDARD", "Pitch-Standard", 400, 500, 440)
@@ -60,6 +63,7 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 	chipOscParameters.addAllParameters(*this);
 	sweepParameters.addAllParameters(*this);
 	vibratoParameters.addAllParameters(*this);
+	voicingParameters.addAllParameters(*this);
 	optionsParameters.addAllParameters(*this);
 	waveformMemoryParameters.addAllParameters(*this);
 }
@@ -149,10 +153,11 @@ void SimpleSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 	canPlayChannels.setRange(1, 16, true);
 	synth.addSound(new SimpleSound(canPlayNotes, canPlayChannels));
 
-	int numVoices = optionsParameters.IsPolyMode->get() ? 16 : 1;
+	int numVoices = (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? 16 : 1;
+
 	for (int i = 0; i < numVoices; ++i)
 	{
-		synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters, &vibratoParameters, &optionsParameters, &waveformMemoryParameters));
+		synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters, &vibratoParameters, &voicingParameters, &optionsParameters, &waveformMemoryParameters));
 	}
 
 	spec.sampleRate = sampleRate;
@@ -203,7 +208,7 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	//   GUIのキーボードコンポーネントで生成されたMIDIデータをのMIDIバッファに追加する処理を行う。
 	keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
 
-	if (optionsParameters.IsPolyMode->get() ? 16 : 1 != synth.getNumVoices())
+	if ((voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? 16 : 1 != synth.getNumVoices())
 	{
 		changeVoiceSize();
 	}
@@ -274,6 +279,7 @@ void SimpleSynthAudioProcessor::getStateInformation (MemoryBlock& destData)
 	chipOscParameters.saveParameters(*xml);
 	sweepParameters.saveParameters(*xml);
 	vibratoParameters.saveParameters(*xml);
+	voicingParameters.saveParameters(*xml);
 	optionsParameters.saveParameters(*xml);
 	waveformMemoryParameters.saveParameters(*xml);
 
@@ -294,6 +300,7 @@ void SimpleSynthAudioProcessor::setStateInformation (const void* data, int sizeI
 			chipOscParameters.loadParameters(*xmlState);
 			sweepParameters.loadParameters(*xmlState);
 			vibratoParameters.loadParameters(*xmlState);
+			voicingParameters.loadParameters(*xmlState);
 			optionsParameters.loadParameters(*xmlState);
 			waveformMemoryParameters.loadParameters(*xmlState);
 		}
@@ -302,7 +309,7 @@ void SimpleSynthAudioProcessor::setStateInformation (const void* data, int sizeI
 
 void SimpleSynthAudioProcessor::changeVoiceSize()
 {
-	int voiceNum = optionsParameters.IsPolyMode->get() ? 16 : 1;
+	int voiceNum = (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? 16 : 1;
 
 	while (synth.getNumVoices() != voiceNum)
 	{
@@ -312,7 +319,7 @@ void SimpleSynthAudioProcessor::changeVoiceSize()
 		}
 		else
 		{
-			synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters, &vibratoParameters, &optionsParameters, &waveformMemoryParameters));
+			synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters, &vibratoParameters, &voicingParameters, &optionsParameters, &waveformMemoryParameters));
 		}
 	}
 }

@@ -27,6 +27,7 @@ SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudi
 	, chipOscComponent(&p.chipOscParameters)
 	, sweepParamsComponent(&p.sweepParameters)
 	, vibratoParamsComponent(&p.vibratoParameters)
+	, voicingParamsComponent(&p.voicingParameters)
 	, optionsParamsComponent(&p.optionsParameters)
 	, waveformMemoryParamsComponent(&p.waveformMemoryParameters)
 	, scopeComponent(p.getAudioBufferQueue())
@@ -38,6 +39,7 @@ SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudi
 	addAndMakeVisible(chipOscComponent);
 	addAndMakeVisible(sweepParamsComponent);
 	addAndMakeVisible(vibratoParamsComponent);
+	addAndMakeVisible(voicingParamsComponent);
 	addAndMakeVisible(optionsParamsComponent);
 	addAndMakeVisible(waveformMemoryParamsComponent);
 	addAndMakeVisible(scopeComponent);
@@ -102,6 +104,11 @@ void SimpleSynthAudioProcessorEditor::resized()
 			sweepParamsComponent.setBounds(area.removeFromLeft(area.getWidth() * .5).reduced(PANEL_MARGIN));
 			vibratoParamsComponent.setBounds(area.reduced(PANEL_MARGIN));
 		}
-		optionsParamsComponent.setBounds(rightArea.reduced(PANEL_MARGIN));
+		{
+			Rectangle<int> area = rightArea.reduced(PANEL_MARGIN);
+			voicingParamsComponent.setBounds(area.removeFromLeft(area.getWidth() * .5).reduced(PANEL_MARGIN));
+			optionsParamsComponent.setBounds(area.reduced(PANEL_MARGIN));
+		}
+
 	}
 }

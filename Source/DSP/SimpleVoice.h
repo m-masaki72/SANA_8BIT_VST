@@ -26,7 +26,8 @@ public:
 	SimpleVoice(
 		ChipOscillatorParameters* chipOscParams, 
 		SweepParameters* sweepParams, 
-		VibratoParameters* vibratoParams, 
+		VibratoParameters* vibratoParams,
+		VoicingParameters* voicingParams,
 		OptionsParameters* optionsParams,
 		WaveformMemoryParameters* waveformMemoryParams
 	);
@@ -47,19 +48,20 @@ private:
 	float calcModulationFactor(float angle);
 
 	// ⑥クラス内変数を宣言する。
-	float currentAngle, vibratoAngle, angleDelta;
+	float currentAngle, vibratoAngle, angleDelta, portaAngleDelta;
 	float level, lastLevel, levelDiff;
-	float pitchBend, pitchSweep;
+	float pitchBend, pitchSweep;	
 
-	// VCOとVCAのオブジェクトを宣言する。
+	
 	Waveforms waveForms;
-	AmpEnvelope ampEnv;
-	AmpEnvelope vibratoEnv;
+	//各種エンベロープ， アンプ， ビブラート， ポルタメント用
+	AmpEnvelope ampEnv, vibratoEnv, portaEnv;
 
 	// パラメータを管理するオブジェクトのポインタ変数。
 	ChipOscillatorParameters* _chipOscParamsPtr;
 	SweepParameters* _sweepParamsPtr;
 	VibratoParameters* _vibratoParamsPtr;
+	VoicingParameters* _voicingParamsPtr;
 	OptionsParameters* _optionsParamsPtr;
 	WaveformMemoryParameters* _waveformMemoryParamsPtr;
 };

@@ -108,11 +108,37 @@ void VibratoParameters::loadParameters(XmlElement & xml)
 	*VibratoAttackTime = (float)xml.getDoubleAttribute(VibratoAttackTime->paramID, 0.0);
 }
 
+
 //-----------------------------------------------------------------------------------------
 
-OptionsParameters::OptionsParameters(AudioParameterBool* isPolyMode, AudioParameterBool* isVelocitySense, AudioParameterInt* pitchBendRange, AudioParameterInt* pitchStandard)
-	: IsPolyMode(isPolyMode)
-	, IsVelocitySense(isVelocitySense)
+VoicingParameters::VoicingParameters(AudioParameterChoice* voicingSwitch,	AudioParameterFloat* portaTime)
+	: VoicingSwitch(voicingSwitch)
+	, PortaTime(portaTime)
+{
+}
+
+void VoicingParameters::addAllParameters(AudioProcessor& processor)
+{
+	processor.addParameter(VoicingSwitch);
+	processor.addParameter(PortaTime);
+}
+
+void VoicingParameters::saveParameters(XmlElement & xml)
+{
+	xml.setAttribute(VoicingSwitch->paramID, VoicingSwitch->getIndex());
+	xml.setAttribute(PortaTime->paramID, PortaTime->get());
+}
+
+void VoicingParameters::loadParameters(XmlElement & xml)
+{
+	*VoicingSwitch = xml.getIntAttribute(VoicingSwitch->paramID, 0);
+	*PortaTime = (float)xml.getDoubleAttribute(PortaTime->paramID, 1.0);
+}
+
+//-----------------------------------------------------------------------------------------
+
+OptionsParameters::OptionsParameters(AudioParameterBool* isVelocitySense, AudioParameterInt* pitchBendRange, AudioParameterInt* pitchStandard)
+	: IsVelocitySense(isVelocitySense)
 	, PitchBendRange(pitchBendRange)
 	, PitchStandard(pitchStandard)
 {
@@ -120,7 +146,6 @@ OptionsParameters::OptionsParameters(AudioParameterBool* isPolyMode, AudioParame
 
 void OptionsParameters::addAllParameters(AudioProcessor& processor)
 {
-	processor.addParameter(IsPolyMode);
 	processor.addParameter(IsVelocitySense);
 	processor.addParameter(PitchBendRange);
 	processor.addParameter(PitchStandard);
@@ -128,7 +153,6 @@ void OptionsParameters::addAllParameters(AudioProcessor& processor)
 
 void OptionsParameters::saveParameters(XmlElement & xml)
 {
-	xml.setAttribute(IsPolyMode->paramID, IsPolyMode->get());
 	xml.setAttribute(IsVelocitySense->paramID, IsVelocitySense->get());
 	xml.setAttribute(PitchBendRange->paramID, (double)PitchBendRange->get());
 	xml.setAttribute(PitchStandard->paramID, (double)PitchStandard->get());
@@ -136,11 +160,11 @@ void OptionsParameters::saveParameters(XmlElement & xml)
 
 void OptionsParameters::loadParameters(XmlElement & xml)
 {
-	*IsPolyMode = xml.getBoolAttribute(IsPolyMode->paramID, true);
 	*IsVelocitySense = xml.getBoolAttribute(IsVelocitySense->paramID, true);
 	*PitchBendRange = xml.getIntAttribute(PitchBendRange->paramID, 2);
 	*PitchStandard = xml.getIntAttribute(PitchStandard->paramID, 440);
 }
+
 //-----------------------------------------------------------------------------------------
 
 WaveformMemoryParameters::WaveformMemoryParameters()

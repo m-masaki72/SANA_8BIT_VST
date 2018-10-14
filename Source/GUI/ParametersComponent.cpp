@@ -503,22 +503,131 @@ void VibratoParametersComponent::buttonClicked(Button* button)
 
 //----------------------------------------------------------------------------------------------------
 
+VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicingParams)
+	: _voicingParamsPtr(voicingParams)
+	, voicingTypeSelector("voicing")
+	, portaTimeSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
+{
+	voicingTypeSelector.addItemList(_voicingParamsPtr->VoicingSwitch->getAllValueStrings(), 1);
+	voicingTypeSelector.setSelectedItemIndex(_voicingParamsPtr->VoicingSwitch->getIndex(), dontSendNotification);
+	voicingTypeSelector.setJustificationType(Justification::centred);
+	voicingTypeSelector.addListener(this);
+	addAndMakeVisible(voicingTypeSelector);
+
+	portaTimeSlider.setRange(_voicingParamsPtr->PortaTime->range.start, _voicingParamsPtr->PortaTime->range.end, 0.01);
+	portaTimeSlider.setValue(_voicingParamsPtr->PortaTime->get(), dontSendNotification);
+	portaTimeSlider.setSkewFactorFromMidPoint(0.5f);
+	portaTimeSlider.setTextValueSuffix(" sec");
+	portaTimeSlider.addListener(this);
+	addAndMakeVisible(portaTimeSlider);
+
+	Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
+
+	voicingTypeSelectorLabel.setFont(paramLabelFont);
+	voicingTypeSelectorLabel.setText("Type", dontSendNotification);
+	voicingTypeSelectorLabel.setJustificationType(Justification::centred);
+	voicingTypeSelectorLabel.setEditable(false, false, false);
+	addAndMakeVisible(voicingTypeSelectorLabel);
+
+	portaTimeLabel.setFont(paramLabelFont);
+	portaTimeLabel.setText("Portamento", dontSendNotification);
+	portaTimeLabel.setJustificationType(Justification::centred);
+	portaTimeLabel.setEditable(false, false, false);
+	addAndMakeVisible(portaTimeLabel);
+
+	startTimerHz(30.0f);
+}
+
+VoicingParametersComponent::~VoicingParametersComponent()
+{
+}
+
+void VoicingParametersComponent::paint(Graphics & g)
+{
+	Font panelNameFont = Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
+
+	{
+		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
+		g.setColour(PANEL_COLOUR());
+		g.fillRoundedRectangle(x, y, width, height, 10.0f);
+	}
+
+	{
+		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
+		g.setColour(HEADER_COLOUR());
+		g.fillRoundedRectangle(x, y, width, height, 10.0f);
+	}
+
+	{
+		Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
+		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
+
+		String text("VOICING");
+		Colour textColour = Colours::white;
+		g.setColour(textColour);
+		g.setFont(panelNameFont);
+		g.drawText(text, textArea, Justification::centred, false);
+	}
+
+}
+
+void VoicingParametersComponent::resized()
+{
+	float rowSize = 2.0f;
+	float divide = 1.0f / rowSize;
+	int labelWidth = 80;
+
+	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
+
+	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
+	bounds.removeFromTop(PANEL_NAME_HEIGHT);
+
+	{
+		Rectangle<int> area = bounds.removeFromTop(compHeight);
+		voicingTypeSelectorLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		voicingTypeSelector.setBounds(area.reduced(LOCAL_MARGIN * 2));
+	}
+	{
+		Rectangle<int> area = bounds.removeFromTop(compHeight);
+		portaTimeLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		portaTimeSlider.setBounds(area.reduced(LOCAL_MARGIN));
+	}
+}
+
+void VoicingParametersComponent::timerCallback()
+{
+	voicingTypeSelector.setSelectedItemIndex(_voicingParamsPtr->VoicingSwitch->getIndex(), dontSendNotification);
+	portaTimeSlider.setValue(_voicingParamsPtr->PortaTime->get(), dontSendNotification);
+}
+
+void VoicingParametersComponent::sliderValueChanged(Slider* slider)
+{
+	if (slider == &portaTimeSlider)
+	{
+		*_voicingParamsPtr->PortaTime = (float)portaTimeSlider.getValue();
+	}
+}
+
+void VoicingParametersComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
+{
+	if (comboBoxThatHasChanged == &voicingTypeSelector)
+	{
+		*_voicingParamsPtr->VoicingSwitch = voicingTypeSelector.getSelectedItemIndex();
+	}
+}
+
+//----------------------------------------------------------------------------------------------------
+
 OptionsParametersComponent::OptionsParametersComponent(OptionsParameters* optionsParams)
 	: _optionsParamsPtr(optionsParams)
-	, polyModeButton()
 	, velocitySenseButton()
 	, pitchStandardSlider(Slider::SliderStyle::IncDecButtons, Slider::TextEntryBoxPosition::TextBoxLeft)
 	, pitchBendRangeSlider(Slider::SliderStyle::IncDecButtons, Slider::TextEntryBoxPosition::TextBoxLeft)
 {
-	polyModeButton.setButtonText("Poly Mode");
-	polyModeButton.setToggleState(_optionsParamsPtr->IsPolyMode->get(), dontSendNotification);
-	polyModeButton.addListener(this);
-	addAndMakeVisible(polyModeButton);
-
-	velocitySenseButton.setButtonText("Key Velocity Sense");
-	velocitySenseButton.setToggleState(_optionsParamsPtr->IsVelocitySense->get(), dontSendNotification);
-	velocitySenseButton.addListener(this);
-	addAndMakeVisible(velocitySenseButton);
+	//velocitySenseButton.setButtonText("Key Velocity Sense");
+	//velocitySenseButton.setToggleState(_optionsParamsPtr->IsVelocitySense->get(), dontSendNotification);
+	//velocitySenseButton.addListener(this);
+	//addAndMakeVisible(velocitySenseButton);
 
 	pitchStandardSlider.setRange(_optionsParamsPtr->PitchStandard->getRange().getStart(), _optionsParamsPtr->PitchStandard->getRange().getEnd(), 1);
 	pitchStandardSlider.setValue(_optionsParamsPtr->PitchStandard->get(), dontSendNotification);
@@ -590,24 +699,13 @@ void OptionsParametersComponent::resized()
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
 
-
-	Rectangle<int> leftArea = bounds.removeFromLeft(bounds.getWidth() * 0.4);
-	Rectangle<int> rightArea = bounds;
 	{
-		Rectangle<int> area = leftArea.removeFromTop(compHeight);
-		polyModeButton.setBounds(area.reduced(LOCAL_MARGIN));
-	}
-	{
-		Rectangle<int> area = leftArea.removeFromTop(compHeight);
-		velocitySenseButton.setBounds(area.reduced(LOCAL_MARGIN));
-	}
-	{
-		Rectangle<int> area = rightArea.removeFromTop(compHeight);
+		Rectangle<int> area = bounds.removeFromTop(compHeight);
 		pitchStandardLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
 		pitchStandardSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
-		Rectangle<int> area = rightArea.removeFromTop(compHeight);
+		Rectangle<int> area = bounds.removeFromTop(compHeight);
 		pitchBendRangeLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
 		pitchBendRangeSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
@@ -615,7 +713,6 @@ void OptionsParametersComponent::resized()
 
 void OptionsParametersComponent::timerCallback()
 {
-	polyModeButton.setToggleState(_optionsParamsPtr->IsPolyMode->get(), dontSendNotification);
 	velocitySenseButton.setToggleState(_optionsParamsPtr->IsVelocitySense->get(), dontSendNotification);
 	pitchStandardSlider.setValue(_optionsParamsPtr->PitchStandard->get(), dontSendNotification);
 	pitchBendRangeSlider.setValue(_optionsParamsPtr->PitchBendRange->get(), dontSendNotification);
@@ -623,11 +720,7 @@ void OptionsParametersComponent::timerCallback()
 
 void OptionsParametersComponent::buttonClicked(Button* button)
 {
-	if (button == &polyModeButton)
-	{
-		*_optionsParamsPtr->IsPolyMode = polyModeButton.getToggleState();
-	}
-	else if (button == &velocitySenseButton)
+	if (button == &velocitySenseButton)
 	{
 		*_optionsParamsPtr->IsVelocitySense = velocitySenseButton.getToggleState();
 	}

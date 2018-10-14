@@ -109,6 +109,31 @@ private:
 	Label attackTimeLabel;
 };
 
+class VoicingParametersComponent : public Component, ComboBox::Listener, Slider::Listener, private Timer
+{
+public:
+	VoicingParametersComponent(VoicingParameters* voicingParams);
+	virtual ~VoicingParametersComponent();
+
+	virtual void paint(Graphics& g) override;
+	virtual void resized() override;
+
+private:
+	VoicingParametersComponent();
+
+	virtual void timerCallback() override;
+	virtual void sliderValueChanged(Slider* slider) override;
+	virtual void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
+
+	VoicingParameters* _voicingParamsPtr;
+
+	ComboBox voicingTypeSelector;
+	Slider portaTimeSlider;
+
+	Label voicingTypeSelectorLabel;
+	Label portaTimeLabel;
+};
+
 class OptionsParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
 {
 public:
@@ -127,7 +152,6 @@ private:
 	
 	OptionsParameters* _optionsParamsPtr;
 
-	ToggleButton polyModeButton;
 	ToggleButton velocitySenseButton;
 	Slider pitchStandardSlider;
 	Slider pitchBendRangeSlider;

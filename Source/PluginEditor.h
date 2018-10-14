@@ -40,6 +40,7 @@ private:
 	ChipOscillatorComponent chipOscComponent;
 	SweepParametersComponent sweepParamsComponent;
 	VibratoParametersComponent vibratoParamsComponent;
+	VoicingParametersComponent voicingParamsComponent;
 	OptionsParametersComponent optionsParamsComponent;
 	WaveformMemoryParametersComponent waveformMemoryParamsComponent;
 
