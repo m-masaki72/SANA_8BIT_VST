@@ -352,6 +352,7 @@ VibratoParametersComponent::VibratoParametersComponent(VibratoParameters * vibra
 	, waveTypeSelector("LFO-WaveType")
 	, amountSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
 	, speedSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
+	, attackTimeSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
 {
 	enableButton.setButtonText("ON / OFF");
 	enableButton.setToggleState(_vibratoParamsPtr->VibratoEnable->get(), dontSendNotification);
@@ -372,6 +373,13 @@ VibratoParametersComponent::VibratoParametersComponent(VibratoParameters * vibra
 	speedSlider.addListener(this);
 	addAndMakeVisible(speedSlider);
 
+	attackTimeSlider.setRange(_vibratoParamsPtr->VibratoAttackTime->range.start, _vibratoParamsPtr->VibratoAttackTime->range.end, 0.1);
+	attackTimeSlider.setSkewFactorFromMidPoint(2.0f);
+	attackTimeSlider.setValue(_vibratoParamsPtr->VibratoAttackTime->get(), dontSendNotification);
+	attackTimeSlider.setTextValueSuffix(" sec");
+	attackTimeSlider.addListener(this);
+	addAndMakeVisible(attackTimeSlider);
+
 	Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
 
 	amountLabel.setFont(paramLabelFont);
@@ -386,6 +394,12 @@ VibratoParametersComponent::VibratoParametersComponent(VibratoParameters * vibra
 	speedLabel.setEditable(false, false, false);
 	addAndMakeVisible(speedLabel);
 	
+	attackTimeLabel.setFont(paramLabelFont);
+	attackTimeLabel.setText("Attack", dontSendNotification);
+	attackTimeLabel.setJustificationType(Justification::centred);
+	attackTimeLabel.setEditable(false, false, false);
+	addAndMakeVisible(attackTimeLabel);
+
 	startTimerHz(30.0f);
 }
 
@@ -423,7 +437,7 @@ void VibratoParametersComponent::paint(Graphics & g)
 
 void VibratoParametersComponent::resized()
 {
-	float rowSize = 3.0f;
+	float rowSize = 4.0f;
 	float divide = 1.0f / rowSize;
 	int labelWidth = 60;
 
@@ -438,39 +452,29 @@ void VibratoParametersComponent::resized()
 		enableButton.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
-		/*
-		Rectangle<int> area = upperArea.removeFromLeft(getWidth() * divide);
-		targetLabel.setBounds(area.removeFromTop(labelHeight).reduced(LOCAL_MARGIN));
-		targetSelector.setBounds(area.removeFromTop(labelHeight * 2).reduced(LOCAL_MARGIN * 2));
-		*/
-	}
-	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
 		amountLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
 		amountSlider.setBounds(area.reduced(LOCAL_MARGIN));
 
 	}
 	{
-		/*
-		Rectangle<int> area = lowerArea.removeFromLeft(getWidth() * divide);
-		waveTypeLabel.setBounds(area.removeFromTop(labelHeight).reduced(LOCAL_MARGIN));
-		waveTypeSelector.setBounds(area.removeFromTop(labelHeight * 2).reduced(LOCAL_MARGIN * 2));
-		*/
-	}
-	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
 		speedLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
 		speedSlider.setBounds(area.reduced(LOCAL_MARGIN));
+	}
+	{
+		Rectangle<int> area = bounds.removeFromTop(compHeight);
+		attackTimeLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		attackTimeSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 }
 
 void VibratoParametersComponent::timerCallback()
 {
-	//targetSelector.setSelectedItemIndex(_vibratoParamsPtr->VibratoTarget->getIndex(), dontSendNotification);
-	//waveTypeSelector.setSelectedItemIndex(_vibratoParamsPtr->VibratoWaveType->getIndex(), dontSendNotification);
 	enableButton.setToggleState(_vibratoParamsPtr->VibratoEnable->get(), dontSendNotification);
 	amountSlider.setValue(_vibratoParamsPtr->VibratoAmount->get(), dontSendNotification);
 	speedSlider.setValue(_vibratoParamsPtr->VibratoSpeed->get(), dontSendNotification);
+	attackTimeSlider.setValue(_vibratoParamsPtr->VibratoAttackTime->get(), dontSendNotification);
 }
 
 void VibratoParametersComponent::sliderValueChanged(Slider* slider)
@@ -483,19 +487,10 @@ void VibratoParametersComponent::sliderValueChanged(Slider* slider)
 	{
 		*_vibratoParamsPtr->VibratoSpeed = (float)speedSlider.getValue();
 	}
-}
-
-void VibratoParametersComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
-{/*
-	if (comboBoxThatHasChanged == &targetSelector)
+	else if (slider == &attackTimeSlider)
 	{
-		*_vibratoParamsPtr->VibratoTarget = targetSelector.getSelectedItemIndex();
+		*_vibratoParamsPtr->VibratoAttackTime = (float)attackTimeSlider.getValue();
 	}
-	else if (comboBoxThatHasChanged == &waveTypeSelector)
-	{
-		*_vibratoParamsPtr->VibratoWaveType = waveTypeSelector.getSelectedItemIndex();
-	}
-*/
 }
 
 void VibratoParametersComponent::buttonClicked(Button* button)

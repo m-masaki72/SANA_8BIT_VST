@@ -83,11 +83,13 @@ public:
 	AudioParameterBool * VibratoEnable;
 	AudioParameterFloat*  VibratoAmount;
 	AudioParameterFloat*  VibratoSpeed;
+	AudioParameterFloat*  VibratoAttackTime;
 
 	VibratoParameters(
 		AudioParameterBool* vibratoEnable,
 		AudioParameterFloat*  vibratoAmount,
-		AudioParameterFloat*  vibratoSpeed
+		AudioParameterFloat*  vibratoSpeed,
+		AudioParameterFloat*  vibratoAttackTime
 	);
 
 	virtual void addAllParameters(AudioProcessor& processor) override;

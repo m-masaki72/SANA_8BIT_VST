@@ -54,6 +54,7 @@ private:
 	// VCOとVCAのオブジェクトを宣言する。
 	Waveforms waveForms;
 	AmpEnvelope ampEnv;
+	AmpEnvelope vibratoEnv;
 
 	// パラメータを管理するオブジェクトのポインタ変数。
 	ChipOscillatorParameters* _chipOscParamsPtr;

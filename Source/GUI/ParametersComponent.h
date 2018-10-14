@@ -77,7 +77,7 @@ private:
 	Label timeLabel;
 };
 
-class VibratoParametersComponent : public Component, Button::Listener, Slider::Listener, ComboBox::Listener, private Timer
+class VibratoParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
 {
 public:
 	VibratoParametersComponent(VibratoParameters* vibratoParams);
@@ -91,23 +91,22 @@ private:
 
 	virtual void timerCallback() override;
 	virtual void sliderValueChanged(Slider* slider) override;
-	virtual void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
 	virtual void buttonClicked(Button* button) override;
 
 	VibratoParameters* _vibratoParamsPtr;
 
 	ToggleButton enableButton;
-
 	ComboBox targetSelector;
 	ComboBox waveTypeSelector;
-
 	Slider amountSlider;
 	Slider speedSlider;
+	Slider attackTimeSlider;
 
 	Label targetLabel;
 	Label waveTypeLabel;
 	Label amountLabel;
 	Label speedLabel;
+	Label attackTimeLabel;
 };
 
 class OptionsParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
