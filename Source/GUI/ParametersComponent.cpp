@@ -374,7 +374,6 @@ VibratoParametersComponent::VibratoParametersComponent(VibratoParameters * vibra
 	addAndMakeVisible(speedSlider);
 
 	attackTimeSlider.setRange(_vibratoParamsPtr->VibratoAttackTime->range.start, _vibratoParamsPtr->VibratoAttackTime->range.end, 0.1);
-	attackTimeSlider.setSkewFactorFromMidPoint(2.0f);
 	attackTimeSlider.setValue(_vibratoParamsPtr->VibratoAttackTime->get(), dontSendNotification);
 	attackTimeSlider.setTextValueSuffix(" sec");
 	attackTimeSlider.addListener(this);
