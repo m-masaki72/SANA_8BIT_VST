@@ -33,20 +33,20 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 	, chipOscParameters{
 		new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 0),
 		new AudioParameterFloat("VOLUME",	"Volume", -16.0f, 16.0f, -8.0f),
-		new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.001f, 10.0f, 0.001f),
-		new AudioParameterFloat("AMPENV_DECAY", "Decay",  0.001f, 10.0f, 0.001f),
+		new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.000f, 10.0f, 0.000f),
+		new AudioParameterFloat("AMPENV_DECAY", "Decay",  0.000f, 10.0f, 0.000f),
 		new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 1.0f),
-		new AudioParameterFloat("AMPENV_RELEASE", "Release", 0.001f, 10.0f, 0.001f)
+		new AudioParameterFloat("AMPENV_RELEASE", "Release", 0.000f, 10.0f, 0.000f)
 	}
 	, sweepParameters{
 		new AudioParameterChoice("SWEEP_SWITCH", "Sweep-Switch", SWEEP_SWITCH, 0),
-		new AudioParameterFloat("SWEEP_TIME", "Sweep-Time",  0.1f, 10.0f, 1.0f),
+		new AudioParameterFloat("SWEEP_TIME", "Sweep-Time",  0.01f, 10.0f, 1.0f),
 	}
 	, vibratoParameters{
 		new AudioParameterBool("VIBRATO_ENABLE", "Vibrato-Enable", true),
 		new AudioParameterFloat("VIBRATO_DEPTH", "Vibrato-Depth",  0.0f, 13.0f, 0.0f),
 		new AudioParameterFloat("VIBRATO_SPEED", "Vibrato-Speed",  0.0f, 20.0f, 0.1000f),
-		new AudioParameterFloat("VIBRATO_ATTACKTIME", "Vibrato-AttackTime",  0.0f, 10.0f, 0.0f)
+		new AudioParameterFloat("VIBRATO_ATTACKTIME", "Vibrato-AttackTime",  0.0f, 15.0f, 0.0f)
 	}
 	, voicingParameters{
 		new AudioParameterChoice("VOICING_TYPE", "Voicing-Type", {"POLY", "MONO", "PORTAMENTO"}, 0),

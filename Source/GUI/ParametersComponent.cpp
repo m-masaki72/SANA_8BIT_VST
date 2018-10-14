@@ -242,7 +242,7 @@ SweepParametersComponent::SweepParametersComponent(SweepParameters * sweepParams
 	sweepSwitchSelector.addListener(this);
 	addAndMakeVisible(sweepSwitchSelector);
 
-	timeSlider.setRange(_sweepParamsPtr->SweepTime->range.start, _sweepParamsPtr->SweepTime->range.end, 0.05);
+	timeSlider.setRange(_sweepParamsPtr->SweepTime->range.start, _sweepParamsPtr->SweepTime->range.end, 0.01);
 	timeSlider.setValue(_sweepParamsPtr->SweepTime->get(), dontSendNotification);
 	timeSlider.setSkewFactorFromMidPoint(1.0f);
 	timeSlider.setTextValueSuffix(" sec");
@@ -359,7 +359,7 @@ VibratoParametersComponent::VibratoParametersComponent(VibratoParameters * vibra
 	enableButton.addListener(this);
 	addAndMakeVisible(enableButton);
 
-	amountSlider.setRange(_vibratoParamsPtr->VibratoAmount->range.start, _vibratoParamsPtr->VibratoAmount->range.end, 0.05);
+	amountSlider.setRange(_vibratoParamsPtr->VibratoAmount->range.start, _vibratoParamsPtr->VibratoAmount->range.end, 0.01);
 	amountSlider.setSkewFactorFromMidPoint(2.0f);
 	amountSlider.setValue(_vibratoParamsPtr->VibratoAmount->get(), dontSendNotification);	
 	amountSlider.setTextValueSuffix(" HarfTone");

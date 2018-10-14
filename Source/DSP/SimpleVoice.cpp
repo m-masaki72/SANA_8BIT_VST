@@ -66,7 +66,7 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 			if (velocity <= 0.01f) {
 				velocity = 0.01f;
 			}
-			level = velocity * 0.6f;
+			level = velocity * 0.5f;
 		}
 		else
 		{
