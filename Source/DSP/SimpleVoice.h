@@ -18,6 +18,68 @@
 #include "AmpEnvelope.h"
 #include "SimpleSound.h"
 
+#define buf_size 7
+
+//レンダリング用の簡易リングバッファの実装
+class RingBuffer
+{
+public:
+	RingBuffer()
+	{
+		for (int i = 0; i < buf_size; i++)
+		{
+			data[i] = 0.0f;
+		}
+	};
+
+	void push_back(float sample)
+	{
+		data[index] = sample;
+		index = (index + 1) % buf_size;
+	};
+
+	float getCurrentValue()
+	{
+		//ガウシアンフィルタを通して出力する
+		//3 sample: 1 2 1
+		//5 sample: 1 4 6 4 1
+		//7 sample 1 6 15 20 15 6 1
+		float val = 0.0f;
+		for (int i = 0; i < buf_size; i++)
+		{
+			switch (abs(index - i))
+			{
+			case 0:
+				val += data[i] * 20.0;
+				break;
+			case 1:
+				val += data[i] * 15.0;
+				break;
+			case 2:
+				val += data[i] * 6.0;
+				break;
+			case 3:
+				val += data[i] * 1.0;
+				break;
+			case 4:
+				val += data[i] * 1.0;
+				break;
+			case 5:
+				val += data[i] * 6.0;
+				break;
+			case 6:
+				val += data[i] * 15.0;
+				break;
+			}
+		}
+		return val / 64.0;
+	}
+
+private:
+	int index = 0;
+	float data[buf_size];
+};
+
 // ②クラス名宣言。SynthesiserVoiceクラスを継承する。
 class SimpleVoice : public SynthesiserVoice
 {
@@ -49,10 +111,12 @@ private:
 
 	// ⑥クラス内変数を宣言する。
 	float currentAngle, vibratoAngle, angleDelta, portaAngleDelta;
-	float level, lastLevel, levelDiff;
+	float level;
 	float pitchBend, pitchSweep;	
-
 	
+	RingBuffer rb;
+
+	//Waveform用のパラメータ
 	Waveforms waveForms;
 	//各種エンベロープ， アンプ， ビブラート， ポルタメント用
 	AmpEnvelope ampEnv, vibratoEnv, portaEnv;
@@ -64,4 +128,5 @@ private:
 	VoicingParameters* _voicingParamsPtr;
 	OptionsParameters* _optionsParamsPtr;
 	WaveformMemoryParameters* _waveformMemoryParamsPtr;
+
 };
