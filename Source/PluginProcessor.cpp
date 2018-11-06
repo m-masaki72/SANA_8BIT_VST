@@ -49,8 +49,9 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 		new AudioParameterFloat("VIBRATO_ATTACKTIME", "Vibrato-AttackTime",  0.0f, 15.0f, 0.0f)
 	}
 	, voicingParameters{
-		new AudioParameterChoice("VOICING_TYPE", "Voicing-Type", {"POLY", "MONO", "PORTAMENTO"}, 0),
-		new AudioParameterFloat("PORTAMENTO_TIME", "Portamento-Time",  0.0f, 3.0f, 0.0f)
+		new AudioParameterChoice("VOICING_TYPE", "Voicing-Type", {"POLY", "MONO", "PORTAMENTO", "ARPEGGIO"}, 0),
+		new AudioParameterFloat("PORTAMENTO_TIME", "Portamento-Time",  0.0f, 3.0f, 0.0f),
+		new AudioParameterFloat("ARPEGGIO_FREQ", "Arpeggio-Freq",  0.0f, 30.0f, 0.0f),
 	}
 	, optionsParameters{
 		new AudioParameterBool("IS_VELOCITY_SENSE", "Is-Velocity-Sense", true),

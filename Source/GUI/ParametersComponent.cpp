@@ -506,6 +506,7 @@ VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicin
 	: _voicingParamsPtr(voicingParams)
 	, voicingTypeSelector("voicing")
 	, portaTimeSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
+	, arpFreqSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
 {
 	voicingTypeSelector.addItemList(_voicingParamsPtr->VoicingSwitch->getAllValueStrings(), 1);
 	voicingTypeSelector.setSelectedItemIndex(_voicingParamsPtr->VoicingSwitch->getIndex(), dontSendNotification);
@@ -520,6 +521,12 @@ VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicin
 	portaTimeSlider.addListener(this);
 	addAndMakeVisible(portaTimeSlider);
 
+	arpFreqSlider.setRange(_voicingParamsPtr->ArpFreq->range.start, _voicingParamsPtr->ArpFreq->range.end, 0.01);
+	arpFreqSlider.setValue(_voicingParamsPtr->ArpFreq->get(), dontSendNotification);
+	arpFreqSlider.setTextValueSuffix(" Hz");
+	arpFreqSlider.addListener(this);
+	addAndMakeVisible(arpFreqSlider);
+
 	Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
 
 	voicingTypeSelectorLabel.setFont(paramLabelFont);
@@ -529,10 +536,16 @@ VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicin
 	addAndMakeVisible(voicingTypeSelectorLabel);
 
 	portaTimeLabel.setFont(paramLabelFont);
-	portaTimeLabel.setText("Portamento", dontSendNotification);
+	portaTimeLabel.setText("Time", dontSendNotification);
 	portaTimeLabel.setJustificationType(Justification::centred);
 	portaTimeLabel.setEditable(false, false, false);
 	addAndMakeVisible(portaTimeLabel);
+
+	arpFreqLabel.setFont(paramLabelFont);
+	arpFreqLabel.setText("Freq", dontSendNotification);
+	arpFreqLabel.setJustificationType(Justification::centred);
+	arpFreqLabel.setEditable(false, false, false);
+	addAndMakeVisible(arpFreqLabel);
 
 	startTimerHz(30.0f);
 }
@@ -550,13 +563,11 @@ void VoicingParametersComponent::paint(Graphics & g)
 		g.setColour(PANEL_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
-
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
 		g.setColour(HEADER_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
-
 	{
 		Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
@@ -567,7 +578,6 @@ void VoicingParametersComponent::paint(Graphics & g)
 		g.setFont(panelNameFont);
 		g.drawText(text, textArea, Justification::centred, false);
 	}
-
 }
 
 void VoicingParametersComponent::resized()
@@ -582,14 +592,31 @@ void VoicingParametersComponent::resized()
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
 
 	{
+		portaTimeLabel.setVisible(false);
+		portaTimeSlider.setVisible(false);
+		arpFreqLabel.setVisible(false);
+		arpFreqSlider.setVisible(false);		
+	}
+	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
 		voicingTypeSelectorLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
 		voicingTypeSelector.setBounds(area.reduced(LOCAL_MARGIN * 2));
 	}
+	if (_voicingParamsPtr->VoicingSwitch->getCurrentChoiceName() == "PORTAMENTO")
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
 		portaTimeLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
 		portaTimeSlider.setBounds(area.reduced(LOCAL_MARGIN));
+		portaTimeLabel.setVisible(true);
+		portaTimeSlider.setVisible(true);
+	} 
+	else if (_voicingParamsPtr->VoicingSwitch->getCurrentChoiceName() == "ARPEGGIO")
+	{
+		Rectangle<int> area = bounds.removeFromTop(compHeight);
+		arpFreqLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		arpFreqSlider.setBounds(area.reduced(LOCAL_MARGIN));
+		arpFreqLabel.setVisible(true);
+		arpFreqSlider.setVisible(true);
 	}
 }
 
@@ -597,6 +624,7 @@ void VoicingParametersComponent::timerCallback()
 {
 	voicingTypeSelector.setSelectedItemIndex(_voicingParamsPtr->VoicingSwitch->getIndex(), dontSendNotification);
 	portaTimeSlider.setValue(_voicingParamsPtr->PortaTime->get(), dontSendNotification);
+	arpFreqSlider.setValue(_voicingParamsPtr->ArpFreq->get(), dontSendNotification);
 }
 
 void VoicingParametersComponent::sliderValueChanged(Slider* slider)
@@ -604,6 +632,10 @@ void VoicingParametersComponent::sliderValueChanged(Slider* slider)
 	if (slider == &portaTimeSlider)
 	{
 		*_voicingParamsPtr->PortaTime = (float)portaTimeSlider.getValue();
+	}
+	else if (slider == &arpFreqSlider)
+	{
+		*_voicingParamsPtr->ArpFreq = (float)arpFreqSlider.getValue();
 	}
 }
 
@@ -613,6 +645,8 @@ void VoicingParametersComponent::comboBoxChanged(ComboBox* comboBoxThatHasChange
 	{
 		*_voicingParamsPtr->VoicingSwitch = voicingTypeSelector.getSelectedItemIndex();
 	}
+
+	resized();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -820,25 +854,7 @@ void WaveformMemoryParametersComponent::paint(Graphics & g)
 }
 
 void WaveformMemoryParametersComponent::resized()
-{
-	/*
-	float columnSize = (float) 32;
-	float divide = 1.0f / columnSize;
-
-
-	float compWidth = (getWidth()) * divide;
-
-	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
-	
-	bounds.removeFromTop(PANEL_NAME_HEIGHT);
-
-	for(int i = 0; i < WAVESAMPLE_LENGTH; i++)
-	{
-		Rectangle<int> area = bounds.removeFromLeft(compWidth);
-		waveSampleSlider[i].setBounds(area.reduced(0.1f, LOCAL_MARGIN));
-	}
-	*/
-}
+{}
 
 void WaveformMemoryParametersComponent::timerCallback()
 {

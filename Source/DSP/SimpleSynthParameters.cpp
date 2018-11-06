@@ -111,9 +111,10 @@ void VibratoParameters::loadParameters(XmlElement & xml)
 
 //-----------------------------------------------------------------------------------------
 
-VoicingParameters::VoicingParameters(AudioParameterChoice* voicingSwitch,	AudioParameterFloat* portaTime)
+VoicingParameters::VoicingParameters(AudioParameterChoice* voicingSwitch, AudioParameterFloat* portaTime, AudioParameterFloat* arpFreq)
 	: VoicingSwitch(voicingSwitch)
 	, PortaTime(portaTime)
+	, ArpFreq(arpFreq)
 {
 }
 
@@ -121,18 +122,21 @@ void VoicingParameters::addAllParameters(AudioProcessor& processor)
 {
 	processor.addParameter(VoicingSwitch);
 	processor.addParameter(PortaTime);
+	processor.addParameter(ArpFreq);
 }
 
 void VoicingParameters::saveParameters(XmlElement & xml)
 {
 	xml.setAttribute(VoicingSwitch->paramID, VoicingSwitch->getIndex());
 	xml.setAttribute(PortaTime->paramID, PortaTime->get());
+	xml.setAttribute(ArpFreq->paramID, ArpFreq->get());
 }
 
 void VoicingParameters::loadParameters(XmlElement & xml)
 {
 	*VoicingSwitch = xml.getIntAttribute(VoicingSwitch->paramID, 0);
 	*PortaTime = (float)xml.getDoubleAttribute(PortaTime->paramID, 1.0);
+	*ArpFreq = (float)xml.getDoubleAttribute(ArpFreq->paramID, 1.0);
 }
 
 //-----------------------------------------------------------------------------------------

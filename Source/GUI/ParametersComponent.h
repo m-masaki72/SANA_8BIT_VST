@@ -129,9 +129,11 @@ private:
 
 	ComboBox voicingTypeSelector;
 	Slider portaTimeSlider;
+	Slider arpFreqSlider;
 
 	Label voicingTypeSelectorLabel;
 	Label portaTimeLabel;
+	Label arpFreqLabel;
 };
 
 class OptionsParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
