@@ -47,8 +47,26 @@ public:
 		float val = 0.0f;
 		for (int i = 0; i < buf_size; i++)
 		{
-			switch (abs(index - i))
+			switch (i - index)
 			{
+			case -6:
+				val += data[i] * 15.0;
+				break;
+			case -5:
+				val += data[i] * 15.0;
+				break;
+			case -4:
+				val += data[i] * 6.0;
+				break;
+			case -3:
+				val += data[i] * 6.0;
+				break;
+			case -2:
+				val += data[i] * 1.0;
+				break;
+			case -1:
+				val += data[i] * 1.0;
+				break;
 			case 0:
 				val += data[i] * 20.0;
 				break;
@@ -56,19 +74,19 @@ public:
 				val += data[i] * 15.0;
 				break;
 			case 2:
-				val += data[i] * 6.0;
+				val += data[i] * 15.0;
 				break;
 			case 3:
-				val += data[i] * 1.0;
-				break;
-			case 4:
-				val += data[i] * 1.0;
-				break;
-			case 5:
 				val += data[i] * 6.0;
 				break;
+			case 4:
+				val += data[i] * 6.0;
+				break;
+			case 5:
+				val += data[i] * 1.0;
+				break;
 			case 6:
-				val += data[i] * 15.0;
+				val += data[i] * 1.0;
 				break;
 			}
 		}
