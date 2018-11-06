@@ -180,7 +180,7 @@ void AmpEnvelope::cycle(float sampleRate)
 		break;
 
 	case AMPENV_STATE::RELEASE:		// Release状態時の更新処理
-		_value = (_sustainValue) * (_timer - 1.0) * (_timer - 1.0);
+		_value = (_valueOnReleaseStart) * (_timer - 1.0) * (_timer - 1.0);
 		_timer += 1.0 / (_sampleRate * _releaseTime);
 		if (_value <= AMP_MIN)
 		{
