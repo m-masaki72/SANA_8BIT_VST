@@ -206,21 +206,21 @@ const String SimpleSynthAudioProcessor::getProgramName (int index)
 	case 3:
 		return("Mallet");
 	case 4:
-		return("Blass");
+		return("Brass");
 	case 5:
 		return("Modulated Lead");
 	case 6:
 		return("Backing Lead");
 	case 7:
-		return("Raiser Lead");
+		return("Riser Lead");
 	case 8:
 		return("Noise Hihat");
 	case 9:
-		return("Noise Snear");
+		return("Noise Snare");
 	case 10:
 		return("Noise Cymbal");
 	case 11:
-		return("Noise Bass&Tom");
+		return("Pulse Bass&Tom");
 	default:
 		return("");
 	}
