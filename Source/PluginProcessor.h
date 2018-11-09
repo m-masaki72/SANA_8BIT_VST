@@ -106,7 +106,7 @@ private:
 	dsp::ProcessSpec spec;
 
 	dsp::WaveShaper<float> clipper;
-	dsp::Gain<float> drive, masterVolume;
+	dsp::Gain<float> drive;
 
 	// GUI上のキーボードコンポーネントで生成されたMIDI情報を保持しておくオブジェクト.
 	// MIDIキーボードの状態を同期するためのステートオブジェクト

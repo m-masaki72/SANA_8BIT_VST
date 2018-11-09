@@ -32,7 +32,7 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 #endif
 	, chipOscParameters{
 		new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 0),
-		new AudioParameterFloat("VOLUME",	"Volume", -16.0f, 16.0f, -8.0f),
+		new AudioParameterFloat("VOLUME",	"Volume", -32.0f, 8.0f, -12.0f),
 		new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.000f, 10.0f, 0.000f),
 		new AudioParameterFloat("AMPENV_DECAY", "Decay",  0.000f, 10.0f, 0.000f),
 		new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 1.0f),
@@ -168,8 +168,6 @@ void SimpleSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 
 	clipper.prepare(spec);
 	clipper.functionToUse = clippingFunction;
-
-	masterVolume.prepare(spec);
 }
 
 void SimpleSynthAudioProcessor::releaseResources()
@@ -247,10 +245,6 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 
 	// クリッピング処理
 	clipper.process(context);
-
-	// マスターボリューム調整 -10fぐらいにしたほうがいい
-	masterVolume.setGainDecibels(-8.0f);
-	masterVolume.process(context);
 
 	// ⑧現時点でオーディオバッファで保持しているサンプルデータをScopeDataCollectorクラスのオブジェクトに渡す。
 	scopeDataCollector.process(buffer.getReadPointer(0), (size_t)buffer.getNumSamples());
