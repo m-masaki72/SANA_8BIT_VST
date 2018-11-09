@@ -31,7 +31,7 @@ SimpleVoice::SimpleVoice(ChipOscillatorParameters* chipOscParams, SweepParameter
 	, vibratoEnv(vibratoParams->VibratoAttackTime->get(), 0.1f, 1.0f, 0.1f)
 	, portaEnv(voicingParams->PortaTime->get(), 0.0f, 1.0f, 0.0f)
 	, currentAngle(0.0f), vibratoAngle(0.0f), angleDelta(0.0f), portaAngleDelta(0.0f)
-	, level(0.0f), lastLevel(0.0f), levelDiff(0.0f)
+	, level(0.0f)
 	, pitchBend(0.0f), pitchSweep(0.0f)
 {}
 
@@ -72,8 +72,6 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 		{
 			level = 0.8f;
 		}
-		// ノイズ対策...今回と前回の音量レベルの差分を算出して保持する。
-		levelDiff = level - lastLevel;
 
 		pitchBend = ((float)currentPitchWheelPosition - 8192.0f) / 8192.0f;
 
@@ -94,8 +92,6 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 void SimpleVoice::stopNote(float velocity, bool allowTailOff)
 {
 	DBG("stopNote : " + juce::String((int)allowTailOff));
-
-	lastLevel = level;
 
 	if (allowTailOff)
 	{
@@ -188,16 +184,14 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 					currentSample += waveForms.waveformMemory(currentAngle, _waveformMemoryParamsPtr);
 				}
 
-				// OSC MIX:  // 前回のベロシティとの差異によるノイズ発生を防ぐ。
-				levelDiff *= 0.9f;						
-				currentSample *= level - levelDiff;
-
 				// AMP EG: エンベロープの値をサンプルデータに反映する。
 				currentSample *= ampEnv.getValue();
 
+				rb.push_back(currentSample * ampEnv.getValue());
+
 				// バッファに対して加算処理を行う。ポリフォニックでは、各ボイスの音を加算処理する必要がある。
 				for (int channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;) {
-					outputBuffer.addSample(channelNum, startSample, currentSample);
+					outputBuffer.addSample(channelNum, startSample, rb.getCurrentValue());
 				}
 
 				// エンベロープがリリース状態の場合の処理
@@ -211,7 +205,6 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 						portaAngleDelta = 0.0f;
 						currentAngle = 0.0f;
 						pitchSweep = 0.0f;
-						levelDiff = 0.0f;
 						break;
 					}
 				}
@@ -251,10 +244,6 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 				else if (_sweepParamsPtr->SweepSwitch->getCurrentChoiceName() == "Negative")
 				{
 					pitchSweep -= 1 / (float)getSampleRate() / (float)_sweepParamsPtr->SweepTime->get();
-				}
-
-				if (fabsf(levelDiff) <= 0.005f) {
-					levelDiff = 0.000f;
 				}
 
 				if (currentAngle > TWO_PI) {
