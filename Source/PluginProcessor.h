@@ -54,6 +54,7 @@ public:
     void setCurrentProgram (int index) override;
     const String getProgramName (int index) override;
     void changeProgramName (int index, const String& newName) override;
+	void initProgram();
 
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
@@ -98,6 +99,9 @@ public:
 
 private:
 	Synthesiser		  synth;
+
+	//preset index
+	int currentProgIndex;
 
 	//歪み用の関数[2]
 	static float clippingFunction(float inputValue);
