@@ -66,6 +66,7 @@ private:
 	virtual void timerCallback() override;
 	virtual void sliderValueChanged(Slider* slider) override;
 	virtual void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
+	bool isEditable();
 
 	SweepParameters* _sweepParamsPtr;
 
@@ -92,6 +93,8 @@ private:
 	virtual void timerCallback() override;
 	virtual void sliderValueChanged(Slider* slider) override;
 	virtual void buttonClicked(Button* button) override;
+	bool isEditable();
+
 
 	VibratoParameters* _vibratoParamsPtr;
 
