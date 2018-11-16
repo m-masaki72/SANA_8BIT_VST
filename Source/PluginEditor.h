@@ -48,6 +48,7 @@ public:
 	void resized() override;
 
 private:
+	ScopeComponent<float> scopeComponent;
 };
 
 //==============================================================================

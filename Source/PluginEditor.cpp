@@ -20,6 +20,7 @@ namespace
 	const float KEY_WIDTH = 32.0f;
 	const float KEY_SCROLL_WIDTH = 32.0f;
 	const int PANEL_MARGIN = 3;
+	const float TAB_HEIGHT = 40.0f;
 
 	const Colour BACKGROUND_COLOUR() { return Colours::rebeccapurple.darker().darker(); }
 	const Colour TAB_BACKGROUND_COLOUR() { return Colours::rebeccapurple.darker(); }
@@ -87,7 +88,10 @@ void OscPage::resized()
 //----------------------------------------------------------------------------------------------------
 
 EffectPage::EffectPage(SimpleSynthAudioProcessor& p, LookAndFeel* customLookAndFeel)
+	: scopeComponent(p.getAudioBufferQueue())
 {
+	addAndMakeVisible(scopeComponent);
+
 	for (Component* child : getChildren()) 
 	{
 		child->setLookAndFeel(customLookAndFeel);
@@ -105,6 +109,12 @@ void EffectPage::paint(Graphics& g)
 void EffectPage::resized()
 {
 	Rectangle<int> bounds = getLocalBounds();
+
+	{
+		Rectangle<int> leftArea = bounds.removeFromLeft(bounds.getWidth() * 0.45);
+		leftArea.removeFromTop(leftArea.getHeight() * 0.5).reduced(PANEL_MARGIN);
+		scopeComponent.setBounds(leftArea.reduced(PANEL_MARGIN));
+	}
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -146,6 +156,13 @@ SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudi
 		for (Component* child : getChildren()) 
 		{
 			child->setLookAndFeel(customLookAndFeel);
+		}
+
+		//Set Tabs Style
+		{
+			//tabs.setOutline(5.0f);
+			tabs.setTabBarDepth(TAB_HEIGHT);
+			tabs.setIndent(5.0f);
 		}
 	}
 

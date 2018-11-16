@@ -859,7 +859,7 @@ void WaveformMemoryParametersComponent::paint(Graphics & g)
 
 		for (int i = 1; i < 8; i++)
 		{
-			float p_x = compWidth * i * 4.0f - 1.3f * i; //手作業で調整しました
+			float p_x = compWidth * i * 4.0f - 0.50f * i; //手作業で調整しました
 			Line<float> line(p_x, PANEL_NAME_HEIGHT , p_x, getHeight());
 			g.setColour(Colours::darkslateblue);
 			g.drawLine(line, 1.4f);
