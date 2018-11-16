@@ -228,7 +228,6 @@ void ChipOscillatorComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 		*_oscParamsPtr->OscWaveType = waveTypeSelector.getSelectedItemIndex();
 	}
 }
-
 //----------------------------------------------------------------------------------------------------
 
 SweepParametersComponent::SweepParametersComponent(SweepParameters * sweepParams)
@@ -310,6 +309,11 @@ void SweepParametersComponent::resized()
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
 
 	{
+		float alpha = isEditable() ? 1.0f : 0.4f;
+		timeLabel.setAlpha(alpha);
+		timeSlider.setAlpha(alpha);
+	}
+	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
 		switchLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
 		sweepSwitchSelector.setBounds(area.reduced(LOCAL_MARGIN * 2));
@@ -333,6 +337,7 @@ void SweepParametersComponent::sliderValueChanged(Slider* slider)
 	{
 		*_sweepParamsPtr->SweepTime = (float)timeSlider.getValue();
 	}
+
 }
 
 void SweepParametersComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
@@ -341,6 +346,12 @@ void SweepParametersComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 	{
 		*_sweepParamsPtr->SweepSwitch = sweepSwitchSelector.getSelectedItemIndex();
 	}
+	resized();
+}
+
+bool SweepParametersComponent::isEditable()
+{
+	return (_sweepParamsPtr->SweepSwitch->getIndex() >= 1) ? true : false;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -446,6 +457,16 @@ void VibratoParametersComponent::resized()
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
 
 	{
+		float alpha = isEditable() ? 1.0f : 0.4f;
+		amountLabel.setAlpha(alpha);
+		amountSlider.setAlpha(alpha);
+		speedLabel.setAlpha(alpha);
+		speedSlider.setAlpha(alpha);
+		attackTimeLabel.setAlpha(alpha);
+		attackTimeSlider.setAlpha(alpha);
+	}
+
+	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
 		area.removeFromLeft(labelWidth / 2);
 		enableButton.setBounds(area.reduced(LOCAL_MARGIN));
@@ -498,6 +519,12 @@ void VibratoParametersComponent::buttonClicked(Button* button)
 	{
 		*_vibratoParamsPtr->VibratoEnable = enableButton.getToggleState();
 	}
+	resized();
+}
+
+bool VibratoParametersComponent::isEditable()
+{
+	return _vibratoParamsPtr->VibratoEnable->get();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -814,10 +841,14 @@ void WaveformMemoryParametersComponent::paint(Graphics & g)
 		g.drawText(text, textArea, Justification::centred, false);
 	}
 
+
+
 	//update slider Params
 	for (auto* trail : trails)
 	{	
-		float compWidth = getWidth() - 12; // 10は微調整値		
+		float compWidth = getWidth() - 12; // 微調整値
+		float compHeight = getHeight() - PANEL_NAME_HEIGHT;
+
 		int index = (int)(trail->currentPosition.x * 32.0 / compWidth);
 		if (index < 0)
 		{
@@ -827,28 +858,45 @@ void WaveformMemoryParametersComponent::paint(Graphics & g)
 		{
 			index = 31;
 		}
-
-		float compHeight = getHeight() - PANEL_NAME_HEIGHT; 
 		float point = trail->currentPosition.y - PANEL_NAME_HEIGHT;
 		int value = 15 - (int)(point * 16.0 / compHeight);
-
 		waveSampleSlider[index].setValue(value, dontSendNotification);
 		updateValue();
 	}
 	//repaint Sliders
 	{	
 		float columnSize = (float)32;
+		float rowSize = (float)16;
 		float divide = 1.0f / columnSize;
-		float compWidth = (getWidth()) * divide;
+		double compWidth = float(getWidth()) * divide;
+
 		Rectangle<int> bounds = getLocalBounds();
 		bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(10);
 
+		//Draw Scale Line
+		for (int i = 1; i < 4; i++)
+		{
+			float p_y = PANEL_NAME_HEIGHT + bounds.getHeight() * 0.25 * i;
+			Line<float> line(0.0f, p_y, getWidth() , p_y);
+			g.setColour(Colours::darkslateblue);
+			g.drawLine(line, 1.0f);
+		}
+
+		for (int i = 1; i < 8; i++)
+		{
+			float p_x = compWidth * i * 4.0f - 1.3f * i; //手作業で調整しました
+			Line<float> line(p_x, PANEL_NAME_HEIGHT , p_x, getHeight());
+			g.setColour(Colours::darkslateblue);
+			g.drawLine(line, 1.4f);
+		}
+
+		//Draw Slider
 		for (int i = 0; i < WAVESAMPLE_LENGTH; i++)
 		{
 			Rectangle<int> area = bounds.removeFromLeft(compWidth);
-			area.removeFromTop(bounds.getHeight() / 16 * (waveSampleSlider[i].getMaximum() - waveSampleSlider[i].getValue()));
+			area.removeFromTop(bounds.getHeight() / rowSize * (waveSampleSlider[i].getMaximum() - waveSampleSlider[i].getValue()));
 			g.setColour(Colours::lime);
-			g.fillRect(area.reduced(1.5));
+			g.fillRect(area.reduced(1.8f));
 		}
 	}
 }
@@ -860,7 +908,7 @@ void WaveformMemoryParametersComponent::timerCallback()
 {
 	for (int i = 0; i < 32; i++)
 	{
-		waveSampleSlider[i].setValue(_waveformMemoryParamsPtr->WaveSamplesArray[i]->get()  , dontSendNotification);
+		waveSampleSlider[i].setValue(_waveformMemoryParamsPtr->WaveSamplesArray[i]->get(), dontSendNotification);
 	}
 }
 
@@ -882,7 +930,7 @@ void WaveformMemoryParametersComponent::mouseDown(const MouseEvent& e)
 		t->path.startNewSubPath(e.position);
 		trails.add(t);
 	}
-
+	
 	t->pushPoint(e.position, e.mods, e.pressure);
 
 	repaint();
@@ -890,7 +938,13 @@ void WaveformMemoryParametersComponent::mouseDown(const MouseEvent& e)
 
 void WaveformMemoryParametersComponent::mouseUp(const MouseEvent& e)
 {
-	trails.removeObject(getTrail(e.source));
+	auto* t = getTrail(e.source);
+
+	if (t != nullptr)
+	{
+		trails.removeObject(t);
+	}
+
 	repaint();
 }
 
@@ -904,8 +958,9 @@ void WaveformMemoryParametersComponent::mouseDrag(const MouseEvent& e)
 		t->path.startNewSubPath(e.position);
 		trails.add(t);
 	}
-
-	t->pushPoint(e.position, e.mods, e.pressure);
-
+	else
+	{
+		t->pushPoint(e.position, e.mods, e.pressure);
+	}
 	repaint();
 }

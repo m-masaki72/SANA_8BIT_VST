@@ -174,11 +174,11 @@ float Waveforms::nesSquare(float angle)
 
 	if (angle <= ONE_PI)
 	{
-		return 1.0f / pow(1.57f, angle);
+		return 1.0f / pow(1.4f, angle);
 	}
 	else
 	{
-		return -1.0f / pow(1.57f, angle-ONE_PI);
+		return -1.0f / pow(1.4f, angle-ONE_PI);
 	}
 }
 
@@ -191,11 +191,11 @@ float Waveforms::nesSquare25(float angle)
 
 	if (angle <= HALF_PI)
 	{
-		return 1.0f / pow(1.57f, angle);
+		return 1.0f / pow(1.4f, angle);
 	}
 	else
 	{
-		return -1.0f / pow(1.57f, angle - HALF_PI);
+		return -1.0f / pow(1.4f, angle - HALF_PI);
 	}
 }
 
@@ -208,11 +208,11 @@ float Waveforms::nesSquare125(float angle)
 
 	if (angle <= HALF_PI/2)
 	{
-		return 1.0f / pow(1.57f, angle);
+		return 1.0f / pow(1.4f, angle);
 	}
 	else
 	{
-		return -1.0f / pow(1.57f, angle - HALF_PI/2);
+		return -1.0f / pow(1.4f, angle - HALF_PI/2);
 	}
 }
 

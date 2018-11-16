@@ -18,7 +18,7 @@ namespace {
 	const float KEY_HEIGHT = 80.0f;
 	const float KEY_WIDTH = 32.0f;
 	const float KEY_SCROLL_WIDTH = 32.0f;
-	const int PANEL_MARGIN = 4;
+	const int PANEL_MARGIN = 3;
 }
 
 SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudioProcessor& p)

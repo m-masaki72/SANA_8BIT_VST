@@ -54,6 +54,7 @@ public:
     void setCurrentProgram (int index) override;
     const String getProgramName (int index) override;
     void changeProgramName (int index, const String& newName) override;
+	void initProgram();
 
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
@@ -99,6 +100,9 @@ public:
 private:
 	Synthesiser		  synth;
 
+	//preset index
+	int currentProgIndex;
+
 	//歪み用の関数[2]
 	static float clippingFunction(float inputValue);
 
@@ -106,7 +110,7 @@ private:
 	dsp::ProcessSpec spec;
 
 	dsp::WaveShaper<float> clipper;
-	dsp::Gain<float> drive, masterVolume;
+	dsp::Gain<float> drive;
 
 	// GUI上のキーボードコンポーネントで生成されたMIDI情報を保持しておくオブジェクト.
 	// MIDIキーボードの状態を同期するためのステートオブジェクト

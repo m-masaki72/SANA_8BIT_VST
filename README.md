@@ -18,7 +18,8 @@ This is a windows 32bit/64bit Application. It builded as DLL format. And you can
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/sYuJSuVvris/0.jpg)](http://www.youtube.com/watch?v=sYuJSuVvris)
 
 ## How to Use
-Getting Ready
+Japanese use Manual is here.  
+[http://ch.nicovideo.jp/acnochip/blomaga/ar1667053](http://ch.nicovideo.jp/acnochip/blomaga/ar1667053)
 
 ## Install
 Import SANA_8BIT_VST.dll files to your DAW's Plugin folder.
@@ -57,7 +58,7 @@ I tested following DAW.
 
 ## Contributor
 [COx2](https://github.com/COx2)  
-[https://github.com/COx2/JUCE_JAPAN_DEMO]https://github.com/COx2/JUCE_JAPAN_DEMO
+[Original Repogitory:https://github.com/COx2/JUCE_JAPAN_DEMO](https://github.com/COx2/JUCE_JAPAN_DEMO)
 
 ## Technologies Used
 * C++ for the language

@@ -66,7 +66,7 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 			if (velocity <= 0.01f) {
 				velocity = 0.01f;
 			}
-			level = velocity * 0.5f;
+			level = velocity * 1.0f;
 		}
 		else
 		{
@@ -78,9 +78,7 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 		// 生成する波形のピッチを再現するサンプルデータ間の角度差⊿θ[rad]の値を決定する。
 		float cyclesPerSecond = (float)MidiMessage::getMidiNoteInHertz(midiNoteNumber, _optionsParamsPtr->PitchStandard->get());
 		float cyclesPerSample = (float)cyclesPerSecond / (float)getSampleRate();
-
 		angleDelta = cyclesPerSample * TWO_PI;
-
 
 		ampEnv.attackStart();
 		vibratoEnv.attackStart();
@@ -189,7 +187,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 				// AMP EG: エンベロープの値をサンプルデータに反映する。
 				currentSample *= ampEnv.getValue();
 
-				rb.push_back(currentSample * ampEnv.getValue());
+				rb.push_back(currentSample);
 
 				// バッファに対して加算処理を行う。ポリフォニックでは、各ボイスの音を加算処理する必要がある。
 				for (int channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;) {
@@ -204,8 +202,8 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 						ampEnv.releaseEnd();		 // エンベロープをWait状態に移行する。
 						clearCurrentNote();			 // このボイスが生成するノート情報をクリアする。
 						angleDelta = 0.0f;			 // 変数を初期値に戻す。
-						portaAngleDelta = 0.0f;		 // 変数を初期値に戻す。
-						currentAngle = 0.0f;		 // 変数を初期値に戻す。
+						portaAngleDelta = 0.0f;
+						currentAngle = 0.0f;
 						pitchSweep = 0.0f;
 						break;
 					}
@@ -225,7 +223,6 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 				else
 				{
 					currentAngle += angleDelta
-						//* pow(_optionsParamsPtr->PitchBendRange->get(), pitchBend)
 						* pow(2.0f, pitchBend / 13.0f * _optionsParamsPtr->PitchBendRange->get())
 						* pow(2.0f, pitchSweep);
 				}
