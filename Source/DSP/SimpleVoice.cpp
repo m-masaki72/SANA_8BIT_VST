@@ -187,7 +187,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 				// AMP EG: エンベロープの値をサンプルデータに反映する。
 				currentSample *= ampEnv.getValue();
 
-				rb.push_back(currentSample * ampEnv.getValue());
+				rb.push_back(currentSample);
 
 				// バッファに対して加算処理を行う。ポリフォニックでは、各ボイスの音を加算処理する必要がある。
 				for (int channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;) {
