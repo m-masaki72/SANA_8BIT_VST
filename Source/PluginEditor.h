@@ -19,23 +19,15 @@
 #include "GUI/ParametersComponent.h"
 #include "GUI/ScopeComponent.h"
 
-//==============================================================================
-/**
-*/
-class SimpleSynthAudioProcessorEditor  : public AudioProcessorEditor
+class OscPage : public Component
 {
 public:
-    SimpleSynthAudioProcessorEditor (SimpleSynthAudioProcessor&);
-    ~SimpleSynthAudioProcessorEditor();
-
-    //==============================================================================
-    void paint (Graphics&) override;
-    void resized() override;
+	OscPage(SimpleSynthAudioProcessor& p, LookAndFeel* customLookAndFeel);
+	~OscPage();
+	void paint(Graphics& g) override;
+	void resized() override;
 
 private:
-	SimpleSynthAudioProcessor & processor;
-
-	MidiKeyboardComponent keyboardComponent;
 	ScopeComponent<float> scopeComponent;
 	ChipOscillatorComponent chipOscComponent;
 	SweepParametersComponent sweepParamsComponent;
@@ -43,8 +35,42 @@ private:
 	VoicingParametersComponent voicingParamsComponent;
 	OptionsParametersComponent optionsParamsComponent;
 	WaveformMemoryParametersComponent waveformMemoryParamsComponent;
+};
+
+//==============================================================================
+
+class EffectPage : public Component
+{
+public:
+	EffectPage(SimpleSynthAudioProcessor& p, LookAndFeel* customLookAndFeel);
+	~EffectPage();
+	void paint(Graphics& g) override;
+	void resized() override;
+
+private:
+};
+
+//==============================================================================
+
+class SimpleSynthAudioProcessorEditor : public AudioProcessorEditor
+{
+public:
+	SimpleSynthAudioProcessorEditor(SimpleSynthAudioProcessor& p);
+    ~SimpleSynthAudioProcessorEditor();
+    void paint (Graphics& g) override;
+    void resized() override;
+
+private:
+	SimpleSynthAudioProcessor& processor;
+
+	MidiKeyboardComponent keyboardComponent;
+	OscPage p1;
+	EffectPage p2;
+	TabbedComponent tabs;
 
 	LookAndFeel* customLookAndFeel;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSynthAudioProcessorEditor)
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleSynthAudioProcessorEditor);
 };
+
+

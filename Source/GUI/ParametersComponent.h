@@ -95,7 +95,6 @@ private:
 	virtual void buttonClicked(Button* button) override;
 	bool isEditable();
 
-
 	VibratoParameters* _vibratoParamsPtr;
 
 	ToggleButton enableButton;

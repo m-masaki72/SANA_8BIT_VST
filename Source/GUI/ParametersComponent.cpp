@@ -228,6 +228,7 @@ void ChipOscillatorComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 		*_oscParamsPtr->OscWaveType = waveTypeSelector.getSelectedItemIndex();
 	}
 }
+
 //----------------------------------------------------------------------------------------------------
 
 SweepParametersComponent::SweepParametersComponent(SweepParameters * sweepParams)
@@ -556,7 +557,7 @@ VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicin
 	addAndMakeVisible(voicingTypeSelectorLabel);
 
 	portaTimeLabel.setFont(paramLabelFont);
-	portaTimeLabel.setText("Portamento", dontSendNotification);
+	portaTimeLabel.setText("PortaTime", dontSendNotification);
 	portaTimeLabel.setJustificationType(Justification::centred);
 	portaTimeLabel.setEditable(false, false, false);
 	addAndMakeVisible(portaTimeLabel);
@@ -608,6 +609,13 @@ void VoicingParametersComponent::resized()
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
 
+
+	{
+		float alpha = _voicingParamsPtr->VoicingSwitch->getCurrentChoiceName() == "PORTAMENTO" ? 1.0f : 0.4f;
+		portaTimeLabel.setAlpha(alpha);
+		portaTimeSlider.setAlpha(alpha);
+	}
+
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
 		voicingTypeSelectorLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
@@ -640,6 +648,7 @@ void VoicingParametersComponent::comboBoxChanged(ComboBox* comboBoxThatHasChange
 	{
 		*_voicingParamsPtr->VoicingSwitch = voicingTypeSelector.getSelectedItemIndex();
 	}
+	resized();
 }
 
 //----------------------------------------------------------------------------------------------------
