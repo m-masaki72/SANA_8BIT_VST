@@ -19,6 +19,7 @@
 #include "DSP/SimpleVoice.h"
 
 #define NUM_OF_PRESETS 12;
+#define VOICE_MAX 8
 
 //==============================================================================
 SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
@@ -279,10 +280,10 @@ void SimpleSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 	canPlayNotes.setRange(0, 127, true);
 	// サウンド再生可能なチャンネル番号の範囲を定義する。関数"setRange" にて0～127の値をtrueに設定する。
 	BigInteger canPlayChannels;
-	canPlayChannels.setRange(1, 16, true);
+	canPlayChannels.setRange(1, 2, true);
 	synth.addSound(new SimpleSound(canPlayNotes, canPlayChannels));
 
-	int numVoices = (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? 16 : 1;
+	int numVoices = (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? VOICE_MAX : 1;
 
 	for (int i = 0; i < numVoices; ++i)
 	{
@@ -341,7 +342,7 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	//   GUIのキーボードコンポーネントで生成されたMIDIデータをのMIDIバッファに追加する処理を行う。
 	keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
 
-	if ((voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? 16 : 1 != synth.getNumVoices())
+	if ((voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? VOICE_MAX : 1 != synth.getNumVoices())
 	{
 		changeVoiceSize();
 	}
@@ -460,7 +461,7 @@ void SimpleSynthAudioProcessor::setStateInformation (const void* data, int sizeI
 
 void SimpleSynthAudioProcessor::changeVoiceSize()
 {
-	int voiceNum = (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? 16 : 1;
+	int voiceNum = (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? VOICE_MAX : 1;
 
 	while (synth.getNumVoices() != voiceNum)
 	{

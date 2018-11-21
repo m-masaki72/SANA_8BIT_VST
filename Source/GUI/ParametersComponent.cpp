@@ -989,7 +989,7 @@ void WaveformMemoryParametersComponent::paint(Graphics & g)
 		float compWidth = getWidth() - 12; // 微調整値
 		float compHeight = getHeight() - PANEL_NAME_HEIGHT;
 
-		int index = (int)(trail->currentPosition.x * 32.0 / compWidth);
+		int index = (int)(trail->currentPosition.x * (float)WAVESAMPLE_LENGTH / compWidth);
 		if (index < 0)
 		{
 			index = 0;
@@ -1005,7 +1005,7 @@ void WaveformMemoryParametersComponent::paint(Graphics & g)
 	}
 	//repaint Sliders
 	{	
-		float columnSize = (float)32;
+		float columnSize = (float)WAVESAMPLE_LENGTH;
 		float rowSize = (float)16;
 		float divide = 1.0f / columnSize;
 		double compWidth = float(getWidth()) * divide;
@@ -1047,7 +1047,7 @@ void WaveformMemoryParametersComponent::resized()
 
 void WaveformMemoryParametersComponent::timerCallback()
 {
-	for (int i = 0; i < 32; ++i)
+	for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
 	{
 		waveSampleSlider[i].setValue(_waveformMemoryParamsPtr->WaveSamplesArray[i]->get(), dontSendNotification);
 	}
@@ -1055,7 +1055,7 @@ void WaveformMemoryParametersComponent::timerCallback()
 
 void WaveformMemoryParametersComponent::updateValue()
 {
-	for (int i = 0; i < 32; ++i)
+	for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
 	{
 		*_waveformMemoryParamsPtr->WaveSamplesArray[i] = (int)waveSampleSlider[i].getValue();
 	}

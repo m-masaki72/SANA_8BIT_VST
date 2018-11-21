@@ -106,10 +106,11 @@ private:
 class EchoBuffer
 {
 public:
-	EchoBuffer(int freq, float sec)
+	EchoBuffer(int freq, float sec, int count)
 	{
 		sampleRate = freq;
 		echoTime = sec;
+		echoCount = count;
 		init();
 	};
 
@@ -122,8 +123,8 @@ public:
 		{
 			bufSize = 0;
 		}
-		buf.resize(ECHOMAX);
-		for (int i = 0; i < ECHOMAX; ++i)
+		buf.resize(echoCount);
+		for (int i = 0; i < echoCount; ++i)
 		{
 			buf[i].resize(bufSize);
 		}
@@ -131,7 +132,7 @@ public:
 	}
 
 	void clear() {
-		for (int i = 0; i < ECHOMAX; ++i)
+		for (int i = 0; i < echoCount; ++i)
 		{
 			for (int j = 0; j < bufSize; ++j)
 			{
@@ -146,7 +147,7 @@ public:
 		{
 			index = 0;
 		}
-		for (int i = ECHOMAX - 1; i > 0; --i)
+		for (int i = buf.size() - 1; i > 0; --i)
 		{
 			buf[i][index] = buf[i-1][index] * amp;
 		}
@@ -155,6 +156,11 @@ public:
 
 	float getSample(int repeatCount)
 	{
+		if (repeatCount >= buf.size())
+		{
+			return 0.0f;
+		}
+
 		int preindex = index + 1;
 		if (preindex >= bufSize)
 		{
@@ -163,9 +169,10 @@ public:
 		return buf[repeatCount][preindex];
 	};
 
-	void changeDeleyTime(float sec)
+	void update(float sec, int count)
 	{
 		echoTime = sec;
+		echoCount = count;
 		init();
 	}
 
@@ -185,6 +192,7 @@ private:
 	int bufSize;
 
 	int index;
+	int echoCount;
 	float echoTime;
 };
 

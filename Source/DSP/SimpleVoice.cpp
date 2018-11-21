@@ -34,7 +34,7 @@ SimpleVoice::SimpleVoice(ChipOscillatorParameters* chipOscParams, SweepParameter
 	, currentAngle(0.0f), vibratoAngle(0.0f), angleDelta(0.0f), portaAngleDelta(0.0f)
 	, level(0.0f)
 	, pitchBend(0.0f), pitchSweep(0.0f)
-	, eb(getSampleRate(), midiEchoParams->EchoDuration->get())
+	, eb(getSampleRate(), midiEchoParams->EchoDuration->get(), midiEchoParams->EchoRepeat->get())
 {}
 
 // デストラクタ
@@ -61,8 +61,7 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 		//パラメータ初期化
 		{
 			pitchSweep = 0.0f;
-			eb.init();
-			eb.changeDeleyTime(_midiEchoParamsPtr->EchoDuration->get());
+			eb.update(_midiEchoParamsPtr->EchoDuration->get(), _midiEchoParamsPtr->EchoRepeat->get());
 		}
 		// ベロシティ有効/無効のフラグに応じて音量レベルを決定する。有効...ベロシティの値から算出する。 無効...固定値を使用する。
 		if (_optionsParamsPtr->IsVelocitySense->get())
