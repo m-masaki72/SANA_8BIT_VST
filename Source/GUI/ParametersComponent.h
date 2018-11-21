@@ -264,3 +264,31 @@ private:
 
 	Slider waveSampleSlider[WAVESAMPLE_LENGTH];
 };
+
+class FilterParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
+{
+public:
+	FilterParametersComponent(FilterParameters* filterParams);
+	virtual ~FilterParametersComponent();
+
+	virtual void paint(Graphics& g) override;
+	virtual void resized() override;
+
+private:
+	FilterParametersComponent();
+
+	virtual void timerCallback() override;
+	virtual void sliderValueChanged(Slider* slider) override;
+	virtual void buttonClicked(Button* button) override;
+
+	FilterParameters* _filterParamsPtr;
+
+	ToggleButton hiCutSwitch;
+	ToggleButton lowCutSwitch;
+
+	Slider hicutFreqSlider;
+	Slider lowcutFreqSlider;
+
+	Label hicutFreqLabel;
+	Label lowcutFreqLabel;
+};

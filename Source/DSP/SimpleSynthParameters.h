@@ -176,3 +176,26 @@ public:
 private:
 	MidiEchoParameters() {};
 };
+
+class FilterParameters : public SynthParametersBase
+{
+public:
+	AudioParameterBool* HicutEnable;
+	AudioParameterBool* LowcutEnable;
+	AudioParameterFloat* HicutFreq;
+	AudioParameterFloat* LowcutFreq;
+
+	FilterParameters(
+		AudioParameterBool* hicutEnable,
+		AudioParameterBool* lowcutEnable,
+		AudioParameterFloat* hicutFreq,
+		AudioParameterFloat*lowcutFreq
+	);
+
+	virtual void addAllParameters(AudioProcessor& processor) override;
+	virtual void saveParameters(XmlElement& xml) override;
+	virtual void loadParameters(XmlElement& xml) override;
+
+private:
+	FilterParameters() {};
+};

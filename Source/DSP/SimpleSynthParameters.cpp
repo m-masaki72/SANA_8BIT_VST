@@ -264,3 +264,36 @@ void MidiEchoParameters::loadParameters(XmlElement & xml)
 }
 
 //-----------------------------------------------------------------------------------------
+
+FilterParameters::FilterParameters(AudioParameterBool* hicutEnable, AudioParameterBool* lowcutEnable, AudioParameterFloat* hicutFreq, AudioParameterFloat* lowcutFreq)
+	: HicutEnable(hicutEnable)
+	, LowcutEnable(lowcutEnable)
+	, HicutFreq(hicutFreq)
+	, LowcutFreq(lowcutFreq)
+{}
+
+void FilterParameters::addAllParameters(AudioProcessor& processor)
+{
+	processor.addParameter(HicutEnable);
+	processor.addParameter(LowcutEnable);
+	processor.addParameter(HicutFreq);
+	processor.addParameter(LowcutFreq);
+}
+
+void FilterParameters::saveParameters(XmlElement & xml)
+{
+	xml.setAttribute(HicutEnable->paramID, HicutEnable->get());
+	xml.setAttribute(LowcutEnable->paramID, LowcutEnable->get());
+	xml.setAttribute(HicutFreq->paramID, HicutFreq->get());
+	xml.setAttribute(LowcutFreq->paramID, LowcutFreq->get());
+}
+
+void FilterParameters::loadParameters(XmlElement & xml)
+{
+	*HicutEnable =  xml.getBoolAttribute(HicutEnable->paramID, false);
+	*LowcutEnable = xml.getBoolAttribute(LowcutEnable->paramID, false);
+	*HicutFreq = (float)xml.getDoubleAttribute(HicutFreq->paramID, 22000.0f);
+	*LowcutFreq = (float)xml.getDoubleAttribute(LowcutFreq->paramID, 20.0f);
+}
+
+//-----------------------------------------------------------------------------------------

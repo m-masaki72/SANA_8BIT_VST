@@ -1105,3 +1105,156 @@ void WaveformMemoryParametersComponent::mouseDrag(const MouseEvent& e)
 	}
 	repaint();
 }
+
+//----------------------------------------------------------------------------------------------------
+
+FilterParametersComponent::FilterParametersComponent(FilterParameters* filterParams)
+	: _filterParamsPtr(filterParams)
+	, hiCutSwitch()
+	, lowCutSwitch()
+	, hicutFreqSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
+	, lowcutFreqSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
+{
+	hiCutSwitch.setButtonText("HiCut: ON / OFF");
+	hiCutSwitch.setToggleState(_filterParamsPtr->HicutEnable->get(), dontSendNotification);
+	hiCutSwitch.addListener(this);
+	addAndMakeVisible(hiCutSwitch);
+
+	lowCutSwitch.setButtonText("LowCut: ON / OFF");
+	lowCutSwitch.setToggleState(_filterParamsPtr->LowcutEnable->get(), dontSendNotification);
+	lowCutSwitch.addListener(this);
+	addAndMakeVisible(lowCutSwitch);
+
+	hicutFreqSlider.setRange(_filterParamsPtr->HicutFreq->range.start, _filterParamsPtr->HicutFreq->range.end, 0.1f);
+	hicutFreqSlider.setValue(_filterParamsPtr->HicutFreq->get(), dontSendNotification);
+	hicutFreqSlider.setTextValueSuffix(" Hz");
+	hicutFreqSlider.setSkewFactorFromMidPoint(2000.0f);
+	hicutFreqSlider.addListener(this);
+	addAndMakeVisible(hicutFreqSlider);
+
+	lowcutFreqSlider.setRange(_filterParamsPtr->LowcutFreq->range.start, _filterParamsPtr->LowcutFreq->range.end, 0.1f);
+	lowcutFreqSlider.setValue(_filterParamsPtr->LowcutFreq->get(), dontSendNotification);
+	lowcutFreqSlider.setTextValueSuffix(" Hz");
+	lowcutFreqSlider.setSkewFactorFromMidPoint(2000.0f);
+	lowcutFreqSlider.addListener(this);
+	addAndMakeVisible(lowcutFreqSlider);
+
+	Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
+
+	hicutFreqLabel.setFont(paramLabelFont);
+	hicutFreqLabel.setText("HiCut", dontSendNotification);
+	hicutFreqLabel.setJustificationType(Justification::centred);
+	hicutFreqLabel.setEditable(false, false, false);
+	addAndMakeVisible(hicutFreqLabel);
+
+	lowcutFreqLabel.setFont(paramLabelFont);
+	lowcutFreqLabel.setText("LowCut", dontSendNotification);
+	lowcutFreqLabel.setJustificationType(Justification::centred);
+	lowcutFreqLabel.setEditable(false, false, false);
+	addAndMakeVisible(lowcutFreqLabel);
+
+	startTimerHz(30.0f);
+}
+
+FilterParametersComponent::~FilterParametersComponent()
+{}
+
+void FilterParametersComponent::paint(Graphics & g)
+{
+	Font panelNameFont = Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
+
+	{
+		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
+		g.setColour(PANEL_COLOUR());
+		g.fillRoundedRectangle(x, y, width, height, 10.0f);
+	}
+	{
+		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
+		g.setColour(HEADER_COLOUR());
+		g.fillRoundedRectangle(x, y, width, height, 10.0f);
+	}
+	{
+		Rectangle<int> bounds = getLocalBounds();
+		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
+
+		String text("FILTER");
+		Colour textColour = Colours::white;
+		g.setColour(textColour);
+		g.setFont(panelNameFont);
+		g.drawText(text, textArea, Justification::centred, false);
+	}
+}
+
+void FilterParametersComponent::resized()
+{
+	float rowSize = 4.0f;
+	float divide = 1.0f / rowSize;
+	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
+
+	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
+	bounds.removeFromTop(PANEL_NAME_HEIGHT);
+
+	{
+		float alpha = _filterParamsPtr->HicutEnable->get() ? 1.0f : 0.4f;
+		hicutFreqLabel.setAlpha(alpha);
+		hicutFreqSlider.setAlpha(alpha);
+	}
+	{
+		float alpha = _filterParamsPtr->LowcutEnable->get() ? 1.0f : 0.4f;
+		lowcutFreqLabel.setAlpha(alpha);
+		lowcutFreqSlider.setAlpha(alpha);
+	}
+	{
+		Rectangle<int> area = bounds.removeFromTop(compHeight);
+		area.removeFromLeft(LABEL_WIDTH / 2);
+		hiCutSwitch.setBounds(area.reduced(LOCAL_MARGIN));
+	}
+	{
+		Rectangle<int> area = bounds.removeFromTop(compHeight);
+		hicutFreqLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
+		hicutFreqSlider.setBounds(area.reduced(LOCAL_MARGIN));
+	}
+	{
+		Rectangle<int> area = bounds.removeFromTop(compHeight);
+		area.removeFromLeft(LABEL_WIDTH / 2);
+		lowCutSwitch.setBounds(area.reduced(LOCAL_MARGIN));
+	}
+	{
+		Rectangle<int> area = bounds.removeFromTop(compHeight);
+		lowcutFreqLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
+		lowcutFreqSlider.setBounds(area.reduced(LOCAL_MARGIN));
+	}
+}
+
+void FilterParametersComponent::timerCallback()
+{
+	hicutFreqSlider.setValue(_filterParamsPtr->HicutFreq->get(), dontSendNotification);
+	lowcutFreqSlider.setValue(_filterParamsPtr->LowcutFreq->get(), dontSendNotification);
+}
+
+void FilterParametersComponent::sliderValueChanged(Slider* slider)
+{
+	if (slider == &hicutFreqSlider)
+	{
+		*_filterParamsPtr->HicutFreq = (float)hicutFreqSlider.getValue();
+	}
+	else if (slider == &lowcutFreqSlider)
+	{
+		*_filterParamsPtr->LowcutFreq = (float)lowcutFreqSlider.getValue();
+	}
+}
+
+void FilterParametersComponent::buttonClicked(Button* button)
+{
+	if (button == &hiCutSwitch)
+	{
+		*_filterParamsPtr->HicutEnable = hiCutSwitch.getToggleState();
+	}
+	else if (button == &lowCutSwitch)
+	{
+		*_filterParamsPtr->LowcutEnable = lowCutSwitch.getToggleState();
+	}
+	resized();
+}
+
+//----------------------------------------------------------------------------------------------------

@@ -49,6 +49,7 @@ public:
 
 private:
 	MidiEchoParametersComponent midiEchoParamsComponent;
+	FilterParametersComponent filterParamsComponent;
 	ScopeComponent<float> scopeComponent;
 };
 

@@ -86,7 +86,6 @@ private:
 	float echoTime;
 };
 
-
 //==============================================================================
 class SimpleSynthAudioProcessor  : public AudioProcessor
 {
@@ -166,6 +165,7 @@ public:
 	OptionsParameters optionsParameters;
 	WaveformMemoryParameters waveformMemoryParameters;
 	MidiEchoParameters midiEchoParameters;
+	FilterParameters filterParameters;
 
 private:
 	Synthesiser		  synth;
@@ -179,8 +179,11 @@ private:
 	//[3]のオブジェクトの初期化に必要な情報を保持する構造体[4]
 	dsp::ProcessSpec spec;
 
+	//DSPエフェクト，クリッパー，ドライブ，フィルタ
 	dsp::WaveShaper<float> clipper;
 	dsp::Gain<float> drive;
+	dsp::ProcessorDuplicator<dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float>> hicutFilter;
+	dsp::ProcessorDuplicator<dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float>> lowcutFilter;
 
 	// GUI上のキーボードコンポーネントで生成されたMIDI情報を保持しておくオブジェクト.
 	// MIDIキーボードの状態を同期するためのステートオブジェクト

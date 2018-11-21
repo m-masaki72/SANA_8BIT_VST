@@ -64,9 +64,16 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 	new AudioParameterFloat("ECHO_DURATION", "Echo-Duration", 0.01f, 3.0f, 0.1f),
 	new AudioParameterInt("ECHO_REPEAT", "Echo-Repeat", 1, 5, 1),
 	new AudioParameterFloat("ECHO_VOLUMEOFFSET", "Echo-VolumeOffset", 0.0f, 200.0f, 50.0f)
-	}
-	, waveformMemoryParameters()
-	, scopeDataCollector(scopeDataQueue)
+}
+, filterParameters{
+	new AudioParameterBool("HICUT_ENABLE", "Filter-Hicut-Enable", false),
+	new AudioParameterBool("LOWCUT_ENABLE", "Filter-Lowcut-Enable", false),
+	new AudioParameterFloat("FILTER_HICUT-FREQ", "Filter-Hicut-Freq", 40.0f, 20000.0f, 20000.0f),
+	new AudioParameterFloat("FILTER_LOWCUT-FREQ", "Filter-Lowcut-Freq", 40.0f, 20000.0f, 40.0f)
+}
+, waveformMemoryParameters()
+, scopeDataCollector(scopeDataQueue)
+
 {
 	chipOscParameters.addAllParameters(*this);
 	sweepParameters.addAllParameters(*this);
@@ -75,6 +82,7 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 	optionsParameters.addAllParameters(*this);
 	midiEchoParameters.addAllParameters(*this);
 	waveformMemoryParameters.addAllParameters(*this);
+	filterParameters.addAllParameters(*this);
 }
 
 SimpleSynthAudioProcessor::~SimpleSynthAudioProcessor()
@@ -289,6 +297,12 @@ void SimpleSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 
 	clipper.prepare(spec);
 	clipper.functionToUse = clippingFunction;
+
+	hicutFilter.state = dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, 1000.0f);
+	hicutFilter.prepare(spec);
+
+	lowcutFilter.state = dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, 1000.0f);
+	lowcutFilter.prepare(spec);
 }
 
 void SimpleSynthAudioProcessor::releaseResources()
@@ -361,6 +375,27 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	drive.setGainDecibels(chipOscParameters.VolumeLevel->get());
 	drive.process(context);
 
+	// フィルタ処理
+	{
+		if (filterParameters.HicutEnable->get())
+		{
+			*hicutFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), filterParameters.HicutFreq->get());
+			hicutFilter.process(context);
+		}
+		else
+		{
+			hicutFilter.reset();
+		}
+		if (filterParameters.LowcutEnable->get())
+		{
+			*lowcutFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), filterParameters.LowcutFreq->get());
+			lowcutFilter.process(context);
+		}
+		else
+		{
+			lowcutFilter.reset();
+		}
+	}
 	// クリッピング処理
 	clipper.process(context);
 
@@ -395,6 +430,7 @@ void SimpleSynthAudioProcessor::getStateInformation (MemoryBlock& destData)
 	optionsParameters.saveParameters(*xml);
 	midiEchoParameters.saveParameters(*xml);
 	waveformMemoryParameters.saveParameters(*xml);
+	filterParameters.saveParameters(*xml);
 
 	copyXmlToBinary(*xml, destData);
 }
@@ -417,6 +453,7 @@ void SimpleSynthAudioProcessor::setStateInformation (const void* data, int sizeI
 			optionsParameters.loadParameters(*xmlState);
 			midiEchoParameters.loadParameters(*xmlState);
 			waveformMemoryParameters.loadParameters(*xmlState);
+			filterParameters.loadParameters(*xmlState);
 		}
 	}
 }

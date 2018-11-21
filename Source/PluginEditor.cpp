@@ -89,9 +89,11 @@ void OscPage::resized()
 
 EffectPage::EffectPage(SimpleSynthAudioProcessor& p, LookAndFeel* customLookAndFeel)
 	: midiEchoParamsComponent(&p.midiEchoParameters)
+	, filterParamsComponent(&p.filterParameters)
 	, scopeComponent(p.getAudioBufferQueue())
 {
 	addAndMakeVisible(midiEchoParamsComponent);
+	addAndMakeVisible(filterParamsComponent);
 	addAndMakeVisible(scopeComponent);
 
 	for (Component* child : getChildren()) 
@@ -116,6 +118,10 @@ void EffectPage::resized()
 		Rectangle<int> leftArea = bounds.removeFromLeft(bounds.getWidth() * 0.45);
 		midiEchoParamsComponent.setBounds(leftArea.removeFromTop(leftArea.getHeight() * 0.5).reduced(PANEL_MARGIN));
 		scopeComponent.setBounds(leftArea.reduced(PANEL_MARGIN));
+	}
+	{
+		Rectangle<int> rightArea = bounds;
+		filterParamsComponent.setBounds(rightArea.removeFromTop(rightArea.getHeight() * 0.5).reduced(PANEL_MARGIN));
 	}
 }
 
