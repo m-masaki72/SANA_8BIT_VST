@@ -228,3 +228,39 @@ void WaveformMemoryParameters::loadParameters(XmlElement & xml)
 		*WaveSamplesArray[i] = xml.getIntAttribute(WaveSamplesArray[i]->paramID, 0);
 	}
 }
+
+//-----------------------------------------------------------------------------------------
+
+MidiEchoParameters::MidiEchoParameters(AudioParameterBool* isEchoEnable, AudioParameterFloat* echoDuration, AudioParameterInt* echoRepeat, AudioParameterFloat* volumeOffset)
+	: IsEchoEnable(isEchoEnable)
+	, EchoDuration(echoDuration)
+	, EchoRepeat(echoRepeat)
+	, VolumeOffset(volumeOffset)
+{
+}
+
+void MidiEchoParameters::addAllParameters(AudioProcessor& processor)
+{
+	processor.addParameter(IsEchoEnable);
+	processor.addParameter(EchoDuration);
+	processor.addParameter(EchoRepeat);
+	processor.addParameter(VolumeOffset);
+}
+
+void MidiEchoParameters::saveParameters(XmlElement & xml)
+{
+	xml.setAttribute(IsEchoEnable->paramID, IsEchoEnable->get());
+	xml.setAttribute(EchoDuration->paramID, (double)EchoDuration->get());
+	xml.setAttribute(EchoRepeat->paramID, EchoRepeat->get());
+	xml.setAttribute(VolumeOffset->paramID, (double)VolumeOffset->get());
+}
+
+void MidiEchoParameters::loadParameters(XmlElement & xml)
+{
+	*IsEchoEnable = xml.getBoolAttribute(IsEchoEnable->paramID, true);
+	*EchoDuration = xml.getDoubleAttribute(EchoDuration->paramID, 1000);
+	*EchoRepeat = xml.getIntAttribute(EchoRepeat->paramID, 1);
+	*VolumeOffset = xml.getDoubleAttribute(VolumeOffset->paramID, 100);
+}
+
+//-----------------------------------------------------------------------------------------

@@ -153,3 +153,26 @@ public:
 
 private:
 };
+
+class MidiEchoParameters : public SynthParametersBase
+{
+public:
+	AudioParameterBool*		IsEchoEnable;
+	AudioParameterFloat*	EchoDuration;
+	AudioParameterInt*		EchoRepeat;
+	AudioParameterFloat*	VolumeOffset;
+
+	MidiEchoParameters(
+		AudioParameterBool*		isEchoEnable,
+		AudioParameterFloat*	echoDuration,
+		AudioParameterInt*		echoRepeat,
+		AudioParameterFloat*	volumeOffset
+	);
+
+	virtual void addAllParameters(AudioProcessor& processor) override;
+	virtual void saveParameters(XmlElement& xml) override;
+	virtual void loadParameters(XmlElement& xml) override;
+
+private:
+	MidiEchoParameters() {};
+};

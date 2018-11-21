@@ -23,21 +23,23 @@ public:
 		SUSTAIN,
 		RELEASE,
 		WAIT,
+		ECHO,
 	};
 
 	// ③引数付きコンストラクタ。引数として各パラメータの初期値を渡す。
-	AmpEnvelope(float attackTime, float decayTime, float sustain, float releaseTime);
+	AmpEnvelope(float attackTime, float decayTime, float sustain, float releaseTime, float echoTime);
 	~AmpEnvelope();
 
 	// ④パラメータの状態を取得する関数、状態を変更する関数を宣言する。
 	AMPENV_STATE getState();
 	float getValue();
-	void setParameters(float attackTime, float decayTime, float sustain, float releaseTime);
+	void setParameters(float attackTime, float decayTime, float sustain, float releaseTime, float echoTime);
 	void attackStart();
 	void releaseStart();
 	void releaseEnd();
 	bool isHolding();
 	bool isReleasing();
+	bool isEchoEnded();
 	void cycle(float sampleRate);
 
 private:
@@ -46,7 +48,7 @@ private:
 
 	// ⑤クラス内変数を宣言する
 	AMPENV_STATE _ampState;											// エンベロープの状態を保持する変数
-	float _attackTime, _decayTime, _sustainValue, _releaseTime;		// エンベロープのパラメータを保持する変数
+	float _attackTime, _decayTime, _sustainValue, _releaseTime, _echoTime;		// エンベロープのパラメータを保持する変数
 	float _value, _valueOnReleaseStart, _timer;								// エンベロープの値を保持する変数
 	float _sampleRate;												// シンセサイザーのサンプリングレートを保持する変数
 };

@@ -23,8 +23,8 @@ namespace
 }
 
 // ②引数付きコンストラクタ。初期化指定子にて引数で渡された各パラメータの初期値をクラス内変数に代入する。
-AmpEnvelope::AmpEnvelope(float attackTime, float decayTime, float sustain, float releaseTime)
-	: _attackTime(attackTime), _decayTime(decayTime), _sustainValue(sustain), _releaseTime(releaseTime)
+AmpEnvelope::AmpEnvelope(float attackTime, float decayTime, float sustain, float releaseTime, float echoTime)
+	: _attackTime(attackTime), _decayTime(decayTime), _sustainValue(sustain), _releaseTime(releaseTime), _echoTime(echoTime)
 	, _sampleRate(0.0f), _value(0.0f), _valueOnReleaseStart(0.0f), _timer(0.0f),_ampState(AMPENV_STATE::WAIT)
 {
 	// 各パラメータの値を定数で記述した最大値・最小値の範囲に収める。
@@ -66,13 +66,14 @@ float AmpEnvelope::getValue()
 }
 
 // ⑤エンベロープの各パラメータに値をセットする関数。
-void AmpEnvelope::setParameters(float attackTime, float decayTime, float sustain, float releaseTime)
+void AmpEnvelope::setParameters(float attackTime, float decayTime, float sustain, float releaseTime, float echoTime)
 {
 	// 引数で受け取った値をクラス内変数に代入する。
 	_attackTime = attackTime;
 	_decayTime = decayTime;
 	_sustainValue = sustain;
 	_releaseTime = releaseTime;
+	_echoTime = echoTime;
 
 	// 各パラメータの値を定数で記述した最大値・最小値の範囲に収める。
 	if (_attackTime <= ATTACK_MIN) {
@@ -146,6 +147,11 @@ bool AmpEnvelope::isReleasing()
 	return _ampState == AmpEnvelope::AMPENV_STATE::RELEASE;
 }
 
+bool AmpEnvelope::isEchoEnded()
+{
+	return _ampState == AmpEnvelope::AMPENV_STATE::ECHO;
+}
+
 // ⑪エンベロープの計算処理を1サンプル分進める。この計算処理を実行することで変数の値が更新される。
 void AmpEnvelope::cycle(float sampleRate)
 {
@@ -181,8 +187,8 @@ void AmpEnvelope::cycle(float sampleRate)
 
 	case AMPENV_STATE::RELEASE:		// Release状態時の更新処理
 		_value = (_valueOnReleaseStart) * (_timer - 1.0) * (_timer - 1.0);
-		_timer += 1.0 / (_sampleRate * _releaseTime);
-		if (_value <= AMP_MIN)
+		_timer += 1.0 / (_sampleRate * (_releaseTime));
+		if (_timer >= 1.0f)
 		{
 			_value = AMP_MIN;
 			_timer = 0.0f;
@@ -192,7 +198,11 @@ void AmpEnvelope::cycle(float sampleRate)
 
 	case AMPENV_STATE::WAIT:								// Wait状態時の更新処理
 		_value = AMP_MIN;
-		_timer = 0.0f;
+		_timer += 1.0 / (_sampleRate * _echoTime);
+		if (_timer >= 1.0f)
+		{
+			_ampState = AMPENV_STATE::ECHO;
+		}
 		break;
 	}
 }

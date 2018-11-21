@@ -162,6 +162,35 @@ private:
 	Label pitchBendRangeLabel;
 };
 
+class MidiEchoParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
+{
+public:
+	MidiEchoParametersComponent(MidiEchoParameters* midiEchoParams);
+	virtual ~MidiEchoParametersComponent();
+
+	virtual void paint(Graphics& g) override;
+	virtual void resized() override;
+
+private:
+	MidiEchoParametersComponent();
+
+	virtual void timerCallback() override;
+	virtual void sliderValueChanged(Slider* slider) override;
+	virtual void buttonClicked(Button* button) override;
+	bool isEditable();
+
+	MidiEchoParameters* _midiEchoParamsPtr;
+
+	ToggleButton enableButton;
+	Slider durationSlider;
+	Slider repeatSlider;
+	Slider volumeOffsetSlider;
+
+	Label durationLabel;
+	Label repeatLabel;
+	Label volumeOffsetLabel;
+};
+
 class WaveformMemoryParametersComponent : public Component, private Timer
 {
 public:

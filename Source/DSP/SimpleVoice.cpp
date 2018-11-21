@@ -20,19 +20,21 @@ namespace {
 }
 
 // ②引数付きコンストラクタ
-SimpleVoice::SimpleVoice(ChipOscillatorParameters* chipOscParams, SweepParameters* sweepParams, VibratoParameters* vibratoParams, VoicingParameters* voicingParams, OptionsParameters* optionsParams, WaveformMemoryParameters* waveformMemoryParams)
+SimpleVoice::SimpleVoice(ChipOscillatorParameters* chipOscParams, SweepParameters* sweepParams, VibratoParameters* vibratoParams, VoicingParameters* voicingParams, OptionsParameters* optionsParams, MidiEchoParameters* midiEchoParams, WaveformMemoryParameters* waveformMemoryParams)
 	: _chipOscParamsPtr(chipOscParams)
 	, _sweepParamsPtr(sweepParams)
 	, _vibratoParamsPtr(vibratoParams)
 	, _voicingParamsPtr(voicingParams)
 	, _optionsParamsPtr(optionsParams)
+	, _midiEchoParamsPtr(midiEchoParams)
 	, _waveformMemoryParamsPtr(waveformMemoryParams)
-	, ampEnv(chipOscParams->Attack->get(), chipOscParams->Decay->get(), chipOscParams->Sustain->get(), chipOscParams->Release->get())
-	, vibratoEnv(vibratoParams->VibratoAttackTime->get(), 0.1f, 1.0f, 0.1f)
-	, portaEnv(voicingParams->PortaTime->get(), 0.0f, 1.0f, 0.0f)
+	, ampEnv(chipOscParams->Attack->get(), chipOscParams->Decay->get(), chipOscParams->Sustain->get(), chipOscParams->Release->get(), midiEchoParams->EchoDuration->get() * midiEchoParams->EchoRepeat->get())
+	, vibratoEnv(vibratoParams->VibratoAttackTime->get(), 0.1f, 1.0f, 0.1f, 0.0f)
+	, portaEnv(voicingParams->PortaTime->get(), 0.0f, 1.0f, 0.0f, 0.0f)
 	, currentAngle(0.0f), vibratoAngle(0.0f), angleDelta(0.0f), portaAngleDelta(0.0f)
 	, level(0.0f)
 	, pitchBend(0.0f), pitchSweep(0.0f)
+	, eb(getSampleRate(), midiEchoParams->EchoDuration->get())
 {}
 
 // デストラクタ
@@ -59,6 +61,8 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 		//パラメータ初期化
 		{
 			pitchSweep = 0.0f;
+			eb.init();
+			eb.changeDeleyTime(_midiEchoParamsPtr->EchoDuration->get());
 		}
 		// ベロシティ有効/無効のフラグに応じて音量レベルを決定する。有効...ベロシティの値から算出する。 無効...固定値を使用する。
 		if (_optionsParamsPtr->IsVelocitySense->get())
@@ -189,15 +193,30 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 
 				rb.push_back(currentSample);
 
-				// バッファに対して加算処理を行う。ポリフォニックでは、各ボイスの音を加算処理する必要がある。
-				for (int channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;) {
+
+				//エコー処理とエコーレンダリング
+				if (_midiEchoParamsPtr->IsEchoEnable->get())
+				{
+					eb.addSample(currentSample, _midiEchoParamsPtr->VolumeOffset->get() / 100.0f);
+
+					for (int channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;)
+					{
+						outputBuffer.addSample(channelNum, startSample, eb.getSample(0));
+						outputBuffer.addSample(channelNum, startSample, eb.getSample(1));
+					}
+				}
+				eb.countUp();
+
+				//	リアルタイム音処理  バッファに対して加算処理を行う。ポリフォニックでは、各ボイスの音を加算処理する必要がある。
+				for (int channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;) 
+				{
 					outputBuffer.addSample(channelNum, startSample, rb.getCurrentValue());
 				}
 
-				// エンベロープがリリース状態の場合の処理
-				if (ampEnv.isReleasing())
+				// VOiceの初期化処理
+				// エンベロープにおいて，エフェクトエコーが終わっている or リリース状態のとき				
+				if (ampEnv.isEchoEnded() || (ampEnv.isReleasing() && !_midiEchoParamsPtr->IsEchoEnable->get()))
 				{
-					if (ampEnv.getValue() <= 0.005f) //エンベロープの値が十分に小さければ
 					{
 						ampEnv.releaseEnd();		 // エンベロープをWait状態に移行する。
 						clearCurrentNote();			 // このボイスが生成するノート情報をクリアする。
@@ -208,7 +227,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 						break;
 					}
 				}
-
+				
 				//============ 次のサンプルデータを生成するための準備 ============
 
 				//ピッチ処理
@@ -235,6 +254,8 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 					}
 				}
 
+				// ビブラートエフェクト・スイープエフェクト
+				// currentのピッチに対して処理を行う．
 				vibratoAngle += (_vibratoParamsPtr->VibratoSpeed->get() / (float)getSampleRate()) * TWO_PI;
 
 				if (_sweepParamsPtr->SweepSwitch->getCurrentChoiceName() == "Positive")
@@ -249,17 +270,16 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 				if (currentAngle > TWO_PI) {
 					currentAngle -= TWO_PI;
 				}
-
 				if (vibratoAngle > TWO_PI) {
 					vibratoAngle -= TWO_PI;
 				}
 
 				// エンベロープパラメータを更新して時間分進める
-				ampEnv.setParameters(_chipOscParamsPtr->Attack->get(), _chipOscParamsPtr->Decay->get(), _chipOscParamsPtr->Sustain->get(), _chipOscParamsPtr->Release->get());
+				ampEnv.setParameters(_chipOscParamsPtr->Attack->get(), _chipOscParamsPtr->Decay->get(), _chipOscParamsPtr->Sustain->get(), _chipOscParamsPtr->Release->get(), _midiEchoParamsPtr->EchoDuration->get() * _midiEchoParamsPtr->EchoRepeat->get());
 				ampEnv.cycle((float)getSampleRate());
-				vibratoEnv.setParameters(_vibratoParamsPtr->VibratoAttackTime->get(), 0.1f, 1.0f, 0.1f);
+				vibratoEnv.setParameters(_vibratoParamsPtr->VibratoAttackTime->get(), 0.1f, 1.0f, 0.1f, 0.0f);
 				vibratoEnv.cycle((float)getSampleRate());
-				portaEnv.setParameters(_voicingParamsPtr->PortaTime->get(), 0.0f, 1.0f, 0.0f);
+				portaEnv.setParameters(_voicingParamsPtr->PortaTime->get(), 0.0f, 1.0f, 0.0f, 0.0f);
 				portaEnv.cycle((float)getSampleRate());
 
 				// 書き込み先のオーディオバッファのサンプルインデックス値をインクリメントする。

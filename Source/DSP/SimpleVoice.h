@@ -17,6 +17,7 @@
 #include "Waveforms.h"
 #include "AmpEnvelope.h"
 #include "SimpleSound.h"
+#include <vector>
 
 #define buf_size 7
 
@@ -26,7 +27,7 @@ class RingBuffer
 public:
 	RingBuffer()
 	{
-		for (int i = 0; i < buf_size; i++)
+		for (int i = 0; i < buf_size; ++i)
 		{
 			data[i] = 0.0f;
 		}
@@ -45,7 +46,7 @@ public:
 		//5 sample: 1 4 6 4 1
 		//7 sample 1 6 15 20 15 6 1
 		float val = 0.0f;
-		for (int i = 0; i < buf_size; i++)
+		for (int i = 0; i < buf_size; ++i)
 		{
 			switch (i - index)
 			{
@@ -98,6 +99,95 @@ private:
 	float data[buf_size];
 };
 
+//エコー用のバッファ
+// バッファは エコー秒数 * 最大エコーバッファサイズ を常に確保する．
+// 今回は bufSize * 5
+
+class EchoBuffer
+{
+public:
+	EchoBuffer(int freq, float sec)
+	{
+		sampleRate = freq;
+		echoTime = sec;
+		init();
+	};
+
+	~EchoBuffer()
+	{};
+
+	void init() {
+		bufSize = sampleRate * echoTime;
+		if (bufSize <= 0)
+		{
+			bufSize = 0;
+		}
+		buf.resize(ECHOMAX);
+		for (int i = 0; i < ECHOMAX; ++i)
+		{
+			buf[i].resize(bufSize);
+		}
+		clear();
+	}
+
+	void clear() {
+		for (int i = 0; i < ECHOMAX; ++i)
+		{
+			for (int j = 0; j < bufSize; ++j)
+			{
+				buf[i][j] = 0.0f;
+			}
+		}
+	}
+
+	void addSample(float val, float amp)
+	{
+		if (index >= bufSize)
+		{
+			index = 0;
+		}
+		for (int i = ECHOMAX - 1; i > 0; --i)
+		{
+			buf[i][index] = buf[i-1][index] * amp;
+		}
+		buf[0][index] = val * amp;
+	};
+
+	float getSample(int repeatCount)
+	{
+		int preindex = index + 1;
+		if (preindex >= bufSize)
+		{
+			preindex = 0;
+		}
+		return buf[repeatCount][preindex];
+	};
+
+	void changeDeleyTime(float sec)
+	{
+		echoTime = sec;
+		init();
+	}
+
+	void countUp()
+	{
+		index += 1;
+		if (index >= bufSize)
+		{
+			index = 0;
+		}
+	}
+
+private:
+	std::vector<std::vector<float>> buf;
+	int sampleRate;
+	const int ECHOMAX = 5;
+	int bufSize;
+
+	int index;
+	float echoTime;
+};
+
 // ②クラス名宣言。SynthesiserVoiceクラスを継承する。
 class SimpleVoice : public SynthesiserVoice
 {
@@ -109,6 +199,7 @@ public:
 		VibratoParameters* vibratoParams,
 		VoicingParameters* voicingParams,
 		OptionsParameters* optionsParams,
+		MidiEchoParameters* midiEchoParams,
 		WaveformMemoryParameters* waveformMemoryParams
 	);
 
@@ -130,9 +221,11 @@ private:
 	// ⑥クラス内変数を宣言する。
 	float currentAngle, vibratoAngle, angleDelta, portaAngleDelta;
 	float level;
-	float pitchBend, pitchSweep;	
+	float pitchBend, pitchSweep;
+	std::vector<float> echoSamples;
 	
 	RingBuffer rb;
+	EchoBuffer eb;
 
 	//Waveform用のパラメータ
 	Waveforms waveForms;
@@ -145,6 +238,6 @@ private:
 	VibratoParameters* _vibratoParamsPtr;
 	VoicingParameters* _voicingParamsPtr;
 	OptionsParameters* _optionsParamsPtr;
+	MidiEchoParameters* _midiEchoParamsPtr;
 	WaveformMemoryParameters* _waveformMemoryParamsPtr;
-
 };

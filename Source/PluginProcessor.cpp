@@ -23,14 +23,14 @@
 //==============================================================================
 SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+	: AudioProcessor(BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
+		.withInput("Input", AudioChannelSet::stereo(), true)
+#endif
+		.withOutput("Output", AudioChannelSet::stereo(), true)
+#endif
+	)
 #endif
 	, chipOscParameters{
 		new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 0),
@@ -39,25 +39,31 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 		new AudioParameterFloat("AMPENV_DECAY", "Decay",  0.000f, 10.0f, 0.000f),
 		new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 1.0f),
 		new AudioParameterFloat("AMPENV_RELEASE", "Release", 0.000f, 10.0f, 0.000f)
-	}
-	, sweepParameters{
-		new AudioParameterChoice("SWEEP_SWITCH", "Sweep-Switch", SWEEP_SWITCH, 0),
-		new AudioParameterFloat("SWEEP_TIME", "Sweep-Time",  0.01f, 10.0f, 1.0f),
-	}
-	, vibratoParameters{
-		new AudioParameterBool("VIBRATO_ENABLE", "Vibrato-Enable", true),
-		new AudioParameterFloat("VIBRATO_DEPTH", "Vibrato-Depth",  0.0f, 13.0f, 0.0f),
-		new AudioParameterFloat("VIBRATO_SPEED", "Vibrato-Speed",  0.0f, 20.0f, 0.1000f),
-		new AudioParameterFloat("VIBRATO_ATTACKTIME", "Vibrato-AttackTime",  0.0f, 15.0f, 0.0f)
-	}
-	, voicingParameters{
-		new AudioParameterChoice("VOICING_TYPE", "Voicing-Type", {"POLY", "MONO", "PORTAMENTO"}, 0),
-		new AudioParameterFloat("PORTAMENTO_TIME", "Portamento-Time",  0.0f, 3.0f, 0.0f)
-	}
-	, optionsParameters{
-		new AudioParameterBool("IS_VELOCITY_SENSE", "Is-Velocity-Sense", true),
-		new AudioParameterInt("PITCH_BEND_RANGE", "Pitch-Bend-Range", 1, 13, 2),
-		new AudioParameterInt("PITCH_STANDARD", "Pitch-Standard", 400, 500, 440)
+}
+, sweepParameters{
+	new AudioParameterChoice("SWEEP_SWITCH", "Sweep-Switch", SWEEP_SWITCH, 0),
+	new AudioParameterFloat("SWEEP_TIME", "Sweep-Time",  0.01f, 10.0f, 1.0f),
+}
+, vibratoParameters{
+	new AudioParameterBool("VIBRATO_ENABLE", "Vibrato-Enable", true),
+	new AudioParameterFloat("VIBRATO_DEPTH", "Vibrato-Depth",  0.0f, 13.0f, 0.0f),
+	new AudioParameterFloat("VIBRATO_SPEED", "Vibrato-Speed",  0.0f, 20.0f, 0.1000f),
+	new AudioParameterFloat("VIBRATO_ATTACKTIME", "Vibrato-AttackTime",  0.0f, 15.0f, 0.0f)
+}
+, voicingParameters{
+	new AudioParameterChoice("VOICING_TYPE", "Voicing-Type", {"POLY", "MONO", "PORTAMENTO"}, 0),
+	new AudioParameterFloat("PORTAMENTO_TIME", "Portamento-Time",  0.0f, 3.0f, 0.0f)
+}
+, optionsParameters{
+	new AudioParameterBool("IS_VELOCITY_SENSE", "Is-Velocity-Sense", true),
+	new AudioParameterInt("PITCH_BEND_RANGE", "Pitch-Bend-Range", 1, 13, 2),
+	new AudioParameterInt("PITCH_STANDARD", "Pitch-Standard", 400, 500, 440)
+}
+, midiEchoParameters{
+	new AudioParameterBool("ECHO_ENABLE", "Echo-Enable", false),
+	new AudioParameterFloat("ECHO_DURATION", "Echo-Duration", 0.01f, 3.0f, 0.1f),
+	new AudioParameterInt("ECHO_REPEAT", "Echo-Repeat", 1, 5, 1),
+	new AudioParameterFloat("ECHO_VOLUMEOFFSET", "Echo-VolumeOffset", 0.0f, 200.0f, 50.0f)
 	}
 	, waveformMemoryParameters()
 	, scopeDataCollector(scopeDataQueue)
@@ -67,6 +73,7 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 	vibratoParameters.addAllParameters(*this);
 	voicingParameters.addAllParameters(*this);
 	optionsParameters.addAllParameters(*this);
+	midiEchoParameters.addAllParameters(*this);
 	waveformMemoryParameters.addAllParameters(*this);
 }
 
@@ -271,7 +278,7 @@ void SimpleSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 
 	for (int i = 0; i < numVoices; ++i)
 	{
-		synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters, &vibratoParameters, &voicingParameters, &optionsParameters, &waveformMemoryParameters));
+		synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters, &vibratoParameters, &voicingParameters, &optionsParameters, &midiEchoParameters, &waveformMemoryParameters));
 	}
 
 	spec.sampleRate = sampleRate;
@@ -340,11 +347,8 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 
 		// シンセサイザーでバッファに対して加算処理を行う前にゼロクリアをしておく。
 		buffer.clear(channel, 0, buffer.getNumSamples());
-
     }
-
-	//================================ ボイスセクション ====================================
-
+	
 	synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
 	//================================ エフェクトセクション ====================================
@@ -389,6 +393,7 @@ void SimpleSynthAudioProcessor::getStateInformation (MemoryBlock& destData)
 	vibratoParameters.saveParameters(*xml);
 	voicingParameters.saveParameters(*xml);
 	optionsParameters.saveParameters(*xml);
+	midiEchoParameters.saveParameters(*xml);
 	waveformMemoryParameters.saveParameters(*xml);
 
 	copyXmlToBinary(*xml, destData);
@@ -410,6 +415,7 @@ void SimpleSynthAudioProcessor::setStateInformation (const void* data, int sizeI
 			vibratoParameters.loadParameters(*xmlState);
 			voicingParameters.loadParameters(*xmlState);
 			optionsParameters.loadParameters(*xmlState);
+			midiEchoParameters.loadParameters(*xmlState);
 			waveformMemoryParameters.loadParameters(*xmlState);
 		}
 	}
@@ -427,7 +433,7 @@ void SimpleSynthAudioProcessor::changeVoiceSize()
 		}
 		else
 		{
-			synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters, &vibratoParameters, &voicingParameters, &optionsParameters, &waveformMemoryParameters));
+			synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters, &vibratoParameters, &voicingParameters, &optionsParameters, &midiEchoParameters, &waveformMemoryParameters));
 		}
 	}
 }

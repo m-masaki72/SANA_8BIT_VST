@@ -20,6 +20,7 @@ namespace {
 	const float PARAM_LABEL_FONT_SIZE = 18.0f;
 	const int PANEL_NAME_HEIGHT = 32;
 	const int LOCAL_MARGIN = 2;
+	const int LABEL_WIDTH = 80;
 }
 
 ChipOscillatorComponent::ChipOscillatorComponent(ChipOscillatorParameters* oscParams)
@@ -147,7 +148,6 @@ void ChipOscillatorComponent::resized()
 {
 	float rowSize = 6.0f;
 	float divide = 1.0f / rowSize;
-	int labelWidth = 80;
 
 	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
 
@@ -156,32 +156,32 @@ void ChipOscillatorComponent::resized()
 	
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		waveTypeSelectorLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		waveTypeSelectorLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		waveTypeSelector.setBounds(area.reduced(LOCAL_MARGIN * 2));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		volumeLevelLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		volumeLevelLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		volumeLevelSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		attackLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		attackLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		attackSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		decayLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		decayLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		decaySlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		sustainLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		sustainLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		sustainSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		releaseLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		releaseLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		releaseSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 }
@@ -302,7 +302,6 @@ void SweepParametersComponent::resized()
 {
 	float rowSize = 2.0f;
 	float divide = 1.0f / rowSize;
-	int labelWidth = 60;
 
 	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
 
@@ -316,12 +315,12 @@ void SweepParametersComponent::resized()
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		switchLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		switchLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		sweepSwitchSelector.setBounds(area.reduced(LOCAL_MARGIN * 2));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		timeLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		timeLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		timeSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 }
@@ -450,7 +449,6 @@ void VibratoParametersComponent::resized()
 {
 	float rowSize = 4.0f;
 	float divide = 1.0f / rowSize;
-	int labelWidth = 60;
 
 	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
 
@@ -469,23 +467,23 @@ void VibratoParametersComponent::resized()
 
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		area.removeFromLeft(labelWidth / 2);
+		area.removeFromLeft(LABEL_WIDTH / 2);
 		enableButton.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		amountLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		amountLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		amountSlider.setBounds(area.reduced(LOCAL_MARGIN));
 
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		speedLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		speedLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		speedSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		attackTimeLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		attackTimeLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		attackTimeSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 }
@@ -602,7 +600,6 @@ void VoicingParametersComponent::resized()
 {
 	float rowSize = 2.0f;
 	float divide = 1.0f / rowSize;
-	int labelWidth = 80;
 
 	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
 
@@ -618,12 +615,12 @@ void VoicingParametersComponent::resized()
 
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		voicingTypeSelectorLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		voicingTypeSelectorLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		voicingTypeSelector.setBounds(area.reduced(LOCAL_MARGIN * 2));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		portaTimeLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		portaTimeLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		portaTimeSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 }
@@ -727,7 +724,6 @@ void OptionsParametersComponent::resized()
 {
 	float columnSize = 2.0f;
 	float divide = 1.0f / columnSize;
-	int labelWidth = 80;
 
 	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
 
@@ -736,12 +732,12 @@ void OptionsParametersComponent::resized()
 
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		pitchStandardLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		pitchStandardLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		pitchStandardSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		pitchBendRangeLabel.setBounds(area.removeFromLeft(labelWidth).reduced(LOCAL_MARGIN));
+		pitchBendRangeLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		pitchBendRangeSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 }
@@ -773,13 +769,182 @@ void OptionsParametersComponent::sliderValueChanged(Slider * slider)
 	}
 }
 
+
+//----------------------------------------------------------------------------------------------------
+
+MidiEchoParametersComponent::MidiEchoParametersComponent(MidiEchoParameters * midiEchoParams)
+	:_midiEchoParamsPtr(midiEchoParams)
+	, enableButton("MidiEcho-Enable")
+	, durationSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
+	, repeatSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
+	, volumeOffsetSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
+{
+	enableButton.setButtonText("ON / OFF");
+	enableButton.setToggleState(_midiEchoParamsPtr->IsEchoEnable->get(), dontSendNotification);
+	enableButton.addListener(this);
+	addAndMakeVisible(enableButton);
+
+	durationSlider.setRange(_midiEchoParamsPtr->EchoDuration->range.start, _midiEchoParamsPtr->EchoDuration->range.end, 0.01);
+	durationSlider.setValue(_midiEchoParamsPtr->EchoDuration->get(), dontSendNotification);
+	durationSlider.setTextValueSuffix(" sec");
+	durationSlider.setSkewFactorFromMidPoint(0.5f);
+	durationSlider.addListener(this);
+	addAndMakeVisible(durationSlider);
+
+	repeatSlider.setRange(_midiEchoParamsPtr->EchoRepeat->getRange().getStart(), _midiEchoParamsPtr->EchoRepeat->getRange().getEnd(), 1);
+	repeatSlider.setValue(_midiEchoParamsPtr->EchoRepeat->get(), dontSendNotification);
+	repeatSlider.addListener(this);
+	addAndMakeVisible(repeatSlider);
+
+	volumeOffsetSlider.setRange(_midiEchoParamsPtr->VolumeOffset->range.start, _midiEchoParamsPtr->VolumeOffset->range.end, 0.1);
+	volumeOffsetSlider.setSkewFactorFromMidPoint(100.0f);
+	volumeOffsetSlider.setValue(_midiEchoParamsPtr->VolumeOffset->get(), dontSendNotification);
+	volumeOffsetSlider.setTextValueSuffix(" %");
+	volumeOffsetSlider.addListener(this);
+	addAndMakeVisible(volumeOffsetSlider);
+
+	Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
+
+	durationLabel.setFont(paramLabelFont);
+	durationLabel.setText("Duration", dontSendNotification);
+	durationLabel.setJustificationType(Justification::centred);
+	durationLabel.setEditable(false, false, false);
+	addAndMakeVisible(durationLabel);
+
+	repeatLabel.setFont(paramLabelFont);
+	repeatLabel.setText("Repeat", dontSendNotification);
+	repeatLabel.setJustificationType(Justification::centred);
+	repeatLabel.setEditable(false, false, false);
+	addAndMakeVisible(repeatLabel);
+
+	volumeOffsetLabel.setFont(paramLabelFont);
+	volumeOffsetLabel.setText("Vol Offset", dontSendNotification);
+	volumeOffsetLabel.setJustificationType(Justification::centred);
+	volumeOffsetLabel.setEditable(false, false, false);
+	addAndMakeVisible(volumeOffsetLabel);
+
+	startTimerHz(30.0f);
+}
+
+MidiEchoParametersComponent::~MidiEchoParametersComponent()
+{}
+
+void MidiEchoParametersComponent::paint(Graphics & g)
+{
+	Font panelNameFont = Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
+
+	{
+		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
+		g.setColour(PANEL_COLOUR());
+		g.fillRoundedRectangle(x, y, width, height, 10.0f);
+	}
+
+	{
+		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
+		g.setColour(HEADER_COLOUR());
+		g.fillRoundedRectangle(x, y, width, height, 10.0f);
+	}
+
+	{
+		Rectangle<int> bounds = getLocalBounds();
+		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
+
+		String text("MIDI ECHO");
+		Colour textColour = Colours::white;
+		g.setColour(textColour);
+		g.setFont(panelNameFont);
+		g.drawText(text, textArea, Justification::centred, false);
+	}
+}
+
+void MidiEchoParametersComponent::resized()
+{
+	float rowSize = 4.0f;
+	float divide = 1.0f / rowSize;
+
+	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
+
+	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
+	bounds.removeFromTop(PANEL_NAME_HEIGHT);
+	
+	{
+		float alpha = isEditable() ? 1.0f : 0.4f;
+		durationLabel.setAlpha(alpha);
+		durationSlider.setAlpha(alpha);
+		repeatLabel.setAlpha(alpha);
+		repeatSlider.setAlpha(alpha);
+		volumeOffsetLabel.setAlpha(alpha);
+		volumeOffsetSlider.setAlpha(alpha);
+	}
+
+	{
+		Rectangle<int> area = bounds.removeFromTop(compHeight);
+		area.removeFromLeft(LABEL_WIDTH / 2);
+		enableButton.setBounds(area.reduced(LOCAL_MARGIN));
+	}
+	{
+		Rectangle<int> area = bounds.removeFromTop(compHeight);
+		durationLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
+		durationSlider.setBounds(area.reduced(LOCAL_MARGIN));
+
+	}
+	{
+		Rectangle<int> area = bounds.removeFromTop(compHeight);
+		repeatLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
+		repeatSlider.setBounds(area.reduced(LOCAL_MARGIN));
+	}
+	{
+		Rectangle<int> area = bounds.removeFromTop(compHeight);
+		volumeOffsetLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
+		volumeOffsetSlider.setBounds(area.reduced(LOCAL_MARGIN));
+	}
+}
+
+void MidiEchoParametersComponent::timerCallback()
+{
+	enableButton.setToggleState(_midiEchoParamsPtr->IsEchoEnable->get(), dontSendNotification);
+	durationSlider.setValue(_midiEchoParamsPtr->EchoDuration->get(), dontSendNotification);
+	repeatSlider.setValue(_midiEchoParamsPtr->EchoRepeat->get(), dontSendNotification);
+	volumeOffsetSlider.setValue(_midiEchoParamsPtr->VolumeOffset->get(), dontSendNotification);
+}
+
+void MidiEchoParametersComponent::sliderValueChanged(Slider* slider)
+{
+	if (slider == &durationSlider)
+	{
+		*_midiEchoParamsPtr->EchoDuration = (float)durationSlider.getValue();
+	}
+	else if (slider == &repeatSlider)
+	{
+		*_midiEchoParamsPtr->EchoRepeat = (float)repeatSlider.getValue();
+	}
+	else if (slider == &volumeOffsetSlider)
+	{
+		*_midiEchoParamsPtr->VolumeOffset = (float)volumeOffsetSlider.getValue();
+	}
+}
+
+void MidiEchoParametersComponent::buttonClicked(Button* button)
+{
+	if (button == &enableButton)
+	{
+		*_midiEchoParamsPtr->IsEchoEnable = enableButton.getToggleState();
+	}
+	resized();
+}
+
+bool MidiEchoParametersComponent::isEditable()
+{
+	return _midiEchoParamsPtr->IsEchoEnable->get();
+}
+
 //----------------------------------------------------------------------------------------------------
 
 WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams)
 	: _waveformMemoryParamsPtr(waveformMemoryParams)
 	, waveSampleSlider{}
 {
-	for (int i = 0; i < WAVESAMPLE_LENGTH; i++)
+	for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
 	{
 		waveSampleSlider[i].setRange(0, 15, 1.0);
 		waveSampleSlider[i].setValue(7, dontSendNotification);
@@ -849,7 +1014,7 @@ void WaveformMemoryParametersComponent::paint(Graphics & g)
 		bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(10);
 
 		//Draw Scale Line
-		for (int i = 1; i < 4; i++)
+		for (int i = 1; i < 4; ++i)
 		{
 			float p_y = PANEL_NAME_HEIGHT + bounds.getHeight() * 0.25 * i;
 			Line<float> line(0.0f, p_y, getWidth() , p_y);
@@ -857,7 +1022,7 @@ void WaveformMemoryParametersComponent::paint(Graphics & g)
 			g.drawLine(line, 1.0f);
 		}
 
-		for (int i = 1; i < 8; i++)
+		for (int i = 1; i < 8; ++i)
 		{
 			float p_x = compWidth * i * 4.0f - 0.50f * i; //手作業で調整しました
 			Line<float> line(p_x, PANEL_NAME_HEIGHT , p_x, getHeight());
@@ -866,7 +1031,7 @@ void WaveformMemoryParametersComponent::paint(Graphics & g)
 		}
 
 		//Draw Slider
-		for (int i = 0; i < WAVESAMPLE_LENGTH; i++)
+		for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
 		{
 			Rectangle<int> area = bounds.removeFromLeft(compWidth);
 			area.removeFromTop(bounds.getHeight() / rowSize * (waveSampleSlider[i].getMaximum() - waveSampleSlider[i].getValue()));
@@ -882,7 +1047,7 @@ void WaveformMemoryParametersComponent::resized()
 
 void WaveformMemoryParametersComponent::timerCallback()
 {
-	for (int i = 0; i < 32; i++)
+	for (int i = 0; i < 32; ++i)
 	{
 		waveSampleSlider[i].setValue(_waveformMemoryParamsPtr->WaveSamplesArray[i]->get(), dontSendNotification);
 	}
@@ -890,7 +1055,7 @@ void WaveformMemoryParametersComponent::timerCallback()
 
 void WaveformMemoryParametersComponent::updateValue()
 {
-	for (int i = 0; i < 32; i++)
+	for (int i = 0; i < 32; ++i)
 	{
 		*_waveformMemoryParamsPtr->WaveSamplesArray[i] = (int)waveSampleSlider[i].getValue();
 	}

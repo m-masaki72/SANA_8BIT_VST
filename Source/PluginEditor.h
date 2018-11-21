@@ -48,6 +48,7 @@ public:
 	void resized() override;
 
 private:
+	MidiEchoParametersComponent midiEchoParamsComponent;
 	ScopeComponent<float> scopeComponent;
 };
 
