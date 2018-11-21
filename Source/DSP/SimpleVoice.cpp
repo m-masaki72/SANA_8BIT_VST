@@ -201,8 +201,10 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 
 					for (int channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;)
 					{
-						outputBuffer.addSample(channelNum, startSample, eb.getSample(0));
-						outputBuffer.addSample(channelNum, startSample, eb.getSample(1));
+						for (int i = 0; i < _midiEchoParamsPtr->EchoRepeat->get(); ++i)
+						{
+							outputBuffer.addSample(channelNum, startSample, eb.getSample(i));
+						}
 					}
 				}
 				eb.countUp();
