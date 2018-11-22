@@ -34,7 +34,7 @@ SimpleVoice::SimpleVoice(ChipOscillatorParameters* chipOscParams, SweepParameter
 	, currentAngle(0.0f), vibratoAngle(0.0f), angleDelta(0.0f), portaAngleDelta(0.0f)
 	, level(0.0f)
 	, pitchBend(0.0f), pitchSweep(0.0f)
-	, eb(getSampleRate(), midiEchoParams->EchoDuration->get(), midiEchoParams->EchoRepeat->get())
+	, eb((int)getSampleRate(), (float)midiEchoParams->EchoDuration->get(), midiEchoParams->EchoRepeat->get())
 {}
 
 // デストラクタ

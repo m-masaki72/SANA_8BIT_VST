@@ -115,7 +115,7 @@ float Waveforms::longNoise(float angleDelta)
 		int result = (noizeReg ^ (noizeReg >> 1)) & 1;
 		noizeReg = noizeReg >> 1;
 		noizeReg |= result << 14;
-		noiseVal = (noizeReg & 1) * 2.0 - 1;
+		noiseVal = (noizeReg & 1) * 2.0f - 1.0f;
 	}
 	return noiseVal;
 }
@@ -131,7 +131,7 @@ float Waveforms::shortNoise(float angleDelta)
 		int result = (noizeReg ^ (noizeReg >> 6)) & 1;
 		noizeReg = noizeReg >> 1;
 		noizeReg |= result << 14;
-		noiseVal = (noizeReg & 1) * 2.0 - 1;
+		noiseVal = (noizeReg & 1) * 2.0f - 1.0f;
 	}
 	return noiseVal;
 }
@@ -142,7 +142,7 @@ float Waveforms::lobitNoise(float angleDelta)
 	if (freqCounter++ > TWO_PI / angleDelta / (2 << 4)) 
 	{
 		freqCounter = 0;
-		noiseVal = Random::getSystemRandom().nextFloat() * 2.0 - 1.0;
+		noiseVal = Random::getSystemRandom().nextFloat() * 2.0f - 1.0f;
 	}
 	return quantize(noiseVal);
 }
@@ -213,7 +213,7 @@ float Waveforms::waveformMemory(float angle, WaveformMemoryParameters* _waveform
 
 	//valの範囲を変換 0~15 -> -1.0~1.0
 	int val = _waveformMemoryParamsPtr->WaveSamplesArray[(int)(angle * WAVESAMPLE_LENGTH / TWO_PI)]->get();
-	return val / 8.0f - 1.0;
+	return val / 8.0f - 1.0f;
 }
 
 // 4bitクオンタイズ関数 qNum * 2倍の数でクオンタイズする

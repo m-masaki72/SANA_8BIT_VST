@@ -131,9 +131,9 @@ void AmpEnvelope::cycle(float sampleRate)
 	{
 	// Attack状態時の更新処理
 	case AMPENV_STATE::ATTACK:
-		_value = _timer * (2.0 - _timer);
-		_timer += 1.0 / (_sampleRate * _attackTime);
-		if (_timer >= 1.0)
+		_value = _timer * (2.0f - _timer);
+		_timer += 1.0f / (_sampleRate * _attackTime);
+		if (_timer >= 1.0f)
 		{
 			_value = AMP_MAX;
 			_timer = 0.0f;
@@ -142,9 +142,9 @@ void AmpEnvelope::cycle(float sampleRate)
 		break;
 	// Decay状態時の更新処理
 	case AMPENV_STATE::DECAY:
-		_value = (1.0 - _sustainValue) * (_timer - 1.0) * (_timer - 1.0) + _sustainValue;
-		_timer += 1.0 / (_sampleRate * _decayTime);
-		if (_timer >= 1.0)
+		_value = (1.0f - _sustainValue) * (_timer - 1.0f) * (_timer - 1.0f) + _sustainValue;
+		_timer += 1.0f / (_sampleRate * _decayTime);
+		if (_timer >= 1.0f)
 		{
 			_value = _sustainValue;
 			_timer = 0.0f;
@@ -158,8 +158,8 @@ void AmpEnvelope::cycle(float sampleRate)
 		break;
 	// Release状態時の更新処理
 	case AMPENV_STATE::RELEASE:
-		_value = (_valueOnReleaseStart) * (_timer - 1.0) * (_timer - 1.0);
-		_timer += 1.0 / (_sampleRate * (_releaseTime));
+		_value = (_valueOnReleaseStart) * (_timer - 1.0f) * (_timer - 1.0f);
+		_timer += 1.0f / (_sampleRate * (_releaseTime));
 		if (_timer >= 1.0f)
 		{
 			_value = AMP_MIN;
@@ -170,7 +170,7 @@ void AmpEnvelope::cycle(float sampleRate)
 	// Wait状態時の更新処理	
 	case AMPENV_STATE::WAIT:
 		_value = AMP_MIN;
-		_timer += 1.0 / (_sampleRate * _echoTime);
+		_timer += 1.0f / (_sampleRate * _echoTime);
 		if (_timer >= 1.0f)
 		{
 			_ampState = AMPENV_STATE::ECHO;

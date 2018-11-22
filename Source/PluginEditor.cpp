@@ -16,7 +16,7 @@
 
 namespace 
 {
-	const float KEY_HEIGHT = 80.0f;
+	const int KEY_HEIGHT = 80;
 	const float KEY_WIDTH = 32.0f;
 	const float KEY_SCROLL_WIDTH = 32.0f;
 	const int PANEL_MARGIN = 3;
@@ -28,7 +28,7 @@ namespace
 
 //----------------------------------------------------------------------------------------------------
 
-OscPage::OscPage(SimpleSynthAudioProcessor& p, LookAndFeel* customLookAndFeel)
+OscPage::OscPage(SimpleSynthAudioProcessor& p)
 	: chipOscComponent(&p.chipOscParameters)
 	, sweepParamsComponent(&p.sweepParameters)
 	, vibratoParamsComponent(&p.vibratoParameters)
@@ -44,12 +44,6 @@ OscPage::OscPage(SimpleSynthAudioProcessor& p, LookAndFeel* customLookAndFeel)
 	addAndMakeVisible(optionsParamsComponent);
 	addAndMakeVisible(waveformMemoryParamsComponent);
 	addAndMakeVisible(scopeComponent);
-
-	for (Component* child : getChildren()) 
-	{
-		child->setLookAndFeel(customLookAndFeel);
-	}
-
 }
 
 OscPage::~OscPage()
@@ -64,30 +58,38 @@ void OscPage::resized()
 {
 	Rectangle<int> bounds = getLocalBounds();
 	{
-		Rectangle<int> leftArea = bounds.removeFromLeft(bounds.getWidth() * 0.45);
-		chipOscComponent.setBounds(leftArea.removeFromTop(leftArea.getHeight() * 0.5).reduced(PANEL_MARGIN));
+		Rectangle<int> leftArea = bounds.removeFromLeft(bounds.getWidth() * 0.45f);
+		chipOscComponent.setBounds(leftArea.removeFromTop(leftArea.getHeight() * 0.5f).reduced(PANEL_MARGIN));
 		scopeComponent.setBounds(leftArea.reduced(PANEL_MARGIN));
 	}
 	{
 		Rectangle<int> rightArea = bounds;
 		int HEIGHT = rightArea.getHeight();
-		waveformMemoryParamsComponent.setBounds(rightArea.removeFromTop(HEIGHT * 0.45).reduced(PANEL_MARGIN));
+		waveformMemoryParamsComponent.setBounds(rightArea.removeFromTop(HEIGHT * 0.45f).reduced(PANEL_MARGIN));
 		{
-			Rectangle<int> area = rightArea.removeFromTop(HEIGHT * 0.33);
-			sweepParamsComponent.setBounds(area.removeFromLeft(area.getWidth() * .5).reduced(PANEL_MARGIN));
+			Rectangle<int> area = rightArea.removeFromTop(HEIGHT * 0.33f);
+			sweepParamsComponent.setBounds(area.removeFromLeft(area.getWidth() * 0.5f).reduced(PANEL_MARGIN));
 			vibratoParamsComponent.setBounds(area.reduced(PANEL_MARGIN));
 		}
 		{
 			Rectangle<int> area = rightArea.reduced(PANEL_MARGIN);
-			voicingParamsComponent.setBounds(area.removeFromLeft(area.getWidth() * .5).reduced(PANEL_MARGIN));
+			voicingParamsComponent.setBounds(area.removeFromLeft(area.getWidth() * 0.5f).reduced(PANEL_MARGIN));
 			optionsParamsComponent.setBounds(area.reduced(PANEL_MARGIN));
 		}
 	}
 }
 
+void OscPage::setLookAndFeel(LookAndFeel* customLookAndFeel)
+{
+	for (Component* child : getChildren())
+	{
+		child->setLookAndFeel(customLookAndFeel);
+	}
+}
+
 //----------------------------------------------------------------------------------------------------
 
-EffectPage::EffectPage(SimpleSynthAudioProcessor& p, LookAndFeel* customLookAndFeel)
+EffectPage::EffectPage(SimpleSynthAudioProcessor& p)
 	: midiEchoParamsComponent(&p.midiEchoParameters)
 	, filterParamsComponent(&p.filterParameters)
 	, scopeComponent(p.getAudioBufferQueue())
@@ -95,11 +97,6 @@ EffectPage::EffectPage(SimpleSynthAudioProcessor& p, LookAndFeel* customLookAndF
 	addAndMakeVisible(midiEchoParamsComponent);
 	addAndMakeVisible(filterParamsComponent);
 	addAndMakeVisible(scopeComponent);
-
-	for (Component* child : getChildren()) 
-	{
-		child->setLookAndFeel(customLookAndFeel);
-	}
 }
 
 EffectPage::~EffectPage()
@@ -115,13 +112,21 @@ void EffectPage::resized()
 	Rectangle<int> bounds = getLocalBounds();
 
 	{
-		Rectangle<int> leftArea = bounds.removeFromLeft(bounds.getWidth() * 0.45);
-		midiEchoParamsComponent.setBounds(leftArea.removeFromTop(leftArea.getHeight() * 0.5).reduced(PANEL_MARGIN));
+		Rectangle<int> leftArea = bounds.removeFromLeft(bounds.getWidth() * 0.45f);
+		midiEchoParamsComponent.setBounds(leftArea.removeFromTop(leftArea.getHeight() * 0.5f).reduced(PANEL_MARGIN));
 		scopeComponent.setBounds(leftArea.reduced(PANEL_MARGIN));
 	}
 	{
 		Rectangle<int> rightArea = bounds;
-		filterParamsComponent.setBounds(rightArea.removeFromTop(rightArea.getHeight() * 0.5).reduced(PANEL_MARGIN));
+		filterParamsComponent.setBounds(rightArea.removeFromTop(rightArea.getHeight() * 0.5f).reduced(PANEL_MARGIN));
+	}
+}
+
+void EffectPage::setLookAndFeel(LookAndFeel* customLookAndFeel)
+{
+	for (Component* child : getChildren())
+	{
+		child->setLookAndFeel(customLookAndFeel);
 	}
 }
 
@@ -131,9 +136,19 @@ SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudi
 	: AudioProcessorEditor(&p), processor(p)
 	, keyboardComponent(p.getKeyboardState(), MidiKeyboardComponent::Orientation::horizontalKeyboard)
 	, tabs(TabbedButtonBar::TabsAtTop)
-	, p1(p, customLookAndFeel)
-	, p2(p, customLookAndFeel)
+	, p1(p)
+	, p2(p)
 {
+	/*
+	順番に注意すること
+	以下順番を守らないと，DAWによって表示されたりされなかったりする
+	
+	1. コンポーネントのコンストラクタ
+	2. メインのAddAndMakeVisible
+	3. setSize()
+	4. LookAndFeelの更新
+	*/
+	
 	addAndMakeVisible(keyboardComponent);
 	addAndMakeVisible(p1);
 	addAndMakeVisible(p2);
@@ -144,6 +159,9 @@ SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudi
 
 	tabs.addTab("OSCILLATOR", BACKGROUND_COLOUR(), &p1, false);
 	tabs.addTab("EFFECTS", BACKGROUND_COLOUR(), &p2, false);
+
+	setOpaque(true);
+	setSize(960, 540 + KEY_HEIGHT);
 
 	{
 		customLookAndFeel = new LookAndFeel_V4(LookAndFeel_V4::getLightColourScheme());
@@ -165,16 +183,15 @@ SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudi
 		{
 			child->setLookAndFeel(customLookAndFeel);
 		}
+		p1.setLookAndFeel(customLookAndFeel);
+		p2.setLookAndFeel(customLookAndFeel);
 
 		//Set Tabs Style
 		{
-			tabs.setTabBarDepth(TAB_HEIGHT);
-			tabs.setIndent(5.0f);
+			//tabs.setTabBarDepth(TAB_HEIGHT);
+			//tabs.setIndent(5.0f);
 		}
 	}
-
-	//サイズ宣言はコンストラクタなどが終了したあとに呼ぶ
-	setSize(960, 540 + KEY_HEIGHT);
 }
 
 SimpleSynthAudioProcessorEditor::~SimpleSynthAudioProcessorEditor()
@@ -189,6 +206,10 @@ SimpleSynthAudioProcessorEditor::~SimpleSynthAudioProcessorEditor()
 void SimpleSynthAudioProcessorEditor::paint (Graphics& g)
 {
 	g.fillAll(TAB_BACKGROUND_COLOUR());
+
+	//g.setColour(Colours::white);
+	//g.setFont(32.0f);
+	//g.drawFittedText("BPM: " + std::to_string(processor.currentPositionInfo.bpm), getLocalBounds(), Justification::topRight, 1);
 }
 
 void SimpleSynthAudioProcessorEditor::resized()

@@ -18,74 +18,6 @@
 #include "DSP/SimpleSynthParameters.h"
 #include "GUI/ScopeComponent.h"
 
-class MidiSignalBuffer
-{
-public:
-
-	MidiSignalBuffer(int freq, int block, float sec)
-	{
-		sampleRate = freq;
-		echoTime = sec;
-		blockSize = block;
-		bufSize = sampleRate / blockSize * echoTime;
-		buf = new MidiBuffer[bufSize];
-	};
-
-	~MidiSignalBuffer()
-	{
-		delete[] buf;
-	};
-
-	void addSample(MidiBuffer& mb, float amp)
-	{
-		MidiBuffer::Iterator itr(mb);
-		MidiMessage m;
-		int midiPositon;
-
-		buf[index].clear();
-
-		while (itr.getNextEvent(m, midiPositon))
-		{
-			m.setVelocity(0.3f);
-			buf[index].addEvent(m, midiPositon);
-		}
-	};
-
-	MidiBuffer getSample()
-	{
-		int preindex = index + 1;
-		if (preindex >= bufSize) 
-		{
-			preindex = 0;
-		}
-		return buf[preindex];
-	};
-
-	void changeDeleyTime(float sec)
-	{
-		delete[] buf;
-		echoTime = sec;
-		bufSize = sampleRate / blockSize * echoTime;
-		buf = new MidiBuffer[bufSize];
-	}
-
-	void countUp() 
-	{
-		index += 1;
-		if (index >= bufSize)
-		{
-			index = 0;
-		}
-	}
-
-private:
-	MidiBuffer* buf;
-	int sampleRate, blockSize;
-	int index;
-	int bufSize;
-	float echoTime;
-};
-
 //==============================================================================
 class SimpleSynthAudioProcessor  : public AudioProcessor
 {
@@ -166,6 +98,10 @@ public:
 	WaveformMemoryParameters waveformMemoryParameters;
 	MidiEchoParameters midiEchoParameters;
 	FilterParameters filterParameters;
+
+	//HOST先APPの情報を保持する
+	AudioPlayHead* playHead;
+	AudioPlayHead::CurrentPositionInfo currentPositionInfo;
 
 private:
 	Synthesiser synth;

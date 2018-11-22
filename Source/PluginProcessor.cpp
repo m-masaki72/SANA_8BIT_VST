@@ -340,6 +340,13 @@ bool SimpleSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 
 void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
+	playHead = this->getPlayHead();
+	if (playHead)
+	{
+		playHead->getCurrentPosition(currentPositionInfo);
+	}
+	optionsParameters.currentBPM = (float)currentPositionInfo.bpm;
+
 	// ⑦MidiKeyboardStateクラスのオブジェクトにMIDIデバイスから入力されたMIDIバッファを渡すとともに、
 	//   GUIのキーボードコンポーネントで生成されたMIDIデータをのMIDIバッファに追加する処理を行う。
 	keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
@@ -358,8 +365,7 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* channelData = buffer.getWritePointer (channel);
-
+        //auto* channelData = buffer.getWritePointer (channel);
         // ..do something to the data...
 
 		// シンセサイザーでバッファに対して加算処理を行う前にゼロクリアをしておく。

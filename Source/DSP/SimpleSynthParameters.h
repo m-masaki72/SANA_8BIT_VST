@@ -122,6 +122,7 @@ public:
 	AudioParameterBool* IsVelocitySense;
 	AudioParameterInt*	PitchBendRange;
 	AudioParameterInt*	PitchStandard;
+	float currentBPM;
 
 	OptionsParameters(
 		AudioParameterBool* isVelocitySense,

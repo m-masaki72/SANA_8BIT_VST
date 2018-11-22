@@ -22,10 +22,11 @@
 class OscPage : public Component
 {
 public:
-	OscPage(SimpleSynthAudioProcessor& p, LookAndFeel* customLookAndFeel);
+	OscPage(SimpleSynthAudioProcessor& p);
 	~OscPage();
 	void paint(Graphics& g) override;
 	void resized() override;
+	void setLookAndFeel(LookAndFeel* customLookAndFeel);
 
 private:
 	ScopeComponent<float> scopeComponent;
@@ -42,10 +43,11 @@ private:
 class EffectPage : public Component
 {
 public:
-	EffectPage(SimpleSynthAudioProcessor& p, LookAndFeel* customLookAndFeel);
+	EffectPage(SimpleSynthAudioProcessor& p);
 	~EffectPage();
 	void paint(Graphics& g) override;
 	void resized() override;
+	void setLookAndFeel(LookAndFeel* customLookAndFeel);
 
 private:
 	MidiEchoParametersComponent midiEchoParamsComponent;
@@ -73,7 +75,7 @@ private:
 
 	LookAndFeel* customLookAndFeel;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleSynthAudioProcessorEditor);
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleSynthAudioProcessorEditor)
 };
 
 

@@ -16,7 +16,6 @@
 #include "Waveforms.h"
 #include "AmpEnvelope.h"
 #include "SimpleSound.h"
-#include <vector>
 
 namespace
 {
@@ -117,7 +116,7 @@ public:
 	{};
 
 	void init() {
-		bufSize = sampleRate * echoTime;
+		bufSize = (int)(sampleRate * echoTime);
 		if (bufSize <= 0)
 		{
 			bufSize = 0;
@@ -144,7 +143,7 @@ public:
 			index = 0;
 		}
 		//一つずつ前のバッファのサンプルを補完，1サンプル前のバッファを補完していく
-		for (int i = buf.size() - 1; i > 0; --i)
+		for (int i = (int)buf.size() - 1; i > 0; --i)
 		{
 			buf[i][index] = buf[i-1][index] * amp;
 		}

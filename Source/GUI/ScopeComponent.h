@@ -229,7 +229,7 @@ public:
 		Font panelNameFont = Font(24.0f, Font::plain).withTypefaceStyle("Italic");
 
 		{
-			int x = 0.0f, y = 0.0f, width = getWidth(), height = getHeight();
+			float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
 			g.setColour(PANEL_COLOUR());
 			g.fillRoundedRectangle(x, y, width, height, 10.0f);
 		}
@@ -252,7 +252,7 @@ public:
 		// 波形を描画する矩形領域を特定する
 		Rectangle<int> drawArea = getLocalBounds();
 		drawArea.removeFromTop(PANEL_NAME_HEIGHT);
-		drawArea.reduce(drawArea.getWidth()* 0.05f, drawArea.getHeight()* 0.1f);
+		drawArea.reduce((int)(drawArea.getWidth()* 0.05f), (int)(drawArea.getHeight()* 0.1f));
 
 		// 波形を描画する矩形領域の背景を灰色に塗りつぶす
 		g.setColour(juce::Colours::darkgrey);

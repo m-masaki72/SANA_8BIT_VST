@@ -250,9 +250,9 @@ void MidiEchoParameters::saveParameters(XmlElement& xml)
 void MidiEchoParameters::loadParameters(XmlElement& xml)
 {
 	*IsEchoEnable = xml.getBoolAttribute(IsEchoEnable->paramID, true);
-	*EchoDuration = xml.getDoubleAttribute(EchoDuration->paramID, 1000);
+	*EchoDuration = (float)xml.getDoubleAttribute(EchoDuration->paramID, 1000);
 	*EchoRepeat = xml.getIntAttribute(EchoRepeat->paramID, 1);
-	*VolumeOffset = xml.getDoubleAttribute(VolumeOffset->paramID, 100);
+	*VolumeOffset = (float)xml.getDoubleAttribute(VolumeOffset->paramID, 100);
 }
 
 //-----------------------------------------------------------------------------------------
