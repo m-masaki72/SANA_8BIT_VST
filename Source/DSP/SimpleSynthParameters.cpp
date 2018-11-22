@@ -13,12 +13,10 @@
 
 ChipOscillatorParameters::ChipOscillatorParameters(AudioParameterChoice* oscWaveType, AudioParameterFloat* volumeLevel,	AudioParameterFloat* attack, AudioParameterFloat* decay, AudioParameterFloat* sustain, AudioParameterFloat* release)
 	:OscWaveType(oscWaveType),VolumeLevel(volumeLevel), Attack(attack), Decay(decay), Sustain(sustain), Release(release)
-{
-}
+{}
 
 void ChipOscillatorParameters::addAllParameters(AudioProcessor& processor)
 {
-	// 引数で受け取ったAudioProcessorクラスの参照を介してaddParameter関数を実行してパラメータを追加する。
 	processor.addParameter(OscWaveType);
 	processor.addParameter(VolumeLevel);
 	processor.addParameter(Attack);
@@ -53,8 +51,7 @@ void ChipOscillatorParameters::loadParameters(XmlElement& xml)
 
 SweepParameters::SweepParameters(AudioParameterChoice* sweepSwitch, AudioParameterFloat* sweepTime)
 	: SweepSwitch(sweepSwitch), SweepTime(sweepTime)
-{
-}
+{}
 
 void SweepParameters::addAllParameters(AudioProcessor& processor)
 {
@@ -62,13 +59,13 @@ void SweepParameters::addAllParameters(AudioProcessor& processor)
 	processor.addParameter(SweepTime);
 }
 
-void SweepParameters::saveParameters(XmlElement & xml)
+void SweepParameters::saveParameters(XmlElement& xml)
 {
 	xml.setAttribute(SweepSwitch->paramID, SweepSwitch->getIndex());
 	xml.setAttribute(SweepTime->paramID, (double)SweepTime->get());
 }
 
-void SweepParameters::loadParameters(XmlElement & xml)
+void SweepParameters::loadParameters(XmlElement& xml)
 {
 	*SweepSwitch = xml.getIntAttribute(SweepSwitch->paramID, 0);
 	*SweepTime = (float)xml.getDoubleAttribute(SweepTime->paramID, 1.0);
@@ -81,8 +78,7 @@ VibratoParameters::VibratoParameters(AudioParameterBool* vibratoEnable, AudioPar
 	, VibratoAmount(vibratoAmount)
 	, VibratoSpeed(vibratoSpeed)
 	, VibratoAttackTime(vibratoAttackTime)
-{
-}
+{}
 
 void VibratoParameters::addAllParameters(AudioProcessor& processor)
 {
@@ -92,7 +88,7 @@ void VibratoParameters::addAllParameters(AudioProcessor& processor)
 	processor.addParameter(VibratoAttackTime);
 }
 
-void VibratoParameters::saveParameters(XmlElement & xml)
+void VibratoParameters::saveParameters(XmlElement& xml)
 {
 	xml.setAttribute(VibratoEnable->paramID, VibratoEnable->get());
 	xml.setAttribute(VibratoAmount->paramID, (double)VibratoAmount->get());
@@ -100,7 +96,7 @@ void VibratoParameters::saveParameters(XmlElement & xml)
 	xml.setAttribute(VibratoAttackTime->paramID, (double)VibratoAttackTime->get());
 }
 
-void VibratoParameters::loadParameters(XmlElement & xml)
+void VibratoParameters::loadParameters(XmlElement& xml)
 {
 	*VibratoEnable = (bool)xml.getBoolAttribute(VibratoEnable->paramID, true);
 	*VibratoAmount = (float)xml.getDoubleAttribute(VibratoAmount->paramID, 0.3);
@@ -114,8 +110,7 @@ void VibratoParameters::loadParameters(XmlElement & xml)
 VoicingParameters::VoicingParameters(AudioParameterChoice* voicingSwitch,	AudioParameterFloat* portaTime)
 	: VoicingSwitch(voicingSwitch)
 	, PortaTime(portaTime)
-{
-}
+{}
 
 void VoicingParameters::addAllParameters(AudioProcessor& processor)
 {
@@ -123,13 +118,13 @@ void VoicingParameters::addAllParameters(AudioProcessor& processor)
 	processor.addParameter(PortaTime);
 }
 
-void VoicingParameters::saveParameters(XmlElement & xml)
+void VoicingParameters::saveParameters(XmlElement& xml)
 {
 	xml.setAttribute(VoicingSwitch->paramID, VoicingSwitch->getIndex());
 	xml.setAttribute(PortaTime->paramID, PortaTime->get());
 }
 
-void VoicingParameters::loadParameters(XmlElement & xml)
+void VoicingParameters::loadParameters(XmlElement& xml)
 {
 	*VoicingSwitch = xml.getIntAttribute(VoicingSwitch->paramID, 0);
 	*PortaTime = (float)xml.getDoubleAttribute(PortaTime->paramID, 1.0);
@@ -141,8 +136,7 @@ OptionsParameters::OptionsParameters(AudioParameterBool* isVelocitySense, AudioP
 	: IsVelocitySense(isVelocitySense)
 	, PitchBendRange(pitchBendRange)
 	, PitchStandard(pitchStandard)
-{
-}
+{}
 
 void OptionsParameters::addAllParameters(AudioProcessor& processor)
 {
@@ -151,14 +145,14 @@ void OptionsParameters::addAllParameters(AudioProcessor& processor)
 	processor.addParameter(PitchStandard);
 }
 
-void OptionsParameters::saveParameters(XmlElement & xml)
+void OptionsParameters::saveParameters(XmlElement& xml)
 {
 	xml.setAttribute(IsVelocitySense->paramID, IsVelocitySense->get());
 	xml.setAttribute(PitchBendRange->paramID, (double)PitchBendRange->get());
 	xml.setAttribute(PitchStandard->paramID, (double)PitchStandard->get());
 }
 
-void OptionsParameters::loadParameters(XmlElement & xml)
+void OptionsParameters::loadParameters(XmlElement& xml)
 {
 	*IsVelocitySense = xml.getBoolAttribute(IsVelocitySense->paramID, true);
 	*PitchBendRange = xml.getIntAttribute(PitchBendRange->paramID, 2);
@@ -202,8 +196,7 @@ WaveformMemoryParameters::WaveformMemoryParameters()
 	new AudioParameterInt("w30", "w30", 0, 31, 0),
 	new AudioParameterInt("w31", "w31", 0, 31, 0)
 	}
-{
-}
+{}
 
 void WaveformMemoryParameters::addAllParameters(AudioProcessor& processor)
 {
@@ -213,7 +206,7 @@ void WaveformMemoryParameters::addAllParameters(AudioProcessor& processor)
 	}
 }
 
-void WaveformMemoryParameters::saveParameters(XmlElement & xml)
+void WaveformMemoryParameters::saveParameters(XmlElement& xml)
 {
 	for (int i = 0; i < 32; i++)
 	{
@@ -221,7 +214,7 @@ void WaveformMemoryParameters::saveParameters(XmlElement & xml)
 	}
 }
 
-void WaveformMemoryParameters::loadParameters(XmlElement & xml)
+void WaveformMemoryParameters::loadParameters(XmlElement& xml)
 {
 	for (int i = 0; i < 32; i++)
 	{
@@ -236,8 +229,7 @@ MidiEchoParameters::MidiEchoParameters(AudioParameterBool* isEchoEnable, AudioPa
 	, EchoDuration(echoDuration)
 	, EchoRepeat(echoRepeat)
 	, VolumeOffset(volumeOffset)
-{
-}
+{}
 
 void MidiEchoParameters::addAllParameters(AudioProcessor& processor)
 {
@@ -247,7 +239,7 @@ void MidiEchoParameters::addAllParameters(AudioProcessor& processor)
 	processor.addParameter(VolumeOffset);
 }
 
-void MidiEchoParameters::saveParameters(XmlElement & xml)
+void MidiEchoParameters::saveParameters(XmlElement& xml)
 {
 	xml.setAttribute(IsEchoEnable->paramID, IsEchoEnable->get());
 	xml.setAttribute(EchoDuration->paramID, (double)EchoDuration->get());
@@ -255,7 +247,7 @@ void MidiEchoParameters::saveParameters(XmlElement & xml)
 	xml.setAttribute(VolumeOffset->paramID, (double)VolumeOffset->get());
 }
 
-void MidiEchoParameters::loadParameters(XmlElement & xml)
+void MidiEchoParameters::loadParameters(XmlElement& xml)
 {
 	*IsEchoEnable = xml.getBoolAttribute(IsEchoEnable->paramID, true);
 	*EchoDuration = xml.getDoubleAttribute(EchoDuration->paramID, 1000);
@@ -280,7 +272,7 @@ void FilterParameters::addAllParameters(AudioProcessor& processor)
 	processor.addParameter(LowcutFreq);
 }
 
-void FilterParameters::saveParameters(XmlElement & xml)
+void FilterParameters::saveParameters(XmlElement& xml)
 {
 	xml.setAttribute(HicutEnable->paramID, HicutEnable->get());
 	xml.setAttribute(LowcutEnable->paramID, LowcutEnable->get());
@@ -288,7 +280,7 @@ void FilterParameters::saveParameters(XmlElement & xml)
 	xml.setAttribute(LowcutFreq->paramID, LowcutFreq->get());
 }
 
-void FilterParameters::loadParameters(XmlElement & xml)
+void FilterParameters::loadParameters(XmlElement& xml)
 {
 	*HicutEnable =  xml.getBoolAttribute(HicutEnable->paramID, false);
 	*LowcutEnable = xml.getBoolAttribute(LowcutEnable->paramID, false);

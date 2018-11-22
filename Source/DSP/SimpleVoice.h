@@ -11,7 +11,6 @@
 
 #pragma once
 
-// ①各種ヘッダファイルをインクルードする。
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "SimpleSynthParameters.h"
 #include "Waveforms.h"
@@ -19,7 +18,10 @@
 #include "SimpleSound.h"
 #include <vector>
 
-#define buf_size 7
+namespace
+{
+	const int RING_BUF_SIZE = 7;
+}
 
 //レンダリング用の簡易リングバッファの実装
 class RingBuffer
@@ -27,7 +29,7 @@ class RingBuffer
 public:
 	RingBuffer()
 	{
-		for (int i = 0; i < buf_size; ++i)
+		for (int i = 0; i < RING_BUF_SIZE; ++i)
 		{
 			data[i] = 0.0f;
 		}
@@ -36,7 +38,7 @@ public:
 	void push_back(float sample)
 	{
 		data[index] = sample;
-		index = (index + 1) % buf_size;
+		index = (index + 1) % RING_BUF_SIZE;
 	};
 
 	float getCurrentValue()
@@ -46,63 +48,60 @@ public:
 		//5 sample: 1 4 6 4 1
 		//7 sample 1 6 15 20 15 6 1
 		float val = 0.0f;
-		for (int i = 0; i < buf_size; ++i)
+		for (int i = 0; i < RING_BUF_SIZE; ++i)
 		{
 			switch (i - index)
 			{
 			case -6:
-				val += data[i] * 15.0;
+				val += data[i] * 15.0f;
 				break;
 			case -5:
-				val += data[i] * 15.0;
+				val += data[i] * 15.0f;
 				break;
 			case -4:
-				val += data[i] * 6.0;
+				val += data[i] * 6.0f;
 				break;
 			case -3:
-				val += data[i] * 6.0;
+				val += data[i] * 6.0f;
 				break;
 			case -2:
-				val += data[i] * 1.0;
+				val += data[i] * 1.0f;
 				break;
 			case -1:
-				val += data[i] * 1.0;
+				val += data[i] * 1.0f;
 				break;
 			case 0:
-				val += data[i] * 20.0;
+				val += data[i] * 20.0f;
 				break;
 			case 1:
-				val += data[i] * 15.0;
+				val += data[i] * 15.0f;
 				break;
 			case 2:
-				val += data[i] * 15.0;
+				val += data[i] * 15.0f;
 				break;
 			case 3:
-				val += data[i] * 6.0;
+				val += data[i] * 6.0f;
 				break;
 			case 4:
-				val += data[i] * 6.0;
+				val += data[i] * 6.0f;
 				break;
 			case 5:
-				val += data[i] * 1.0;
+				val += data[i] * 1.0f;
 				break;
 			case 6:
-				val += data[i] * 1.0;
+				val += data[i] * 1.0f;
 				break;
 			}
 		}
-		return val / 64.0;
+		return val / 64.0f;
 	}
 
 private:
 	int index = 0;
-	float data[buf_size];
+	float data[RING_BUF_SIZE];
 };
 
-//エコー用のバッファ
-// バッファは エコー秒数 * 最大エコーバッファサイズ を常に確保する．
-// 今回は bufSize * 5
-
+//エコーエフェクト用のサンプリングバッファ
 class EchoBuffer
 {
 public:
@@ -128,10 +127,7 @@ public:
 		{
 			buf[i].resize(bufSize);
 		}
-		clear();
-	}
 
-	void clear() {
 		for (int i = 0; i < echoCount; ++i)
 		{
 			for (int j = 0; j < bufSize; ++j)
@@ -147,26 +143,28 @@ public:
 		{
 			index = 0;
 		}
+		//一つずつ前のバッファのサンプルを補完，1サンプル前のバッファを補完していく
 		for (int i = buf.size() - 1; i > 0; --i)
 		{
 			buf[i][index] = buf[i-1][index] * amp;
 		}
+		//現在のサンプルを補完
 		buf[0][index] = val * amp;
 	};
 
+	// バッファの最後尾のサンプルを返す．
+	// 最後尾はbuffSizeだけ遅れたサンプルになるのでDelayされる
 	float getSample(int repeatCount)
 	{
 		if (repeatCount >= buf.size())
 		{
 			return 0.0f;
 		}
-
-		int preindex = index + 1;
-		if (preindex >= bufSize)
+		if (index >= bufSize)
 		{
-			preindex = 0;
+			return buf[repeatCount][0];
 		}
-		return buf[repeatCount][preindex];
+		return buf[repeatCount][index+1];
 	};
 
 	void update(float sec, int count)
@@ -176,7 +174,7 @@ public:
 		init();
 	}
 
-	void countUp()
+	void cycle()
 	{
 		index += 1;
 		if (index >= bufSize)
@@ -188,19 +186,16 @@ public:
 private:
 	std::vector<std::vector<float>> buf;
 	int sampleRate;
-	const int ECHOMAX = 5;
-	int bufSize;
-
-	int index;
 	int echoCount;
 	float echoTime;
+
+	int bufSize;
+	int index;
 };
 
-// ②クラス名宣言。SynthesiserVoiceクラスを継承する。
 class SimpleVoice : public SynthesiserVoice
 {
 public:
-	// ③引数付きコンストラクタ。
 	SimpleVoice(
 		ChipOscillatorParameters* chipOscParams, 
 		SweepParameters* sweepParams, 
@@ -211,10 +206,9 @@ public:
 		WaveformMemoryParameters* waveformMemoryParams
 	);
 
-	// デストラクタ
 	virtual ~SimpleVoice();
 
-	// ④基底クラスで宣言された純粋仮想関数をオーバーライド宣言する。
+	// 基底クラスで宣言された純粋仮想関数をオーバーライド宣言する。
 	virtual bool canPlaySound(SynthesiserSound* sound) override;
 	virtual void startNote(int midiNoteNumber, float velocity, SynthesiserSound* sound, int currentPitchWheelPosition) override;
 	virtual void stopNote(float velocity, bool allowTailOff) override;
@@ -223,10 +217,8 @@ public:
 	virtual void renderNextBlock(AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
 
 private:
-	// ⑤クラス内でのみ呼び出す関数をprivate領域に宣言する。
 	float calcModulationFactor(float angle);
 
-	// ⑥クラス内変数を宣言する。
 	float currentAngle, vibratoAngle, angleDelta, portaAngleDelta;
 	float level;
 	float pitchBend, pitchSweep;

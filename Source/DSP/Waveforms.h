@@ -11,19 +11,12 @@
 
 #pragma once
 
-// ①JUCEライブラリのヘッダをインクルードする。
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "SimpleSynthParameters.h"
 
-// ②クラス宣言
 class Waveforms
 {
 public:
-	int reg = 1 << 14;
-	float noiseVal = 1.0f;
-	int counter = 0;
-
-	// ③各種波形のサンプルデータを返す関数を宣言する。
 	float nesTriangle(float angle);
 	float nesSquare(float angle);
 	float nesSquare25(float angle);
@@ -40,4 +33,10 @@ public:
 	float waveformMemory(float angleDelta, WaveformMemoryParameters* _waveformMemoryParamsPtr);
 
 private:
+	float quantize(float sample);
+	float checkAngleRanage(float angle);
+
+	int noizeReg = 1 << 14;
+	float noiseVal = 1.0f;
+	int freqCounter = 0;
 };

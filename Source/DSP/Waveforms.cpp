@@ -17,20 +17,9 @@ namespace {
 	const float TWO_PI = MathConstants<float>::twoPi;
 }
 
-// 4bitクオンタイズ関数 qNum * 2倍の数でクオンタイズする
-float quantize(float sample)
-{
-	int qNum = 8;
-	return round(sample * qNum) / qNum;
-}
-
 float Waveforms::sine(float angle)
 {
-	// 角度（ラジアン）の値が2πを超えている場合は、変数angleの値が0～2πの範囲内に収まるよう剰余を求める。
-    if(angle > TWO_PI)
-    {
-        angle = fmodf(angle, TWO_PI);
-    }
+	checkAngleRanage(angle);
 
 	// 角度（ラジアン）に対応する波形のサンプルデータを返す。
     return sinf(angle);
@@ -38,10 +27,7 @@ float Waveforms::sine(float angle)
 
 float Waveforms::saw(float angle)
 {
-    if(angle > TWO_PI)
-    {
-        angle = fmodf(angle, TWO_PI);
-    }
+	checkAngleRanage(angle);
 
     if (angle <= ONE_PI)
     {
@@ -49,12 +35,14 @@ float Waveforms::saw(float angle)
     }
     else
     {
-        return -2.0f + (angle / ONE_PI) ;
+        return -2.0f + (angle / ONE_PI);
     }
 }
 
 float Waveforms::square(float angle)
 {
+	checkAngleRanage(angle);
+
 	if (angle > TWO_PI)
 	{
 		angle = fmodf(angle, TWO_PI);
@@ -72,10 +60,7 @@ float Waveforms::square(float angle)
 
 float Waveforms::square25(float angle)
 {
-	if (angle > TWO_PI)
-	{
-		angle = fmodf(angle, TWO_PI);
-	}
+	checkAngleRanage(angle);
 
 	if (angle <= HALF_PI)
 	{
@@ -89,10 +74,7 @@ float Waveforms::square25(float angle)
 
 float Waveforms::square125(float angle)
 {
-	if (angle > TWO_PI)
-	{
-		angle = fmodf(angle, TWO_PI);
-	}
+	checkAngleRanage(angle);
 
 	if (angle <= HALF_PI / 2)
 	{
@@ -106,10 +88,7 @@ float Waveforms::square125(float angle)
 
 float Waveforms::triangle(float angle)
 {
-    if(angle > TWO_PI)
-    {
-        angle = fmodf(angle, TWO_PI);
-    }
+	checkAngleRanage(angle);
 
     if (angle <= HALF_PI)
     {
@@ -128,14 +107,15 @@ float Waveforms::triangle(float angle)
 //NESの長周期ノイズの再現
 float Waveforms::longNoise(float angleDelta)
 {
-	noiseVal *= 0.99;
+	//noiseVal *= 0.99;
 
-	if (counter++ > TWO_PI / angleDelta / (2 << 4)) {
-		counter = 0;
-		int result = (reg ^ (reg >> 1)) & 1;
-		reg = reg >> 1;
-		reg |= result << 14;
-		noiseVal = (reg & 1) * 2.0 - 1;
+	if (freqCounter++ > TWO_PI / angleDelta / (2 << 4)) 
+	{
+		freqCounter = 0;
+		int result = (noizeReg ^ (noizeReg >> 1)) & 1;
+		noizeReg = noizeReg >> 1;
+		noizeReg |= result << 14;
+		noiseVal = (noizeReg & 1) * 2.0 - 1;
 	}
 	return noiseVal;
 }
@@ -143,14 +123,15 @@ float Waveforms::longNoise(float angleDelta)
 //NESの短周期ノイズの再現
 float Waveforms::shortNoise(float angleDelta)
 {
-	noiseVal *= 0.99;
+	//noiseVal *= 0.99;
 
-	if (counter++ > TWO_PI / angleDelta / (2 << 4)) {
-		counter = 0;
-		int result = (reg ^ (reg >> 6)) & 1;
-		reg = reg >> 1;
-		reg |= result << 14;
-		noiseVal = (reg & 1) * 2.0 - 1;
+	if (freqCounter++ > TWO_PI / angleDelta / (2 << 4)) 
+	{
+		freqCounter = 0;
+		int result = (noizeReg ^ (noizeReg >> 6)) & 1;
+		noizeReg = noizeReg >> 1;
+		noizeReg |= result << 14;
+		noiseVal = (noizeReg & 1) * 2.0 - 1;
 	}
 	return noiseVal;
 }
@@ -158,8 +139,9 @@ float Waveforms::shortNoise(float angleDelta)
 //乱数を時間軸と振幅軸側でクオンタイズしたもの
 float Waveforms::lobitNoise(float angleDelta)
 {
-	if (counter++ > TWO_PI / angleDelta / (2 << 4)) {
-		counter = 0;
+	if (freqCounter++ > TWO_PI / angleDelta / (2 << 4)) 
+	{
+		freqCounter = 0;
 		noiseVal = Random::getSystemRandom().nextFloat() * 2.0 - 1.0;
 	}
 	return quantize(noiseVal);
@@ -167,10 +149,7 @@ float Waveforms::lobitNoise(float angleDelta)
 
 float Waveforms::nesSquare(float angle)
 {	
-	if (angle > TWO_PI)
-	{
-		angle = fmodf(angle, TWO_PI);
-	}
+	checkAngleRanage(angle);
 
 	if (angle <= ONE_PI)
 	{
@@ -184,10 +163,7 @@ float Waveforms::nesSquare(float angle)
 
 float Waveforms::nesSquare25(float angle)
 {
-	if (angle > TWO_PI)
-	{
-		angle = fmodf(angle, TWO_PI);
-	}
+	checkAngleRanage(angle);
 
 	if (angle <= HALF_PI)
 	{
@@ -201,10 +177,7 @@ float Waveforms::nesSquare25(float angle)
 
 float Waveforms::nesSquare125(float angle)
 {
-	if (angle > TWO_PI)
-	{
-		angle = fmodf(angle, TWO_PI);
-	}
+	checkAngleRanage(angle);
 
 	if (angle <= HALF_PI/2)
 	{
@@ -218,10 +191,7 @@ float Waveforms::nesSquare125(float angle)
 
 float Waveforms::nesTriangle(float angle)
 {
-	if (angle > TWO_PI)
-	{
-		angle = fmodf(angle, TWO_PI);
-	}
+	checkAngleRanage(angle);
 
 	if (angle <= HALF_PI)
 	{
@@ -239,12 +209,27 @@ float Waveforms::nesTriangle(float angle)
 
 float Waveforms::waveformMemory(float angle, WaveformMemoryParameters* _waveformMemoryParamsPtr)
 {
+	checkAngleRanage(angle);
+
+	//valの範囲を変換 0~15 -> -1.0~1.0
+	int val = _waveformMemoryParamsPtr->WaveSamplesArray[(int)(angle * WAVESAMPLE_LENGTH / TWO_PI)]->get();
+	return val / 8.0f - 1.0;
+}
+
+// 4bitクオンタイズ関数 qNum * 2倍の数でクオンタイズする
+float Waveforms::quantize(float sample)
+{
+	const int qNum = 8;
+	return round(sample * qNum) / qNum;
+}
+
+// 角度（ラジアン）の値が2πを超えている場合は、変数angleの値が0～2πの範囲内に収まるよう剰余を求める。
+float Waveforms::checkAngleRanage(float angle)
+{
 	if (angle > TWO_PI)
 	{
 		angle = fmodf(angle, TWO_PI);
 	}
 
-	//valの範囲を変換 0~15 -> -1.0~1.0
-	int val = _waveformMemoryParamsPtr->WaveSamplesArray[(int)(angle * 32 / TWO_PI)]->get();
-	return val / 8.0 - 1;
+	return angle;
 }

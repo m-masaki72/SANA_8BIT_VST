@@ -18,8 +18,11 @@
 #include "DSP/SimpleSound.h"
 #include "DSP/SimpleVoice.h"
 
-#define NUM_OF_PRESETS 12;
-#define VOICE_MAX 8
+namespace
+{
+	int NUM_OF_PRESETS = 12;
+	int VOICE_MAX = 8;
+}
 
 //==============================================================================
 SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
@@ -74,7 +77,6 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 }
 , waveformMemoryParameters()
 , scopeDataCollector(scopeDataQueue)
-
 {
 	chipOscParameters.addAllParameters(*this);
 	sweepParameters.addAllParameters(*this);
@@ -87,10 +89,10 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 }
 
 SimpleSynthAudioProcessor::~SimpleSynthAudioProcessor()
-{
-}
+{}
 
 //==============================================================================
+
 const String SimpleSynthAudioProcessor::getName() const
 {
     return JucePlugin_Name;
@@ -246,8 +248,8 @@ void SimpleSynthAudioProcessor::changeProgramName (int index, const String& newN
 {
 }
 
-void SimpleSynthAudioProcessor::initProgram() {
-
+void SimpleSynthAudioProcessor::initProgram() 
+{
 	chipOscParameters.OscWaveType = new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 0);
 	chipOscParameters.VolumeLevel = new AudioParameterFloat("VOLUME", "Volume", -32.0f, 8.0f, -12.0f);	
 	chipOscParameters.Attack = new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.000f, 10.0f, 0.000f);

@@ -11,17 +11,18 @@
 
 #pragma once
 
-// ①JUCEライブラリのヘッダをインクルードする。
 #include "../JuceLibraryCode/JuceHeader.h"
 
-// ②クラス宣言。複数のパラメータをまとめるクラス群の基底クラス。
+namespace
+{
+	const int WAVESAMPLE_LENGTH = 32;
+}
+
 class SynthParametersBase
 {
 public:
-	// デストラクタ
 	virtual ~SynthParametersBase() {};
 
-	// ③継承クラス側で実装を必須とする関数を純粋仮想関数として宣言する。
 	virtual void addAllParameters(AudioProcessor& processor) = 0;
 	virtual void saveParameters(XmlElement& xml) = 0; 
 	virtual void loadParameters(XmlElement& xml) = 0;
@@ -30,7 +31,6 @@ public:
 class ChipOscillatorParameters : public SynthParametersBase
 {
 public:
-	// ⑤各波形の音量レベルを管理するパラメータのポインタ変数。
 	AudioParameterChoice* OscWaveType;
 	AudioParameterFloat* VolumeLevel;
 	AudioParameterFloat* Attack;
@@ -38,23 +38,20 @@ public:
 	AudioParameterFloat* Sustain;
 	AudioParameterFloat* Release;
 
-	// ⑥引数付きコンストラクタ。PluginProcessor.h/cpp側で保持するパラメータのポインタ変数を受け取る。
 	ChipOscillatorParameters(
 		AudioParameterChoice* OscWaveType ,
 		AudioParameterFloat* volumeLevel,
 		AudioParameterFloat* attack,
 		AudioParameterFloat* decay,
 		AudioParameterFloat* sustain,
-		AudioParameterFloat* release);
-	//chipOscillatorParameters(AudioParameterFloat* sineWaveLevel);
+		AudioParameterFloat* release
+	);
 
-	// ⑦基底クラスで宣言されている純粋仮想関数をオーバーライドして実装する。
 	virtual void addAllParameters(AudioProcessor& processor) override;
 	virtual void saveParameters(XmlElement& xml) override;
 	virtual void loadParameters(XmlElement& xml) override;
 
 private:
-	// 引数無しコントラクタをprivate領域に置くことで、外から呼び出せないようにする。
 	ChipOscillatorParameters() {};
 };
 
@@ -80,7 +77,7 @@ private:
 class VibratoParameters : public SynthParametersBase
 {
 public:
-	AudioParameterBool * VibratoEnable;
+	AudioParameterBool* VibratoEnable;
 	AudioParameterFloat*  VibratoAmount;
 	AudioParameterFloat*  VibratoSpeed;
 	AudioParameterFloat*  VibratoAttackTime;
@@ -143,7 +140,7 @@ private:
 class WaveformMemoryParameters : public SynthParametersBase
 {
 public:
-	AudioParameterInt* WaveSamplesArray[32];
+	AudioParameterInt* WaveSamplesArray[WAVESAMPLE_LENGTH];
 
 	WaveformMemoryParameters();
 
@@ -157,16 +154,16 @@ private:
 class MidiEchoParameters : public SynthParametersBase
 {
 public:
-	AudioParameterBool*		IsEchoEnable;
-	AudioParameterFloat*	EchoDuration;
-	AudioParameterInt*		EchoRepeat;
-	AudioParameterFloat*	VolumeOffset;
+	AudioParameterBool*	IsEchoEnable;
+	AudioParameterFloat* EchoDuration;
+	AudioParameterInt* EchoRepeat;
+	AudioParameterFloat* VolumeOffset;
 
 	MidiEchoParameters(
-		AudioParameterBool*		isEchoEnable,
-		AudioParameterFloat*	echoDuration,
-		AudioParameterInt*		echoRepeat,
-		AudioParameterFloat*	volumeOffset
+		AudioParameterBool* isEchoEnable,
+		AudioParameterFloat* echoDuration,
+		AudioParameterInt* echoRepeat,
+		AudioParameterFloat* volumeOffset
 	);
 
 	virtual void addAllParameters(AudioProcessor& processor) override;

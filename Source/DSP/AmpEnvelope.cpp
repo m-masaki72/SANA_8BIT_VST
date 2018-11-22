@@ -12,7 +12,6 @@
 // ヘッダファイルをインクルードする。
 #include "AmpEnvelope.h"
 
-// ①無名名前空間に定数宣言を記述する。
 namespace 
 {
 	const float AMP_MAX = 1.0f;
@@ -22,82 +21,57 @@ namespace
 	const float RELEASE_MIN = 0.001f;
 }
 
-// ②引数付きコンストラクタ。初期化指定子にて引数で渡された各パラメータの初期値をクラス内変数に代入する。
 AmpEnvelope::AmpEnvelope(float attackTime, float decayTime, float sustain, float releaseTime, float echoTime)
 	: _attackTime(attackTime), _decayTime(decayTime), _sustainValue(sustain), _releaseTime(releaseTime), _echoTime(echoTime)
 	, _sampleRate(0.0f), _value(0.0f), _valueOnReleaseStart(0.0f), _timer(0.0f),_ampState(AMPENV_STATE::WAIT)
 {
-	// 各パラメータの値を定数で記述した最大値・最小値の範囲に収める。
-	if (_attackTime <= ATTACK_MIN) {
-		_attackTime = ATTACK_MIN;
-	}
-
-	if (_decayTime <= DECAY_MIN) {
-		_decayTime = DECAY_MIN;
-	}
-
-	if (_releaseTime <= RELEASE_MIN) {
-		_releaseTime = RELEASE_MIN;
-	}
-
-	if (_sustainValue > AMP_MAX) {
-		_sustainValue = AMP_MAX;
-	}
-
-	if (_sustainValue < AMP_MIN) {
-		_sustainValue = AMP_MIN;
-	}
+	checkVarRange();
 }
 
-// デストラクタ
 AmpEnvelope::~AmpEnvelope()
 {}
 
-// ③エンベロープの現在の状態を返す関数。
 AmpEnvelope::AMPENV_STATE  AmpEnvelope::getState()
 {
 	return _ampState;
 }
 
-// ④エンベロープの現在の値を返す関数。
 float AmpEnvelope::getValue()
 {
 	return _value;
 }
 
-// ⑤エンベロープの各パラメータに値をセットする関数。
 void AmpEnvelope::setParameters(float attackTime, float decayTime, float sustain, float releaseTime, float echoTime)
 {
-	// 引数で受け取った値をクラス内変数に代入する。
 	_attackTime = attackTime;
 	_decayTime = decayTime;
 	_sustainValue = sustain;
 	_releaseTime = releaseTime;
 	_echoTime = echoTime;
 
-	// 各パラメータの値を定数で記述した最大値・最小値の範囲に収める。
+	checkVarRange();
+}
+
+// 各パラメータの値を定数で記述した最大値・最小値の範囲に収める。
+void AmpEnvelope::checkVarRange()
+{
 	if (_attackTime <= ATTACK_MIN) {
 		_attackTime = ATTACK_MIN;
 	}
-
 	if (_decayTime <= DECAY_MIN) {
 		_decayTime = DECAY_MIN;
 	}
-
 	if (_releaseTime <= RELEASE_MIN) {
 		_releaseTime = RELEASE_MIN;
 	}
-
 	if (_sustainValue > AMP_MAX) {
 		_sustainValue = AMP_MAX;
 	}
-
 	if (_sustainValue < AMP_MIN) {
 		_sustainValue = AMP_MIN;
 	}
 }
 
-// ⑥エンベロープをAttack状態に移行させる関数。
 void AmpEnvelope::attackStart()
 {
 	// エンベロープがRelease状態でなければ、エンベロープの値を最小値(0.0)にしてAttack状態時の計算処理に備える。
@@ -109,7 +83,6 @@ void AmpEnvelope::attackStart()
 	_ampState = AMPENV_STATE::ATTACK;
 }
 
-// ⑦エンベロープをRelease状態に移行させる関数。
 void AmpEnvelope::releaseStart()
 {
 	// エンベロープの状態がAttack, Decay, Sustainのいずれかであれば、Release状態に移行する。
@@ -121,7 +94,6 @@ void AmpEnvelope::releaseStart()
 	}
 }
 
-// ⑧エンベロープをWait状態に移行させる関数。
 void AmpEnvelope::releaseEnd()
 {
 	_value = AMP_MIN;
@@ -129,7 +101,7 @@ void AmpEnvelope::releaseEnd()
 	_ampState = AMPENV_STATE::WAIT;
 }
 
-// ⑨エンベロープの状態がAttack, Decay, Sustainのいずれかに該当するかを返す関数。
+// エンベロープの状態がAttack, Decay, Sustainのいずれかに該当するかを返す関数。
 bool AmpEnvelope::isHolding()
 {
 	if (_ampState == AmpEnvelope::AMPENV_STATE::ATTACK
@@ -141,7 +113,6 @@ bool AmpEnvelope::isHolding()
 	return false;
 }
 
-// ⑩エンベロープの状態がRelease状態かどうかを返す関数。
 bool AmpEnvelope::isReleasing()
 {
 	return _ampState == AmpEnvelope::AMPENV_STATE::RELEASE;
@@ -152,13 +123,14 @@ bool AmpEnvelope::isEchoEnded()
 	return _ampState == AmpEnvelope::AMPENV_STATE::ECHO;
 }
 
-// ⑪エンベロープの計算処理を1サンプル分進める。この計算処理を実行することで変数の値が更新される。
+// エンベロープの計算処理を1サンプル分進める。この計算処理を実行することで変数の値が更新される。
 void AmpEnvelope::cycle(float sampleRate)
 {
 	_sampleRate = sampleRate;
 	switch (_ampState)
 	{
-	case AMPENV_STATE::ATTACK:								// Attack状態時の更新処理
+	// Attack状態時の更新処理
+	case AMPENV_STATE::ATTACK:
 		_value = _timer * (2.0 - _timer);
 		_timer += 1.0 / (_sampleRate * _attackTime);
 		if (_timer >= 1.0)
@@ -168,8 +140,8 @@ void AmpEnvelope::cycle(float sampleRate)
 			_ampState = AMPENV_STATE::DECAY;
 		}
 		break;
-
-	case AMPENV_STATE::DECAY:								// Decay状態時の更新処理
+	// Decay状態時の更新処理
+	case AMPENV_STATE::DECAY:
 		_value = (1.0 - _sustainValue) * (_timer - 1.0) * (_timer - 1.0) + _sustainValue;
 		_timer += 1.0 / (_sampleRate * _decayTime);
 		if (_timer >= 1.0)
@@ -179,13 +151,13 @@ void AmpEnvelope::cycle(float sampleRate)
 			_ampState = AMPENV_STATE::SUSTAIN;
 		}
 		break;
-
-	case AMPENV_STATE::SUSTAIN:								// Sustain状態時の更新処理
+	// Sustain状態時の更新処理
+	case AMPENV_STATE::SUSTAIN:
 		_value = _sustainValue;
 		_timer = 0.0f;
 		break;
-
-	case AMPENV_STATE::RELEASE:		// Release状態時の更新処理
+	// Release状態時の更新処理
+	case AMPENV_STATE::RELEASE:
 		_value = (_valueOnReleaseStart) * (_timer - 1.0) * (_timer - 1.0);
 		_timer += 1.0 / (_sampleRate * (_releaseTime));
 		if (_timer >= 1.0f)
@@ -195,8 +167,8 @@ void AmpEnvelope::cycle(float sampleRate)
 			_ampState = AMPENV_STATE::WAIT;
 		}
 		break;
-
-	case AMPENV_STATE::WAIT:								// Wait状態時の更新処理
+	// Wait状態時の更新処理	
+	case AMPENV_STATE::WAIT:
 		_value = AMP_MIN;
 		_timer += 1.0 / (_sampleRate * _echoTime);
 		if (_timer >= 1.0f)

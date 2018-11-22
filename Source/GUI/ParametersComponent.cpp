@@ -15,12 +15,16 @@ namespace {
 	const Colour PANEL_COLOUR() { return Colours::cornsilk; }
 	const Colour HEADER_COLOUR() { return Colours::darkorange; }
 	const Colour FONT_COLOUR() { return Colours::black; }
+	const Colour TEXT_COLOUR() { return Colours::white; }
 
 	const float PANEL_NAME_FONT_SIZE = 24.0f;
 	const float PARAM_LABEL_FONT_SIZE = 18.0f;
 	const int PANEL_NAME_HEIGHT = 32;
 	const int LOCAL_MARGIN = 2;
 	const int LABEL_WIDTH = 80;
+
+	const Font panelNameFont = Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
+	const Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
 }
 
 ChipOscillatorComponent::ChipOscillatorComponent(ChipOscillatorParameters* oscParams)
@@ -70,8 +74,6 @@ ChipOscillatorComponent::ChipOscillatorComponent(ChipOscillatorParameters* oscPa
 	releaseSlider.addListener(this);
 	addAndMakeVisible(releaseSlider);
 
-	Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
-
 	waveTypeSelectorLabel.setFont(paramLabelFont);
 	waveTypeSelectorLabel.setText("Type", dontSendNotification);
 	waveTypeSelectorLabel.setJustificationType(Justification::centred);
@@ -108,48 +110,40 @@ ChipOscillatorComponent::ChipOscillatorComponent(ChipOscillatorParameters* oscPa
 	releaseLabel.setEditable(false, false, false);
 	addAndMakeVisible(releaseLabel);
 
-	startTimerHz(30.0f);
+	startTimerHz(30);
 }
 
 ChipOscillatorComponent::~ChipOscillatorComponent()
-{
-}
+{}
 
-void ChipOscillatorComponent::paint(Graphics & g)
+void ChipOscillatorComponent::paint(Graphics& g)
 {
-	Font panelNameFont = Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
-
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
 		g.setColour(PANEL_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
-
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
 		g.setColour(HEADER_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
-
 	{
 		Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
 
 		String text("OSCILLATOR");
-		Colour textColour = Colours::white;
-		g.setColour(textColour);
+		g.setColour(TEXT_COLOUR());
 		g.setFont(panelNameFont);
 		g.drawText(text, textArea, Justification::centred, false);
 	}
-
 }
 
 void ChipOscillatorComponent::resized()
 {
 	float rowSize = 6.0f;
 	float divide = 1.0f / rowSize;
-
-	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
+	int compHeight = int((getHeight() - PANEL_NAME_HEIGHT) * divide);
 
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
@@ -194,7 +188,6 @@ void ChipOscillatorComponent::timerCallback()
 	decaySlider.setValue(_oscParamsPtr->Decay->get(), dontSendNotification);
 	sustainSlider.setValue(_oscParamsPtr->Sustain->get(), dontSendNotification);
 	releaseSlider.setValue(_oscParamsPtr->Release->get(), dontSendNotification);
-
 }
 
 void ChipOscillatorComponent::sliderValueChanged(Slider* slider)
@@ -231,7 +224,7 @@ void ChipOscillatorComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 
 //----------------------------------------------------------------------------------------------------
 
-SweepParametersComponent::SweepParametersComponent(SweepParameters * sweepParams)
+SweepParametersComponent::SweepParametersComponent(SweepParameters* sweepParams)
 	:_sweepParamsPtr(sweepParams)
 	, sweepSwitchSelector("Sweep-Swetch")
 	, timeSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
@@ -249,8 +242,6 @@ SweepParametersComponent::SweepParametersComponent(SweepParameters * sweepParams
 	timeSlider.addListener(this);
 	addAndMakeVisible(timeSlider);
 
-	Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
-
 	switchLabel.setFont(paramLabelFont);
 	switchLabel.setText("Switch", dontSendNotification);
 	switchLabel.setJustificationType(Justification::centred);
@@ -263,17 +254,14 @@ SweepParametersComponent::SweepParametersComponent(SweepParameters * sweepParams
 	timeLabel.setEditable(false, false, false);
 	addAndMakeVisible(timeLabel);
 
-	startTimerHz(30.0f);
+	startTimerHz(30);
 }
 
 SweepParametersComponent::~SweepParametersComponent()
-{
-}
+{}
 
-void SweepParametersComponent::paint(Graphics & g)
+void SweepParametersComponent::paint(Graphics& g)
 {
-	Font panelNameFont = Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
-
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
 		g.setColour(PANEL_COLOUR());
@@ -285,14 +273,12 @@ void SweepParametersComponent::paint(Graphics & g)
 		g.setColour(HEADER_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
-
 	{
 		Rectangle<int> bounds = getLocalBounds();
 		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
 
 		String text("PITCH SWEEP");
-		Colour textColour = Colours::white;
-		g.setColour(textColour);
+		g.setColour(TEXT_COLOUR());
 		g.setFont(panelNameFont);
 		g.drawText(text, textArea, Justification::centred, false);
 	}
@@ -302,8 +288,7 @@ void SweepParametersComponent::resized()
 {
 	float rowSize = 2.0f;
 	float divide = 1.0f / rowSize;
-
-	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
+	int compHeight = int((getHeight() - PANEL_NAME_HEIGHT) * divide);
 
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
@@ -356,7 +341,7 @@ bool SweepParametersComponent::isEditable()
 
 //----------------------------------------------------------------------------------------------------
 
-VibratoParametersComponent::VibratoParametersComponent(VibratoParameters * vibratoParams)
+VibratoParametersComponent::VibratoParametersComponent(VibratoParameters* vibratoParams)
 	:_vibratoParamsPtr(vibratoParams)
 	, enableButton("Vibrato-Enable")
 	, targetSelector("LFO-Target")
@@ -390,8 +375,6 @@ VibratoParametersComponent::VibratoParametersComponent(VibratoParameters * vibra
 	attackTimeSlider.addListener(this);
 	addAndMakeVisible(attackTimeSlider);
 
-	Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
-
 	amountLabel.setFont(paramLabelFont);
 	amountLabel.setText("Depth", dontSendNotification);
 	amountLabel.setJustificationType(Justification::centred);
@@ -410,36 +393,30 @@ VibratoParametersComponent::VibratoParametersComponent(VibratoParameters * vibra
 	attackTimeLabel.setEditable(false, false, false);
 	addAndMakeVisible(attackTimeLabel);
 
-	startTimerHz(30.0f);
+	startTimerHz(30);
 }
 
 VibratoParametersComponent::~VibratoParametersComponent()
-{
-}
+{}
 
-void VibratoParametersComponent::paint(Graphics & g)
+void VibratoParametersComponent::paint(Graphics& g)
 {
-	Font panelNameFont = Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
-
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
 		g.setColour(PANEL_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
-
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
 		g.setColour(HEADER_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
-
 	{
 		Rectangle<int> bounds = getLocalBounds();
 		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
 
 		String text("VIBRATO");
-		Colour textColour = Colours::white;
-		g.setColour(textColour);
+		g.setColour(TEXT_COLOUR());
 		g.setFont(panelNameFont);
 		g.drawText(text, textArea, Justification::centred, false);
 	}
@@ -449,8 +426,7 @@ void VibratoParametersComponent::resized()
 {
 	float rowSize = 4.0f;
 	float divide = 1.0f / rowSize;
-
-	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
+	int compHeight = int((getHeight() - PANEL_NAME_HEIGHT) * divide);
 
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
@@ -464,7 +440,6 @@ void VibratoParametersComponent::resized()
 		attackTimeLabel.setAlpha(alpha);
 		attackTimeSlider.setAlpha(alpha);
 	}
-
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
 		area.removeFromLeft(LABEL_WIDTH / 2);
@@ -546,8 +521,6 @@ VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicin
 	portaTimeSlider.addListener(this);
 	addAndMakeVisible(portaTimeSlider);
 
-	Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
-
 	voicingTypeSelectorLabel.setFont(paramLabelFont);
 	voicingTypeSelectorLabel.setText("Type", dontSendNotification);
 	voicingTypeSelectorLabel.setJustificationType(Justification::centred);
@@ -560,36 +533,30 @@ VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicin
 	portaTimeLabel.setEditable(false, false, false);
 	addAndMakeVisible(portaTimeLabel);
 
-	startTimerHz(30.0f);
+	startTimerHz(30);
 }
 
 VoicingParametersComponent::~VoicingParametersComponent()
-{
-}
+{}
 
-void VoicingParametersComponent::paint(Graphics & g)
+void VoicingParametersComponent::paint(Graphics& g)
 {
-	Font panelNameFont = Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
-
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
 		g.setColour(PANEL_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
-
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
 		g.setColour(HEADER_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
-
 	{
 		Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
 
 		String text("VOICING");
-		Colour textColour = Colours::white;
-		g.setColour(textColour);
+		g.setColour(TEXT_COLOUR());
 		g.setFont(panelNameFont);
 		g.drawText(text, textArea, Justification::centred, false);
 	}
@@ -600,19 +567,16 @@ void VoicingParametersComponent::resized()
 {
 	float rowSize = 2.0f;
 	float divide = 1.0f / rowSize;
-
-	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
+	int compHeight = int((getHeight() - PANEL_NAME_HEIGHT) * divide);
 
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
-
 
 	{
 		float alpha = _voicingParamsPtr->VoicingSwitch->getCurrentChoiceName() == "PORTAMENTO" ? 1.0f : 0.4f;
 		portaTimeLabel.setAlpha(alpha);
 		portaTimeSlider.setAlpha(alpha);
 	}
-
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
 		voicingTypeSelectorLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
@@ -671,8 +635,6 @@ OptionsParametersComponent::OptionsParametersComponent(OptionsParameters* option
 	pitchBendRangeSlider.addListener(this);
 	addAndMakeVisible(pitchBendRangeSlider);
 
-	Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
-
 	pitchStandardLabel.setFont(paramLabelFont);
 	pitchStandardLabel.setText("Tunes", dontSendNotification);
 	pitchStandardLabel.setJustificationType(Justification::centred);
@@ -685,36 +647,30 @@ OptionsParametersComponent::OptionsParametersComponent(OptionsParameters* option
 	pitchBendRangeLabel.setEditable(false, false, false);
 	addAndMakeVisible(pitchBendRangeLabel);
 
-	startTimerHz(30.0f);
+	startTimerHz(30);
 }
 
 OptionsParametersComponent::~OptionsParametersComponent()
-{
-}
+{}
 
-void OptionsParametersComponent::paint(Graphics & g)
+void OptionsParametersComponent::paint(Graphics& g)
 {
-	Font panelNameFont = Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
-
 	{
-		int x = 0.0f, y = 0.0f, width = getWidth(), height = getHeight();
+		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
 		g.setColour(PANEL_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
-
 	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
+		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)PANEL_NAME_HEIGHT;
 		g.setColour(HEADER_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
-
 	{
 		Rectangle<int> bounds = getLocalBounds();
 		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
 
 		String text("OPTIONS");
-		Colour textColour = Colours::white;
-		g.setColour(textColour);
+		g.setColour(TEXT_COLOUR());
 		g.setFont(panelNameFont);
 		g.drawText(text, textArea, Justification::centred, false);
 	}
@@ -724,8 +680,7 @@ void OptionsParametersComponent::resized()
 {
 	float columnSize = 2.0f;
 	float divide = 1.0f / columnSize;
-
-	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
+	int compHeight = int((getHeight() - PANEL_NAME_HEIGHT) * divide);
 
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
@@ -757,22 +712,21 @@ void OptionsParametersComponent::buttonClicked(Button* button)
 	}
 }
 
-void OptionsParametersComponent::sliderValueChanged(Slider * slider)
+void OptionsParametersComponent::sliderValueChanged(Slider* slider)
 {
 	if (slider == &pitchStandardSlider)
 	{
-		*_optionsParamsPtr->PitchStandard = (float)pitchStandardSlider.getValue();
+		*_optionsParamsPtr->PitchStandard = (int)pitchStandardSlider.getValue();
 	}
 	else if (slider == &pitchBendRangeSlider)
 	{
-		*_optionsParamsPtr->PitchBendRange = (float)pitchBendRangeSlider.getValue();
+		*_optionsParamsPtr->PitchBendRange = (int)pitchBendRangeSlider.getValue();
 	}
 }
 
-
 //----------------------------------------------------------------------------------------------------
 
-MidiEchoParametersComponent::MidiEchoParametersComponent(MidiEchoParameters * midiEchoParams)
+MidiEchoParametersComponent::MidiEchoParametersComponent(MidiEchoParameters* midiEchoParams)
 	:_midiEchoParamsPtr(midiEchoParams)
 	, enableButton("MidiEcho-Enable")
 	, durationSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
@@ -803,8 +757,6 @@ MidiEchoParametersComponent::MidiEchoParametersComponent(MidiEchoParameters * mi
 	volumeOffsetSlider.addListener(this);
 	addAndMakeVisible(volumeOffsetSlider);
 
-	Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
-
 	durationLabel.setFont(paramLabelFont);
 	durationLabel.setText("Duration", dontSendNotification);
 	durationLabel.setJustificationType(Justification::centred);
@@ -823,35 +775,30 @@ MidiEchoParametersComponent::MidiEchoParametersComponent(MidiEchoParameters * mi
 	volumeOffsetLabel.setEditable(false, false, false);
 	addAndMakeVisible(volumeOffsetLabel);
 
-	startTimerHz(30.0f);
+	startTimerHz(30);
 }
 
 MidiEchoParametersComponent::~MidiEchoParametersComponent()
 {}
 
-void MidiEchoParametersComponent::paint(Graphics & g)
+void MidiEchoParametersComponent::paint(Graphics& g)
 {
-	Font panelNameFont = Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
-
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
 		g.setColour(PANEL_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
-
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
 		g.setColour(HEADER_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
-
 	{
 		Rectangle<int> bounds = getLocalBounds();
 		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
 
 		String text("MIDI ECHO");
-		Colour textColour = Colours::white;
-		g.setColour(textColour);
+		g.setColour(TEXT_COLOUR());
 		g.setFont(panelNameFont);
 		g.drawText(text, textArea, Justification::centred, false);
 	}
@@ -861,8 +808,7 @@ void MidiEchoParametersComponent::resized()
 {
 	float rowSize = 4.0f;
 	float divide = 1.0f / rowSize;
-
-	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
+	int compHeight = int((getHeight() - PANEL_NAME_HEIGHT) * divide);
 
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
@@ -876,7 +822,6 @@ void MidiEchoParametersComponent::resized()
 		volumeOffsetLabel.setAlpha(alpha);
 		volumeOffsetSlider.setAlpha(alpha);
 	}
-
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
 		area.removeFromLeft(LABEL_WIDTH / 2);
@@ -916,7 +861,7 @@ void MidiEchoParametersComponent::sliderValueChanged(Slider* slider)
 	}
 	else if (slider == &repeatSlider)
 	{
-		*_midiEchoParamsPtr->EchoRepeat = (float)repeatSlider.getValue();
+		*_midiEchoParamsPtr->EchoRepeat = (int)repeatSlider.getValue();
 	}
 	else if (slider == &volumeOffsetSlider)
 	{
@@ -949,20 +894,17 @@ WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(WaveformMem
 		waveSampleSlider[i].setRange(0, 15, 1.0);
 		waveSampleSlider[i].setValue(7, dontSendNotification);
 	}
-	startTimerHz(30.0f);
 	timerCallback();
+	startTimerHz(30);
 }
 
 WaveformMemoryParametersComponent::~WaveformMemoryParametersComponent()
-{
-}
+{}
 
-void WaveformMemoryParametersComponent::paint(Graphics & g)
+void WaveformMemoryParametersComponent::paint(Graphics& g)
 {
-	Font panelNameFont = Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
-
 	{
-		int x = 0.0f, y = 0.0f, width = getWidth(), height = getHeight();
+		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
 		g.setColour(PANEL_COLOUR());
 		g.fillRoundedRectangle(x, y, width, height, 10.0f);
 	}
@@ -975,19 +917,16 @@ void WaveformMemoryParametersComponent::paint(Graphics & g)
 		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
 
 		String text("WAVEFORM MEMORY");
-		Colour textColour = Colours::white;
-		g.setColour(textColour);
+		g.setColour(TEXT_COLOUR());
 		g.setFont(panelNameFont);
 		g.drawText(text, textArea, Justification::centred, false);
 	}
 
-
-
 	//update slider Params
 	for (auto* trail : trails)
 	{	
-		float compWidth = getWidth() - 12; // 微調整値
-		float compHeight = getHeight() - PANEL_NAME_HEIGHT;
+		float compWidth = (float)getWidth() - 12.0f; // 微調整値
+		int compHeight = getHeight() - PANEL_NAME_HEIGHT;
 
 		int index = (int)(trail->currentPosition.x * (float)WAVESAMPLE_LENGTH / compWidth);
 		if (index < 0)
@@ -1008,7 +947,7 @@ void WaveformMemoryParametersComponent::paint(Graphics & g)
 		float columnSize = (float)WAVESAMPLE_LENGTH;
 		float rowSize = (float)16;
 		float divide = 1.0f / columnSize;
-		double compWidth = float(getWidth()) * divide;
+		int compWidth = int(getWidth() * divide);
 
 		Rectangle<int> bounds = getLocalBounds();
 		bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(10);
@@ -1016,16 +955,16 @@ void WaveformMemoryParametersComponent::paint(Graphics & g)
 		//Draw Scale Line
 		for (int i = 1; i < 4; ++i)
 		{
-			float p_y = PANEL_NAME_HEIGHT + bounds.getHeight() * 0.25 * i;
-			Line<float> line(0.0f, p_y, getWidth() , p_y);
+			float p_y = PANEL_NAME_HEIGHT + bounds.getHeight() * 0.25f * i;
+			Line<float> line(0.0f, p_y, (float)getWidth() , p_y);
 			g.setColour(Colours::darkslateblue);
 			g.drawLine(line, 1.0f);
 		}
 
 		for (int i = 1; i < 8; ++i)
 		{
-			float p_x = compWidth * i * 4.0f - 0.50f * i; //手作業で調整しました
-			Line<float> line(p_x, PANEL_NAME_HEIGHT , p_x, getHeight());
+			float p_x = compWidth * i * 4.0f;
+			Line<float> line(p_x, (float)PANEL_NAME_HEIGHT , p_x, (float)getHeight());
 			g.setColour(Colours::darkslateblue);
 			g.drawLine(line, 1.4f);
 		}
@@ -1034,16 +973,16 @@ void WaveformMemoryParametersComponent::paint(Graphics & g)
 		for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
 		{
 			Rectangle<int> area = bounds.removeFromLeft(compWidth);
-			area.removeFromTop(bounds.getHeight() / rowSize * (waveSampleSlider[i].getMaximum() - waveSampleSlider[i].getValue()));
+			int barHeight = int(bounds.getHeight() / rowSize * (waveSampleSlider[i].getMaximum() - waveSampleSlider[i].getValue()));
+			area.removeFromTop(barHeight);
 			g.setColour(Colours::lime);
-			g.fillRect(area.reduced(1.8f));
+			g.fillRect(area.reduced(1));
 		}
 	}
 }
 
 void WaveformMemoryParametersComponent::resized()
-{
-}
+{}
 
 void WaveformMemoryParametersComponent::timerCallback()
 {
@@ -1139,8 +1078,6 @@ FilterParametersComponent::FilterParametersComponent(FilterParameters* filterPar
 	lowcutFreqSlider.addListener(this);
 	addAndMakeVisible(lowcutFreqSlider);
 
-	Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
-
 	hicutFreqLabel.setFont(paramLabelFont);
 	hicutFreqLabel.setText("HiCut", dontSendNotification);
 	hicutFreqLabel.setJustificationType(Justification::centred);
@@ -1153,16 +1090,14 @@ FilterParametersComponent::FilterParametersComponent(FilterParameters* filterPar
 	lowcutFreqLabel.setEditable(false, false, false);
 	addAndMakeVisible(lowcutFreqLabel);
 
-	startTimerHz(30.0f);
+	startTimerHz(30);
 }
 
 FilterParametersComponent::~FilterParametersComponent()
 {}
 
-void FilterParametersComponent::paint(Graphics & g)
+void FilterParametersComponent::paint(Graphics& g)
 {
-	Font panelNameFont = Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
-
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
 		g.setColour(PANEL_COLOUR());
@@ -1178,8 +1113,7 @@ void FilterParametersComponent::paint(Graphics & g)
 		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
 
 		String text("FILTER");
-		Colour textColour = Colours::white;
-		g.setColour(textColour);
+		g.setColour(TEXT_COLOUR());
 		g.setFont(panelNameFont);
 		g.drawText(text, textArea, Justification::centred, false);
 	}
@@ -1189,7 +1123,7 @@ void FilterParametersComponent::resized()
 {
 	float rowSize = 4.0f;
 	float divide = 1.0f / rowSize;
-	float compHeight = (getHeight() - PANEL_NAME_HEIGHT) * divide;
+	int compHeight = int((getHeight() - PANEL_NAME_HEIGHT) * divide);
 
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);

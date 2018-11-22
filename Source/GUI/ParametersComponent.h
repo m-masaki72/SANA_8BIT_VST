@@ -14,10 +14,6 @@
 #include "JuceHeader.h"
 #include "../DSP/SimpleSynthParameters.h"
 
-namespace {
-	const int WAVESAMPLE_LENGTH = 32;
-}
-
 class ChipOscillatorComponent : public Component, ComboBox::Listener, Slider::Listener, private Timer
 {
 public:
@@ -71,7 +67,6 @@ private:
 	SweepParameters* _sweepParamsPtr;
 
 	ComboBox sweepSwitchSelector;
-
 	Slider timeSlider;
 
 	Label switchLabel;
@@ -150,7 +145,7 @@ private:
 
 	virtual void timerCallback() override;
 	virtual void buttonClicked(Button* button) override;
-	virtual void sliderValueChanged(Slider * slider) override;
+	virtual void sliderValueChanged(Slider* slider) override;
 	
 	OptionsParameters* _optionsParamsPtr;
 
@@ -194,7 +189,27 @@ private:
 class WaveformMemoryParametersComponent : public Component, private Timer
 {
 public:
+	WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams);
+	virtual ~WaveformMemoryParametersComponent();
+
+	virtual void paint(Graphics& g) override;
+	virtual void resized() override;
+
+private:
+	WaveformMemoryParametersComponent();
+
+	virtual void timerCallback() override;
+	virtual void updateValue();
+	virtual void mouseDrag(const MouseEvent& e) override;
+	virtual void mouseDown(const MouseEvent& e) override;
+	virtual void mouseUp(const MouseEvent& e) override;
+
+	WaveformMemoryParameters* _waveformMemoryParamsPtr;
+
+	Slider waveSampleSlider[WAVESAMPLE_LENGTH];
+
 	//=====================================================================================
+
 	struct Trail
 	{
 		Trail(const MouseInputSource& ms)
@@ -245,24 +260,8 @@ public:
 
 		return nullptr;
 	}
+
 	//=====================================================================================
-	WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams);
-	virtual ~WaveformMemoryParametersComponent();
-
-	virtual void paint(Graphics& g) override;
-	virtual void resized() override;
-
-private:
-	WaveformMemoryParametersComponent();
-	virtual void timerCallback() override;
-	virtual void updateValue();
-	virtual void mouseDrag(const MouseEvent& e) override;
-	virtual void mouseDown(const MouseEvent& e) override;
-	virtual void mouseUp(const MouseEvent& e) override;
-
-	WaveformMemoryParameters* _waveformMemoryParamsPtr;
-
-	Slider waveSampleSlider[WAVESAMPLE_LENGTH];
 };
 
 class FilterParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
@@ -285,7 +284,6 @@ private:
 
 	ToggleButton hiCutSwitch;
 	ToggleButton lowCutSwitch;
-
 	Slider hicutFreqSlider;
 	Slider lowcutFreqSlider;
 

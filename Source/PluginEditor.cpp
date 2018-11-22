@@ -168,7 +168,6 @@ SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudi
 
 		//Set Tabs Style
 		{
-			//tabs.setOutline(5.0f);
 			tabs.setTabBarDepth(TAB_HEIGHT);
 			tabs.setIndent(5.0f);
 		}

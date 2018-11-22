@@ -192,7 +192,6 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 
 				rb.push_back(currentSample);
 
-
 				//エコー処理とエコーレンダリング
 				if (_midiEchoParamsPtr->IsEchoEnable->get())
 				{
@@ -206,7 +205,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 						}
 					}
 				}
-				eb.countUp();
+				eb.cycle();
 
 				//	リアルタイム音処理  バッファに対して加算処理を行う。ポリフォニックでは、各ボイスの音を加算処理する必要がある。
 				for (int channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;) 
@@ -293,8 +292,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 // ⑨モジュレーション波形を算出する関数。
 float SimpleVoice::calcModulationFactor(float angle)
 {
-	float factor = 0.0f;
-	factor = waveForms.sine(angle);
+	float factor = waveForms.sine(angle);
 
 	// factorの値が0.5を中心とした0.0～1.0の値となるように調整する。
 	factor *= _vibratoParamsPtr->VibratoAmount->get();

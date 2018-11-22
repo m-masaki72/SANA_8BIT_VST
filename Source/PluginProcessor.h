@@ -168,7 +168,7 @@ public:
 	FilterParameters filterParameters;
 
 private:
-	Synthesiser		  synth;
+	Synthesiser synth;
 
 	//preset index
 	int currentProgIndex;
