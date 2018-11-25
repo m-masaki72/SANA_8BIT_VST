@@ -27,6 +27,28 @@ namespace {
 	const Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
 }
 
+std::vector<std::string> split(std::string str, char del) {
+	int first = 0;
+	int last = str.find_first_of(del);
+
+	std::vector<std::string> result;
+
+	while (first < str.size()) {
+		std::string subStr(str, first, last - first);
+
+		result.push_back(subStr);
+
+		first = last + 1;
+		last = str.find_first_of(del, first);
+
+		if (last == std::string::npos) {
+			last = str.size();
+		}
+	}
+
+	return result;
+}
+
 ChipOscillatorComponent::ChipOscillatorComponent(ChipOscillatorParameters* oscParams)
 	: _oscParamsPtr(oscParams)
 	, waveTypeSelector("waveForm")
@@ -888,12 +910,23 @@ bool MidiEchoParametersComponent::isEditable()
 WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams)
 	: _waveformMemoryParamsPtr(waveformMemoryParams)
 	, waveSampleSlider{}
+	, saveButton()
+	, loadButton()
 {
 	for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
 	{
 		waveSampleSlider[i].setRange(0, 15, 1.0);
 		waveSampleSlider[i].setValue(7, dontSendNotification);
 	}
+
+	saveButton.setButtonText("Save to File");
+	saveButton.addListener(this);
+	addAndMakeVisible(saveButton);
+
+	loadButton.setButtonText("Load from File");
+	loadButton.addListener(this);
+	addAndMakeVisible(loadButton);
+
 	timerCallback();
 	startTimerHz(30);
 }
@@ -925,8 +958,8 @@ void WaveformMemoryParametersComponent::paint(Graphics& g)
 	//update slider Params
 	for (auto* trail : trails)
 	{	
-		float compWidth = (float)getWidth() - 12.0f; // 微調整値
-		int compHeight = getHeight() - PANEL_NAME_HEIGHT;
+		float compWidth = (float)(getWidth()) -12.0f; // 微調整値
+		int compHeight = getHeight() - PANEL_NAME_HEIGHT - BUTTON_HEIGHT;
 
 		int index = (int)(trail->currentPosition.x * (float)WAVESAMPLE_LENGTH / compWidth);
 		if (index < 0)
@@ -947,24 +980,24 @@ void WaveformMemoryParametersComponent::paint(Graphics& g)
 		float columnSize = (float)WAVESAMPLE_LENGTH;
 		float rowSize = (float)16;
 		float divide = 1.0f / columnSize;
-		int compWidth = int(getWidth() * divide);
+		int compWidth = int((getWidth()) * divide);
 
 		Rectangle<int> bounds = getLocalBounds();
-		bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(10);
+		bounds.removeFromTop(PANEL_NAME_HEIGHT);
+		bounds.removeFromBottom(BUTTON_HEIGHT);
 
 		//Draw Scale Line
 		for (int i = 1; i < 4; ++i)
 		{
 			float p_y = PANEL_NAME_HEIGHT + bounds.getHeight() * 0.25f * i;
-			Line<float> line(0.0f, p_y, (float)getWidth() , p_y);
+			Line<float> line(0.0f, p_y, (float)(bounds.getWidth()), p_y);
 			g.setColour(Colours::darkslateblue);
 			g.drawLine(line, 1.0f);
 		}
-
 		for (int i = 1; i < 8; ++i)
 		{
 			float p_x = compWidth * i * 4.0f;
-			Line<float> line(p_x, (float)PANEL_NAME_HEIGHT , p_x, (float)getHeight());
+			Line<float> line(p_x, (float)PANEL_NAME_HEIGHT , p_x, (float)(bounds.getHeight() + PANEL_NAME_HEIGHT));
 			g.setColour(Colours::darkslateblue);
 			g.drawLine(line, 1.4f);
 		}
@@ -975,6 +1008,7 @@ void WaveformMemoryParametersComponent::paint(Graphics& g)
 			Rectangle<int> area = bounds.removeFromLeft(compWidth);
 			int barHeight = int(bounds.getHeight() / rowSize * (waveSampleSlider[i].getMaximum() - waveSampleSlider[i].getValue()));
 			area.removeFromTop(barHeight);
+			//area.removeFromBottom(BUTTON_HEIGHT);
 			g.setColour(Colours::lime);
 			g.fillRect(area.reduced(1));
 		}
@@ -982,7 +1016,16 @@ void WaveformMemoryParametersComponent::paint(Graphics& g)
 }
 
 void WaveformMemoryParametersComponent::resized()
-{}
+{
+	Rectangle<int> bounds = getLocalBounds();
+	bounds.removeFromTop(PANEL_NAME_HEIGHT);
+
+	{
+		Rectangle<int> area = bounds.removeFromBottom(BUTTON_HEIGHT);
+		saveButton.setBounds(area.removeFromLeft(area.getWidth() / 2).reduced(LOCAL_MARGIN));
+		loadButton.setBounds(area.reduced(LOCAL_MARGIN));
+	}
+}
 
 void WaveformMemoryParametersComponent::timerCallback()
 {
@@ -1042,6 +1085,84 @@ void WaveformMemoryParametersComponent::mouseDrag(const MouseEvent& e)
 	{
 		t->pushPoint(e.position, e.mods, e.pressure);
 	}
+	repaint();
+}
+
+
+void WaveformMemoryParametersComponent::buttonClicked(Button* button)
+{
+	if (button == &saveButton)
+	{
+		FileChooser fileSaver(
+			"Save File As",
+			(File::getSpecialLocation(File::userDesktopDirectory)),
+			"*.wfm"
+		);
+
+		if (fileSaver.browseForFileToSave(true))
+		{
+			File newFile(fileSaver.getResult());
+			newFile.create();
+			newFile.replaceWithText("");
+			for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
+			{
+				newFile.appendText(std::to_string(*_waveformMemoryParamsPtr->WaveSamplesArray[i]));
+				newFile.appendText(" ");
+			}
+		}
+	}
+	else if (button = &loadButton)
+	{
+		FileChooser fileLoader(
+			"Load File From",
+			(File::getSpecialLocation(File::userDesktopDirectory)),
+			"*.wfm"
+		);
+
+		if (fileLoader.browseForFileToOpen())
+		{
+			File waveformFile(fileLoader.getResult());
+			std::string data = waveformFile.loadFileAsString().toStdString();
+			int count = 0;
+			for (const auto subStr : split(data, ' ')) {
+				*_waveformMemoryParamsPtr->WaveSamplesArray[count] = atoi(subStr.c_str());
+				++count;
+			}
+		}
+	}
+	timerCallback();
+	repaint();
+}
+
+bool WaveformMemoryParametersComponent::isInterestedInFileDrag(const StringArray & files)
+{
+	return true;
+}
+
+void WaveformMemoryParametersComponent::fileDragEnter(const StringArray &files, int x, int y)
+{}
+
+void WaveformMemoryParametersComponent::fileDragMove(const StringArray &files, int x, int y)
+{}
+
+void WaveformMemoryParametersComponent::fileDragExit(const StringArray &files)
+{}
+
+void WaveformMemoryParametersComponent::filesDropped(const StringArray &files, int x, int y)
+{
+	std::string filePath = files.begin()->toStdString();
+
+	if (filePath.find(".wfm"))
+	{
+		File waveformFile(filePath);
+		std::string data = waveformFile.loadFileAsString().toStdString();
+		int count = 0;
+		for (const auto subStr : split(data, ' ')) {
+			*_waveformMemoryParamsPtr->WaveSamplesArray[count] = atoi(subStr.c_str());
+			++count;
+		}
+	}
+	timerCallback();
 	repaint();
 }
 

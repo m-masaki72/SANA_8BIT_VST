@@ -36,13 +36,13 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 #endif
 	)
 #endif
-	, chipOscParameters{
-		new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 0),
-		new AudioParameterFloat("VOLUME",	"Volume", -32.0f, 8.0f, -12.0f),
-		new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.000f, 10.0f, 0.000f),
-		new AudioParameterFloat("AMPENV_DECAY", "Decay",  0.000f, 10.0f, 0.000f),
-		new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 1.0f),
-		new AudioParameterFloat("AMPENV_RELEASE", "Release", 0.000f, 10.0f, 0.000f)
+, chipOscParameters{
+	new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 0),
+	new AudioParameterFloat("VOLUME",	"Volume", -32.0f, 8.0f, -20.0f),
+	new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.000f, 10.0f, 0.000f),
+	new AudioParameterFloat("AMPENV_DECAY", "Decay",  0.000f, 10.0f, 0.000f),
+	new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 1.0f),
+	new AudioParameterFloat("AMPENV_RELEASE", "Release", 0.000f, 10.0f, 0.000f)
 }
 , sweepParameters{
 	new AudioParameterChoice("SWEEP_SWITCH", "Sweep-Switch", SWEEP_SWITCH, 0),
@@ -251,7 +251,7 @@ void SimpleSynthAudioProcessor::changeProgramName (int index, const String& newN
 void SimpleSynthAudioProcessor::initProgram() 
 {
 	chipOscParameters.OscWaveType = new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 0);
-	chipOscParameters.VolumeLevel = new AudioParameterFloat("VOLUME", "Volume", -32.0f, 8.0f, -12.0f);	
+	chipOscParameters.VolumeLevel = new AudioParameterFloat("VOLUME", "Volume", -32.0f, 8.0f, -20.0f);	
 	chipOscParameters.Attack = new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.000f, 10.0f, 0.000f);
 	chipOscParameters.Decay =  new AudioParameterFloat("AMPENV_DECAY", "Decay", 0.000f, 10.0f, 0.000f);
 	chipOscParameters.Sustain = new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 1.0f);
@@ -300,12 +300,9 @@ void SimpleSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 
 	clipper.prepare(spec);
 	clipper.functionToUse = clippingFunction;
-
-	hicutFilter.state = dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, 1000.0f);
+	
 	hicutFilter.prepare(spec);
-
-	lowcutFilter.state = dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, 1000.0f);
-	lowcutFilter.prepare(spec);
+	lowcutFilter.prepare(spec);	
 }
 
 void SimpleSynthAudioProcessor::releaseResources()
@@ -386,24 +383,17 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 
 	// フィルタ処理
 	{
+		*hicutFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), filterParameters.HicutFreq->get());
+		*lowcutFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), filterParameters.LowcutFreq->get());
+
 		if (filterParameters.HicutEnable->get())
 		{
-			*hicutFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), filterParameters.HicutFreq->get());
 			hicutFilter.process(context);
-		}
-		else
-		{
-			hicutFilter.reset();
 		}
 		if (filterParameters.LowcutEnable->get())
 		{
-			*lowcutFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), filterParameters.LowcutFreq->get());
 			lowcutFilter.process(context);
-		}
-		else
-		{
-			lowcutFilter.reset();
-		}
+		}		
 	}
 	// クリッピング処理
 	clipper.process(context);

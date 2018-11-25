@@ -36,6 +36,7 @@ public:
 	void releaseEnd();
 	bool isHolding();
 	bool isReleasing();
+	bool isReleaseEnded();
 	bool isEchoEnded();
 	void cycle(float sampleRate);
 

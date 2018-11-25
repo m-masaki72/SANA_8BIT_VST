@@ -186,7 +186,7 @@ private:
 	Label volumeOffsetLabel;
 };
 
-class WaveformMemoryParametersComponent : public Component, private Timer
+class WaveformMemoryParametersComponent : public Component, Button::Listener, private Timer, public FileDragAndDropTarget
 {
 public:
 	WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams);
@@ -203,10 +203,20 @@ private:
 	virtual void mouseDrag(const MouseEvent& e) override;
 	virtual void mouseDown(const MouseEvent& e) override;
 	virtual void mouseUp(const MouseEvent& e) override;
+	virtual void buttonClicked(Button* button) override;
+	virtual bool isInterestedInFileDrag(const StringArray & files) override;
+	virtual void fileDragEnter(const StringArray &files, int x, int y) override;
+	virtual void fileDragMove(const StringArray &files, int x, int y)override;
+	virtual void fileDragExit(const StringArray &files)override;
+	virtual void filesDropped(const StringArray &files, int x, int y) override;
 
 	WaveformMemoryParameters* _waveformMemoryParamsPtr;
 
 	Slider waveSampleSlider[WAVESAMPLE_LENGTH];
+
+	TextButton saveButton;
+	TextButton loadButton;
+	const int BUTTON_HEIGHT = 32;
 
 	//=====================================================================================
 

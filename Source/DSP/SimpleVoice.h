@@ -22,6 +22,7 @@ namespace
 	const int RING_BUF_SIZE = 7;
 }
 
+/*
 //レンダリング用の簡易リングバッファの実装
 class RingBuffer
 {
@@ -99,6 +100,7 @@ private:
 	int index = 0;
 	float data[RING_BUF_SIZE];
 };
+*/
 
 //エコーエフェクト用のサンプリングバッファ
 class EchoBuffer
@@ -116,7 +118,10 @@ public:
 	{};
 
 	void init() {
+
+		index = 0;
 		bufSize = (int)(sampleRate * echoTime);
+
 		if (bufSize <= 0)
 		{
 			bufSize = 0;
@@ -140,10 +145,10 @@ public:
 	{
 		if (index >= bufSize)
 		{
-			index = 0;
+			init();
 		}
 		//一つずつ前のバッファのサンプルを補完，1サンプル前のバッファを補完していく
-		for (int i = (int)buf.size() - 1; i > 0; --i)
+		for (int i = echoCount - 1; i > 0; --i)
 		{
 			buf[i][index] = buf[i-1][index] * amp;
 		}
@@ -155,14 +160,18 @@ public:
 	// 最後尾はbuffSizeだけ遅れたサンプルになるのでDelayされる
 	float getSample(int repeatCount)
 	{
-		if (repeatCount >= buf.size())
+		if (repeatCount > echoCount)
 		{
+			init();
 			return 0.0f;
 		}
+
 		if (index >= bufSize)
 		{
-			return buf[repeatCount][0];
+			init();
+			return 0.0f;
 		}
+
 		return buf[repeatCount][index+1];
 	};
 
@@ -223,7 +232,7 @@ private:
 	float pitchBend, pitchSweep;
 	std::vector<float> echoSamples;
 	
-	RingBuffer rb;
+	//RingBuffer rb;
 	EchoBuffer eb;
 
 	//Waveform用のパラメータ

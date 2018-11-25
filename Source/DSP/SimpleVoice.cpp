@@ -69,11 +69,11 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 			if (velocity <= 0.01f) {
 				velocity = 0.01f;
 			}
-			level = velocity * 1.0f;
+			level = velocity * 0.8f;
 		}
 		else
 		{
-			level = 0.8f;
+			level = velocity * 0.8f;
 		}
 
 		pitchBend = ((float)currentPitchWheelPosition - 8192.0f) / 8192.0f;
@@ -110,7 +110,8 @@ void SimpleVoice::stopNote(float velocity, bool allowTailOff)
 			// ボイススチールを受けて直ぐに音量を0にしてしまうと、急峻な変化となりノイズの発生を引き起こすため、それを予防する処理。
 			ampEnv.releaseStart();
 		}
-		else {
+		else 
+		{
 			portaAngleDelta = 0.0f;
 		}
 		// ボイススチール処理の過程で現在のノート再生状態をクリアする
@@ -188,14 +189,16 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 				}
 
 				// AMP EG: エンベロープの値をサンプルデータに反映する。
-				currentSample *= ampEnv.getValue();
+				currentSample *= ampEnv.getValue() * level;
 
-				rb.push_back(currentSample);
+				//rb.push_back(currentSample);
+
 
 				//エコー処理とエコーレンダリング
 				if (_midiEchoParamsPtr->IsEchoEnable->get())
 				{
 					eb.addSample(currentSample, _midiEchoParamsPtr->VolumeOffset->get() / 100.0f);
+					eb.cycle();
 
 					for (int channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;)
 					{
@@ -205,25 +208,25 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 						}
 					}
 				}
-				eb.cycle();
+
 
 				//	リアルタイム音処理  バッファに対して加算処理を行う。ポリフォニックでは、各ボイスの音を加算処理する必要がある。
 				for (int channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;) 
 				{
-					outputBuffer.addSample(channelNum, startSample, rb.getCurrentValue());
+					outputBuffer.addSample(channelNum, startSample, currentSample);
 				}
 
 				// VOiceの初期化処理
 				// エンベロープにおいて，エフェクトエコーが終わっている or リリース状態のとき				
-				if (ampEnv.isEchoEnded() || (ampEnv.isReleasing() && !_midiEchoParamsPtr->IsEchoEnable->get()))
+				if (ampEnv.isEchoEnded() || (ampEnv.isReleaseEnded() && !_midiEchoParamsPtr->IsEchoEnable->get()))
 				{
 					{
-						ampEnv.releaseEnd();		 // エンベロープをWait状態に移行する。
 						clearCurrentNote();			 // このボイスが生成するノート情報をクリアする。
 						angleDelta = 0.0f;			 // 変数を初期値に戻す。
 						portaAngleDelta = 0.0f;
 						currentAngle = 0.0f;
 						pitchSweep = 0.0f;
+						eb.init();
 						break;
 					}
 				}

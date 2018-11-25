@@ -118,6 +118,12 @@ bool AmpEnvelope::isReleasing()
 	return _ampState == AmpEnvelope::AMPENV_STATE::RELEASE;
 }
 
+bool AmpEnvelope::isReleaseEnded()
+{
+	return _ampState == AmpEnvelope::AMPENV_STATE::WAIT;
+}
+
+
 bool AmpEnvelope::isEchoEnded()
 {
 	return _ampState == AmpEnvelope::AMPENV_STATE::ECHO;

@@ -160,7 +160,6 @@ SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudi
 	tabs.addTab("OSCILLATOR", BACKGROUND_COLOUR(), &p1, false);
 	tabs.addTab("EFFECTS", BACKGROUND_COLOUR(), &p2, false);
 
-	setOpaque(true);
 	setSize(960, 540 + KEY_HEIGHT);
 
 	{
@@ -215,6 +214,7 @@ void SimpleSynthAudioProcessorEditor::paint (Graphics& g)
 void SimpleSynthAudioProcessorEditor::resized()
 {
 	Rectangle<int> bounds = getLocalBounds();
+
 	keyboardComponent.setBounds(bounds.removeFromBottom(KEY_HEIGHT));
 	tabs.setBounds(bounds);
 }
