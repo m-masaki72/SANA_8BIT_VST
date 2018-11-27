@@ -19,88 +19,7 @@
 
 namespace
 {
-	const int RING_BUF_SIZE = 7;
 }
-
-/*
-//レンダリング用の簡易リングバッファの実装
-class RingBuffer
-{
-public:
-	RingBuffer()
-	{
-		for (int i = 0; i < RING_BUF_SIZE; ++i)
-		{
-			data[i] = 0.0f;
-		}
-	};
-
-	void push_back(float sample)
-	{
-		data[index] = sample;
-		index = (index + 1) % RING_BUF_SIZE;
-	};
-
-	float getCurrentValue()
-	{
-		//ガウシアンフィルタを通して出力する
-		//3 sample: 1 2 1
-		//5 sample: 1 4 6 4 1
-		//7 sample 1 6 15 20 15 6 1
-		float val = 0.0f;
-		for (int i = 0; i < RING_BUF_SIZE; ++i)
-		{
-			switch (i - index)
-			{
-			case -6:
-				val += data[i] * 15.0f;
-				break;
-			case -5:
-				val += data[i] * 15.0f;
-				break;
-			case -4:
-				val += data[i] * 6.0f;
-				break;
-			case -3:
-				val += data[i] * 6.0f;
-				break;
-			case -2:
-				val += data[i] * 1.0f;
-				break;
-			case -1:
-				val += data[i] * 1.0f;
-				break;
-			case 0:
-				val += data[i] * 20.0f;
-				break;
-			case 1:
-				val += data[i] * 15.0f;
-				break;
-			case 2:
-				val += data[i] * 15.0f;
-				break;
-			case 3:
-				val += data[i] * 6.0f;
-				break;
-			case 4:
-				val += data[i] * 6.0f;
-				break;
-			case 5:
-				val += data[i] * 1.0f;
-				break;
-			case 6:
-				val += data[i] * 1.0f;
-				break;
-			}
-		}
-		return val / 64.0f;
-	}
-
-private:
-	int index = 0;
-	float data[RING_BUF_SIZE];
-};
-*/
 
 //エコーエフェクト用のサンプリングバッファ
 class EchoBuffer
@@ -126,6 +45,7 @@ public:
 		{
 			bufSize = 0;
 		}
+
 		buf.resize(echoCount);
 		for (int i = 0; i < echoCount; ++i)
 		{
@@ -160,7 +80,7 @@ public:
 	// 最後尾はbuffSizeだけ遅れたサンプルになるのでDelayされる
 	float getSample(int repeatCount)
 	{
-		if (repeatCount > echoCount)
+		if (repeatCount >= echoCount)
 		{
 			init();
 			return 0.0f;
@@ -175,11 +95,14 @@ public:
 		return buf[repeatCount][index+1];
 	};
 
-	void update(float sec, int count)
+	void updateParam(float sec, int count)
 	{
-		echoTime = sec;
-		echoCount = count;
-		init();
+		if (echoTime != sec || echoCount != count)
+		{
+			echoTime = sec;
+			echoCount = count;
+			init();
+		}
 	}
 
 	void cycle()

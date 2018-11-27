@@ -337,7 +337,7 @@ bool SimpleSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 
 void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
-	playHead = this->getPlayHead();
+	playHead = getPlayHead();
 	if (playHead)
 	{
 		playHead->getCurrentPosition(currentPositionInfo);
@@ -383,15 +383,14 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 
 	// フィルタ処理
 	{
-		*hicutFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), filterParameters.HicutFreq->get());
-		*lowcutFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), filterParameters.LowcutFreq->get());
-
 		if (filterParameters.HicutEnable->get())
 		{
+			*hicutFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), filterParameters.HicutFreq->get());
 			hicutFilter.process(context);
 		}
 		if (filterParameters.LowcutEnable->get())
 		{
+			*lowcutFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), filterParameters.LowcutFreq->get());
 			lowcutFilter.process(context);
 		}		
 	}

@@ -212,10 +212,11 @@ private:
 
 	WaveformMemoryParameters* _waveformMemoryParamsPtr;
 
-	Slider waveSampleSlider[WAVESAMPLE_LENGTH];
+	Slider waveSampleSlider[32];
 
 	TextButton saveButton;
 	TextButton loadButton;
+	//File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
 	const int BUTTON_HEIGHT = 32;
 
 	//=====================================================================================

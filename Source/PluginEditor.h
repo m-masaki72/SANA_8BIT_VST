@@ -36,6 +36,9 @@ private:
 	VoicingParametersComponent voicingParamsComponent;
 	OptionsParametersComponent optionsParamsComponent;
 	WaveformMemoryParametersComponent waveformMemoryParamsComponent;
+
+	LookAndFeel* customLookAndFeel;
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OscPage)
 };
 
 //==============================================================================
@@ -53,6 +56,9 @@ private:
 	MidiEchoParametersComponent midiEchoParamsComponent;
 	FilterParametersComponent filterParamsComponent;
 	ScopeComponent<float> scopeComponent;
+
+	LookAndFeel* customLookAndFeel;
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EffectPage)
 };
 
 //==============================================================================

@@ -44,10 +44,39 @@ OscPage::OscPage(SimpleSynthAudioProcessor& p)
 	addAndMakeVisible(optionsParamsComponent);
 	addAndMakeVisible(waveformMemoryParamsComponent);
 	addAndMakeVisible(scopeComponent);
+
+	{
+		customLookAndFeel = new LookAndFeel_V4(LookAndFeel_V4::getLightColourScheme());
+
+		customLookAndFeel->setColour(Slider::ColourIds::trackColourId, Colours::lime);
+		customLookAndFeel->setColour(Slider::ColourIds::thumbColourId, Colours::darkslategrey);
+		customLookAndFeel->setColour(Slider::ColourIds::backgroundColourId, Colours::lightgrey);
+
+		customLookAndFeel->setColour(ToggleButton::ColourIds::textColourId, Colours::black);
+		customLookAndFeel->setColour(ToggleButton::ColourIds::tickColourId, Colours::black);
+		customLookAndFeel->setColour(ToggleButton::ColourIds::tickDisabledColourId, Colours::black);
+
+		customLookAndFeel->setColour(Slider::ColourIds::textBoxBackgroundColourId, Colours::white);
+		customLookAndFeel->setColour(Slider::ColourIds::textBoxTextColourId, Colours::black);
+
+		customLookAndFeel->setColour(Label::textColourId, Colours::black);
+
+		for (Component* child : getChildren())
+		{
+			child->setLookAndFeel(customLookAndFeel);
+		}
+	}
 }
 
 OscPage::~OscPage()
-{}
+{
+	for (Component* child : getChildren())
+	{
+		child->setLookAndFeel(nullptr);
+	}
+
+	delete(customLookAndFeel);
+}
 
 void OscPage::paint(Graphics& g)
 {
@@ -79,8 +108,11 @@ void OscPage::resized()
 	}
 }
 
-void OscPage::setLookAndFeel(LookAndFeel* customLookAndFeel)
+void OscPage::setLookAndFeel(LookAndFeel* t)
 {
+	customLookAndFeel = new LookAndFeel_V4();
+	customLookAndFeel = t;
+
 	for (Component* child : getChildren())
 	{
 		child->setLookAndFeel(customLookAndFeel);
@@ -97,10 +129,39 @@ EffectPage::EffectPage(SimpleSynthAudioProcessor& p)
 	addAndMakeVisible(midiEchoParamsComponent);
 	addAndMakeVisible(filterParamsComponent);
 	addAndMakeVisible(scopeComponent);
+
+	{
+		customLookAndFeel = new LookAndFeel_V4(LookAndFeel_V4::getLightColourScheme());
+
+		customLookAndFeel->setColour(Slider::ColourIds::trackColourId, Colours::lime);
+		customLookAndFeel->setColour(Slider::ColourIds::thumbColourId, Colours::darkslategrey);
+		customLookAndFeel->setColour(Slider::ColourIds::backgroundColourId, Colours::lightgrey);
+
+		customLookAndFeel->setColour(ToggleButton::ColourIds::textColourId, Colours::black);
+		customLookAndFeel->setColour(ToggleButton::ColourIds::tickColourId, Colours::black);
+		customLookAndFeel->setColour(ToggleButton::ColourIds::tickDisabledColourId, Colours::black);
+
+		customLookAndFeel->setColour(Slider::ColourIds::textBoxBackgroundColourId, Colours::white);
+		customLookAndFeel->setColour(Slider::ColourIds::textBoxTextColourId, Colours::black);
+
+		customLookAndFeel->setColour(Label::textColourId, Colours::black);
+
+		for (Component* child : getChildren())
+		{
+			child->setLookAndFeel(customLookAndFeel);
+		}
+	}
 }
 
 EffectPage::~EffectPage()
-{}
+{
+	for (Component* child : getChildren())
+	{
+		child->setLookAndFeel(nullptr);
+	}
+
+	delete customLookAndFeel;
+}
 
 void EffectPage::paint(Graphics& g)
 {
@@ -122,8 +183,11 @@ void EffectPage::resized()
 	}
 }
 
-void EffectPage::setLookAndFeel(LookAndFeel* customLookAndFeel)
+void EffectPage::setLookAndFeel(LookAndFeel* t)
 {
+	customLookAndFeel = new LookAndFeel_V4();
+	customLookAndFeel = t;
+
 	for (Component* child : getChildren())
 	{
 		child->setLookAndFeel(customLookAndFeel);
@@ -182,8 +246,6 @@ SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudi
 		{
 			child->setLookAndFeel(customLookAndFeel);
 		}
-		p1.setLookAndFeel(customLookAndFeel);
-		p2.setLookAndFeel(customLookAndFeel);
 
 		//Set Tabs Style
 		{
@@ -195,6 +257,7 @@ SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudi
 
 SimpleSynthAudioProcessorEditor::~SimpleSynthAudioProcessorEditor()
 {
+	tabs.clearTabs();
 	for (Component* child : getChildren()) 
 	{
 		child->setLookAndFeel(nullptr);

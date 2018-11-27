@@ -25,15 +25,19 @@ namespace {
 
 	const Font panelNameFont = Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
 	const Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
+
+	static File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
 }
 
-std::vector<std::string> split(std::string str, char del) {
+std::vector<std::string> split(std::string str, char del) 
+{
 	int first = 0;
 	int last = str.find_first_of(del);
 
 	std::vector<std::string> result;
 
-	while (first < str.size()) {
+	while (first < str.size()) 
+	{
 		std::string subStr(str, first, last - first);
 
 		result.push_back(subStr);
@@ -41,11 +45,11 @@ std::vector<std::string> split(std::string str, char del) {
 		first = last + 1;
 		last = str.find_first_of(del, first);
 
-		if (last == std::string::npos) {
+		if (last == std::string::npos)
+		{
 			last = str.size();
 		}
 	}
-
 	return result;
 }
 
@@ -1095,7 +1099,7 @@ void WaveformMemoryParametersComponent::buttonClicked(Button* button)
 	{
 		FileChooser fileSaver(
 			"Save File As",
-			(File::getSpecialLocation(File::userDesktopDirectory)),
+			preFilePath,
 			"*.wfm"
 		);
 
@@ -1109,13 +1113,14 @@ void WaveformMemoryParametersComponent::buttonClicked(Button* button)
 				newFile.appendText(std::to_string(*_waveformMemoryParamsPtr->WaveSamplesArray[i]));
 				newFile.appendText(" ");
 			}
+			preFilePath = fileSaver.getResult();
 		}
 	}
 	else if (button = &loadButton)
 	{
 		FileChooser fileLoader(
 			"Load File From",
-			(File::getSpecialLocation(File::userDesktopDirectory)),
+			preFilePath,
 			"*.wfm"
 		);
 
@@ -1124,10 +1129,12 @@ void WaveformMemoryParametersComponent::buttonClicked(Button* button)
 			File waveformFile(fileLoader.getResult());
 			std::string data = waveformFile.loadFileAsString().toStdString();
 			int count = 0;
-			for (const auto subStr : split(data, ' ')) {
+			for (const auto subStr : split(data, ' '))
+			{
 				*_waveformMemoryParamsPtr->WaveSamplesArray[count] = atoi(subStr.c_str());
 				++count;
 			}
+			preFilePath = fileLoader.getResult();
 		}
 	}
 	timerCallback();

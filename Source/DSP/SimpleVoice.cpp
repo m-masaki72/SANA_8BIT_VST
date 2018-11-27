@@ -61,7 +61,7 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 		//パラメータ初期化
 		{
 			pitchSweep = 0.0f;
-			eb.update(_midiEchoParamsPtr->EchoDuration->get(), _midiEchoParamsPtr->EchoRepeat->get());
+			eb.updateParam(_midiEchoParamsPtr->EchoDuration->get(), _midiEchoParamsPtr->EchoRepeat->get());
 		}
 		// ベロシティ有効/無効のフラグに応じて音量レベルを決定する。有効...ベロシティの値から算出する。 無効...固定値を使用する。
 		if (_optionsParamsPtr->IsVelocitySense->get())
@@ -191,9 +191,6 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 				// AMP EG: エンベロープの値をサンプルデータに反映する。
 				currentSample *= ampEnv.getValue() * level;
 
-				//rb.push_back(currentSample);
-
-
 				//エコー処理とエコーレンダリング
 				if (_midiEchoParamsPtr->IsEchoEnable->get())
 				{
@@ -207,6 +204,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 							outputBuffer.addSample(channelNum, startSample, eb.getSample(i));
 						}
 					}
+
 				}
 
 
@@ -226,7 +224,6 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 						portaAngleDelta = 0.0f;
 						currentAngle = 0.0f;
 						pitchSweep = 0.0f;
-						eb.init();
 						break;
 					}
 				}
@@ -284,7 +281,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 				vibratoEnv.cycle((float)getSampleRate());
 				portaEnv.setParameters(_voicingParamsPtr->PortaTime->get(), 0.0f, 1.0f, 0.0f, 0.0f);
 				portaEnv.cycle((float)getSampleRate());
-
+				eb.updateParam(_midiEchoParamsPtr->EchoDuration->get(), _midiEchoParamsPtr->EchoRepeat->get());
 				// 書き込み先のオーディオバッファのサンプルインデックス値をインクリメントする。
 				++startSample;
 			}

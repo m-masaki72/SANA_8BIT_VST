@@ -250,9 +250,9 @@ void MidiEchoParameters::saveParameters(XmlElement& xml)
 void MidiEchoParameters::loadParameters(XmlElement& xml)
 {
 	*IsEchoEnable = xml.getBoolAttribute(IsEchoEnable->paramID, true);
-	*EchoDuration = (float)xml.getDoubleAttribute(EchoDuration->paramID, 1000);
+	*EchoDuration = (float)xml.getDoubleAttribute(EchoDuration->paramID, 0.25);
 	*EchoRepeat = xml.getIntAttribute(EchoRepeat->paramID, 1);
-	*VolumeOffset = (float)xml.getDoubleAttribute(VolumeOffset->paramID, 100);
+	*VolumeOffset = (float)xml.getDoubleAttribute(VolumeOffset->paramID, 50);
 }
 
 //-----------------------------------------------------------------------------------------
@@ -284,7 +284,7 @@ void FilterParameters::loadParameters(XmlElement& xml)
 {
 	*HicutEnable =  xml.getBoolAttribute(HicutEnable->paramID, false);
 	*LowcutEnable = xml.getBoolAttribute(LowcutEnable->paramID, false);
-	*HicutFreq = (float)xml.getDoubleAttribute(HicutFreq->paramID, 22000.0f);
+	*HicutFreq = (float)xml.getDoubleAttribute(HicutFreq->paramID, 20000.0f);
 	*LowcutFreq = (float)xml.getDoubleAttribute(LowcutFreq->paramID, 20.0f);
 }
 
