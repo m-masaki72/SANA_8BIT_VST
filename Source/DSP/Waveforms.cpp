@@ -17,6 +17,21 @@ namespace {
 	const float TWO_PI = MathConstants<float>::twoPi;
 }
 
+Waveforms::Waveforms()
+{
+	init();
+}
+
+void Waveforms::init()
+{
+	rand = Random(0);	
+	noizeReg = 1 << 14;
+	noiseVal = 0.0f;
+	freqCounter = 0;
+}
+
+
+
 float Waveforms::sine(float angle)
 {
 	checkAngleRanage(angle);
@@ -109,7 +124,7 @@ float Waveforms::longNoise(float angleDelta)
 {
 	//noiseVal *= 0.99;
 
-	if (freqCounter++ > TWO_PI / angleDelta / (2 << 4)) 
+	if (++freqCounter > TWO_PI / angleDelta / (2 << 4)) 
 	{
 		freqCounter = 0;
 		int result = (noizeReg ^ (noizeReg >> 1)) & 1;
@@ -125,7 +140,7 @@ float Waveforms::shortNoise(float angleDelta)
 {
 	//noiseVal *= 0.99;
 
-	if (freqCounter++ > TWO_PI / angleDelta / (2 << 4)) 
+	if (++freqCounter > TWO_PI / angleDelta / (2 << 4)) 
 	{
 		freqCounter = 0;
 		int result = (noizeReg ^ (noizeReg >> 6)) & 1;
@@ -139,10 +154,10 @@ float Waveforms::shortNoise(float angleDelta)
 //乱数を時間軸と振幅軸側でクオンタイズしたもの
 float Waveforms::lobitNoise(float angleDelta)
 {
-	if (freqCounter++ > TWO_PI / angleDelta / (2 << 4)) 
+	if (++freqCounter > TWO_PI / angleDelta / (2 << 4)) 
 	{
 		freqCounter = 0;
-		noiseVal = Random::getSystemRandom().nextFloat() * 2.0f - 1.0f;
+		noiseVal = rand.nextFloat() * 2.0f - 1.0f;
 	}
 	return quantize(noiseVal);
 }

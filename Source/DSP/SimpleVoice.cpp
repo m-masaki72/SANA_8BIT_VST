@@ -61,6 +61,7 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 		//パラメータ初期化
 		{
 			pitchSweep = 0.0f;
+			waveForms.init();
 			eb.updateParam(_midiEchoParamsPtr->EchoDuration->get(), _midiEchoParamsPtr->EchoRepeat->get());
 		}
 		// ベロシティ有効/無効のフラグに応じて音量レベルを決定する。有効...ベロシティの値から算出する。 無効...固定値を使用する。

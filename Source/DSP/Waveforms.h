@@ -17,6 +17,8 @@
 class Waveforms
 {
 public:
+	Waveforms();
+	void init();
 	float nesTriangle(float angle);
 	float nesSquare(float angle);
 	float nesSquare25(float angle);
@@ -39,4 +41,5 @@ private:
 	int noizeReg = 1 << 14;
 	float noiseVal = 1.0f;
 	int freqCounter = 0;
+	Random rand;
 };
