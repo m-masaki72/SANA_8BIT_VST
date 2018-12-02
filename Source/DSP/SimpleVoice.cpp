@@ -268,11 +268,18 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 					pitchSweep -= 1 / (float)getSampleRate() / (float)_sweepParamsPtr->SweepTime->get();
 				}
 
-				if (currentAngle > TWO_PI) {
-					currentAngle -= TWO_PI;
+				if (pitchSweep >= 10.0f)
+				{
+					pitchSweep = 10.0f;
 				}
-				if (vibratoAngle > TWO_PI) {
-					vibratoAngle -= TWO_PI;
+
+				if (currentAngle > TWO_PI) 
+				{
+					currentAngle = fmod(currentAngle, TWO_PI);
+				}
+				if (vibratoAngle > TWO_PI) 
+				{
+					vibratoAngle = fmod(vibratoAngle, TWO_PI);
 				}
 
 				// エンベロープパラメータを更新して時間分進める
