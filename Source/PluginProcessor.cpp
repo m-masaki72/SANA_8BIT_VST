@@ -18,6 +18,7 @@
 #include "DSP/SimpleSound.h"
 #include "DSP/SimpleVoice.h"
 
+
 namespace
 {
 	int NUM_OF_PRESETS = 12;
@@ -36,6 +37,9 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 #endif
 	)
 #endif
+, presetsParameters{
+	new AudioParameterInt("PROGRAM_INDEX", "Program-Index", 0, NUM_OF_PRESETS, 0)
+}
 , chipOscParameters{
 	new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 0),
 	new AudioParameterFloat("VOLUME",	"Volume", -32.0f, 8.0f, -20.0f),
@@ -78,6 +82,7 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 , waveformMemoryParameters()
 , scopeDataCollector(scopeDataQueue)
 {
+	presetsParameters.addAllParameters(*this);
 	chipOscParameters.addAllParameters(*this);
 	sweepParameters.addAllParameters(*this);
 	vibratoParameters.addAllParameters(*this);
@@ -137,78 +142,83 @@ int SimpleSynthAudioProcessor::getNumPrograms()
 
 int SimpleSynthAudioProcessor::getCurrentProgram()
 {
-	return currentProgIndex;
+	currentProgIndex = presetsParameters.ProgramIndex->get();
+	return presetsParameters.ProgramIndex->get();
 }
 
 void SimpleSynthAudioProcessor::setCurrentProgram (int index)
 {
-	initProgram();
-	switch (index)
+	if (currentProgIndex != index)
 	{
-	case 0:
-		break;
-	case 1:
-		chipOscParameters.OscWaveType = new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 2);
-		chipOscParameters.Decay = new AudioParameterFloat("AMPENV_DECAY", "Decay", 0.000f, 10.0f, 5.000f);
-		chipOscParameters.Sustain = new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 0.0f);
-		vibratoParameters.VibratoAmount = new AudioParameterFloat("VIBRATO_DEPTH", "Vibrato-Depth", 0.0f, 13.0f, 0.05f);
-		vibratoParameters.VibratoSpeed = new AudioParameterFloat("VIBRATO_SPEED", "Vibrato-Speed", 0.0f, 20.0f, 13.0f);
-		break;
-	case 2:
-		chipOscParameters.Attack = new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.000f, 10.0f, 1.000f);
-		vibratoParameters.VibratoAmount = new AudioParameterFloat("VIBRATO_DEPTH", "Vibrato-Depth", 0.0f, 13.0f, 0.05f);
-		vibratoParameters.VibratoSpeed = new AudioParameterFloat("VIBRATO_SPEED", "Vibrato-Speed", 0.0f, 20.0f, 5.0f);
-		break;
-	case 3:
-		chipOscParameters.Decay = new AudioParameterFloat("AMPENV_DECAY", "Decay", 0.000f, 10.0f, 0.500f);
-		chipOscParameters.Sustain = new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 0.0f);
-		break;
-	case 4:
-		chipOscParameters.OscWaveType = new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 1);
-		chipOscParameters.Decay = new AudioParameterFloat("AMPENV_DECAY", "Decay", 0.000f, 10.0f, 0.050f);
-		chipOscParameters.Sustain = new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 0.60f);
-		vibratoParameters.VibratoAmount = new AudioParameterFloat("VIBRATO_DEPTH", "Vibrato-Depth", 0.0f, 13.0f, 0.05f);
-		vibratoParameters.VibratoSpeed = new AudioParameterFloat("VIBRATO_SPEED", "Vibrato-Speed", 0.0f, 20.0f, 6.0f);
-		break;
-	case 5:
-		vibratoParameters.VibratoAmount = new AudioParameterFloat("VIBRATO_DEPTH", "Vibrato-Depth", 0.0f, 13.0f, 1.0f);
-		vibratoParameters.VibratoSpeed = new AudioParameterFloat("VIBRATO_SPEED", "Vibrato-Speed", 0.0f, 20.0f, 6.0f);
-		vibratoParameters.VibratoAttackTime = new AudioParameterFloat("VIBRATO_ATTACKTIME", "Vibrato-AttackTime", 0.0f, 15.0f, 3.0f);
-		break;
-	case 6:
-		chipOscParameters.Decay = new AudioParameterFloat("AMPENV_DECAY", "Decay", 0.000f, 10.0f, 0.300f);
-		chipOscParameters.Sustain = new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 0.5f);
-		break;
-	case 7:
-		sweepParameters.SweepSwitch = new AudioParameterChoice("SWEEP_SWITCH", "Sweep-Switch", SWEEP_SWITCH, 1);
-		sweepParameters.SweepTime = new AudioParameterFloat("SWEEP_TIME", "Sweep-Time", 0.01f, 10.0f, 3.0f);
-		break;
-	case 8:
-		chipOscParameters.OscWaveType = new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 10);
-		chipOscParameters.Decay = new AudioParameterFloat("AMPENV_DECAY", "Decay", 0.000f, 10.0f, 0.200f);
-		chipOscParameters.Sustain = new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 0.0f);
-		break;
-	case 9:
-		chipOscParameters.OscWaveType = new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 10);
-		chipOscParameters.Decay = new AudioParameterFloat("AMPENV_DECAY", "Decay", 0.000f, 10.0f, 0.800f);
-		chipOscParameters.Sustain = new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 0.0f);
-		break;
-	case 10:
-		chipOscParameters.OscWaveType = new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 10);
-		chipOscParameters.Attack = new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.000f, 10.0f, 0.100f);
-		chipOscParameters.Decay = new AudioParameterFloat("AMPENV_DECAY", "Decay", 0.000f, 10.0f, 2.500f);
-		chipOscParameters.Sustain = new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 0.0f);
-		break;
-	case 11:
-		chipOscParameters.Decay = new AudioParameterFloat("AMPENV_DECAY", "Decay", 0.000f, 10.0f, 0.200f);
-		chipOscParameters.Sustain = new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 0.0f);
-		sweepParameters.SweepSwitch = new AudioParameterChoice("SWEEP_SWITCH", "Sweep-Switch", SWEEP_SWITCH, 2);
-		sweepParameters.SweepTime = new AudioParameterFloat("SWEEP_TIME", "Sweep-Time", 0.01f, 10.0f, 0.4f);
-		break;
-	default:
-		break;
+		initProgram();
+
+		switch (index)
+		{
+		case 0:
+			break;
+		case 1:
+			*chipOscParameters.OscWaveType = 2;
+			*chipOscParameters.Decay =  5.000f;
+			*chipOscParameters.Sustain = 0.0f;
+			*vibratoParameters.VibratoAmount =  0.05f;
+			*vibratoParameters.VibratoSpeed  = 13.0f;
+			break;
+		case 2:
+			*chipOscParameters.Attack = 1.000f;
+			*vibratoParameters.VibratoAmount = 0.05f;
+			*vibratoParameters.VibratoSpeed = 5.0f;
+			break;
+		case 3:
+			*chipOscParameters.Decay = 0.500f;
+			*chipOscParameters.Sustain = 0.0f;
+			break;
+		case 4:
+			*chipOscParameters.OscWaveType = 1;
+			*chipOscParameters.Decay = 0.050f;
+			*chipOscParameters.Sustain = 0.60f;
+			*vibratoParameters.VibratoAmount = 0.05f;
+			*vibratoParameters.VibratoSpeed = 6.0f;
+			break;
+		case 5:
+			*vibratoParameters.VibratoAmount = 1.0f;
+			*vibratoParameters.VibratoSpeed = 6.0f;
+			*vibratoParameters.VibratoAttackTime = 3.0f;
+			break;
+		case 6:
+			*chipOscParameters.Decay = 0.300f;
+			*chipOscParameters.Sustain = 0.5f;
+			break;
+		case 7:
+			*sweepParameters.SweepSwitch = 1;
+			*sweepParameters.SweepTime = 3.0f;
+			break;
+		case 8:
+			*chipOscParameters.OscWaveType = 10;
+			*chipOscParameters.Decay = 0.200f;
+			*chipOscParameters.Sustain = 0.0f;
+			break;
+		case 9:
+			*chipOscParameters.OscWaveType = 10;
+			*chipOscParameters.Decay = 0.800f;
+			*chipOscParameters.Sustain = 0.0f;
+			break;
+		case 10:
+			*chipOscParameters.OscWaveType = 10;
+			*chipOscParameters.Attack = 0.100f;
+			*chipOscParameters.Decay = 2.500f;
+			*chipOscParameters.Sustain = 0.0f;
+			break;
+		case 11:
+			*chipOscParameters.Decay = 0.200f;
+			*chipOscParameters.Sustain = 0.0f;
+			*sweepParameters.SweepSwitch = 2;
+			*sweepParameters.SweepTime = 0.4f;
+			break;
+		default:
+			break;
+		}
+		*presetsParameters.ProgramIndex = currentProgIndex = index;
 	}
-	currentProgIndex = index;
 }
 
 const String SimpleSynthAudioProcessor::getProgramName (int index)
@@ -250,20 +260,20 @@ void SimpleSynthAudioProcessor::changeProgramName (int index, const String& newN
 
 void SimpleSynthAudioProcessor::initProgram() 
 {
-	chipOscParameters.OscWaveType = new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 0);
-	chipOscParameters.VolumeLevel = new AudioParameterFloat("VOLUME", "Volume", -32.0f, 8.0f, -20.0f);	
-	chipOscParameters.Attack = new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.000f, 10.0f, 0.000f);
-	chipOscParameters.Decay =  new AudioParameterFloat("AMPENV_DECAY", "Decay", 0.000f, 10.0f, 0.000f);
-	chipOscParameters.Sustain = new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 1.0f);
-	chipOscParameters.Release = new AudioParameterFloat("AMPENV_RELEASE", "Release", 0.000f, 10.0f, 0.000f);
+	*chipOscParameters.OscWaveType = 0;
+	*chipOscParameters.VolumeLevel = -20.0f;	
+	*chipOscParameters.Attack =  0.000f;
+	*chipOscParameters.Decay =  0.000f;
+	*chipOscParameters.Sustain = 1.0f;
+	*chipOscParameters.Release = 0.000f;
 
-	sweepParameters.SweepSwitch = new AudioParameterChoice("SWEEP_SWITCH", "Sweep-Switch", SWEEP_SWITCH, 0);
-	sweepParameters.SweepTime = new AudioParameterFloat("SWEEP_TIME", "Sweep-Time", 0.01f, 10.0f, 1.0f);
+	*sweepParameters.SweepSwitch = 0;
+	*sweepParameters.SweepTime = 1.0f;
 
-	vibratoParameters.VibratoEnable = new AudioParameterBool("VIBRATO_ENABLE", "Vibrato-Enable", true);
-	vibratoParameters.VibratoAmount = new AudioParameterFloat("VIBRATO_DEPTH", "Vibrato-Depth", 0.0f, 13.0f, 0.0f);
-	vibratoParameters.VibratoSpeed = new AudioParameterFloat("VIBRATO_SPEED", "Vibrato-Speed", 0.0f, 20.0f, 0.1000f);
-	vibratoParameters.VibratoAttackTime = new AudioParameterFloat("VIBRATO_ATTACKTIME", "Vibrato-AttackTime", 0.0f, 15.0f, 0.0f);
+	*vibratoParameters.VibratoEnable = true;
+	*vibratoParameters.VibratoAmount = 0.0f;
+	*vibratoParameters.VibratoSpeed = 0.1000f;
+	*vibratoParameters.VibratoAttackTime = 0.0f;
 }
 
 //==============================================================================
@@ -275,7 +285,7 @@ void SimpleSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 	synth.clearSounds();
 	synth.clearVoices();
 
-	synth.setCurrentPlaybackSampleRate(sampleRate);
+	synth.setCurrentPlaybackSampleRate(sampleRate * upSamplingFactor);
 
 	// サウンド再生可能なノート番号の範囲を定義する。関数"setRange" にて0～127の値をtrueに設定する。
 	BigInteger canPlayNotes;
@@ -295,6 +305,9 @@ void SimpleSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 	spec.sampleRate = sampleRate;
 	spec.numChannels = getTotalNumOutputChannels();
 	spec.maximumBlockSize = samplesPerBlock;
+
+	// カットオフ周波数 1000Hz、Q値 1/√2のローパスフィルタに設定
+	antiAliasFilter.LowPass(20000, 1 / 12.0, sampleRate * upSamplingFactor);
 
 	drive.prepare(spec);
 
@@ -357,8 +370,10 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+	{
+		buffer.clear(i, 0, buffer.getNumSamples());
+	}
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
@@ -368,12 +383,49 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 		// シンセサイザーでバッファに対して加算処理を行う前にゼロクリアをしておく。
 		buffer.clear(channel, 0, buffer.getNumSamples());
     }
-	
-	synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+
+	AudioBuffer<float> upSampleBuffer(buffer.getNumChannels(), buffer.getNumSamples() * upSamplingFactor);
+	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+	{
+		upSampleBuffer.clear(i, 0, upSampleBuffer.getNumSamples());
+	}
+
+	synth.renderNextBlock(upSampleBuffer, midiMessages, 0, upSampleBuffer.getNumSamples());
 
 	//================================ エフェクトセクション ====================================
 
-	// juce::dspモジュールに渡せるように入力信号バッファをラップする
+	{
+		int size = buffer.getNumSamples();
+		float* input = new float[size * upSamplingFactor];
+		float* output = new float[size * upSamplingFactor];
+
+		for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+		{
+			for (auto j = 0; j < size * upSamplingFactor; ++j)
+			{
+				input[j] = upSampleBuffer.getSample(i, j);
+			}
+		}
+
+		// apply LPF for anti aliasing
+		for (auto i = 0; i < size * upSamplingFactor; i++)
+		{
+			output[i] = antiAliasFilter.Process(input[i]);
+		}
+
+		//DownSampling
+		for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+		{
+			for (auto j = 0; j < size; ++j)
+			{
+				buffer.setSample(i, j, output[upSamplingFactor * j]);
+			}
+		}
+
+		delete[] input;
+		delete[] output;
+	}
+
 	dsp::AudioBlock<float> audioBlock(buffer);
 	dsp::ProcessContextReplacing<float> context(audioBlock);
 
@@ -421,6 +473,7 @@ void SimpleSynthAudioProcessor::getStateInformation (MemoryBlock& destData)
 	
 	std::unique_ptr<XmlElement> xml(new XmlElement("SimpleSynthParameters"));
 
+	presetsParameters.saveParameters(*xml);
 	chipOscParameters.saveParameters(*xml);
 	sweepParameters.saveParameters(*xml);
 	vibratoParameters.saveParameters(*xml);
@@ -444,6 +497,7 @@ void SimpleSynthAudioProcessor::setStateInformation (const void* data, int sizeI
 	{
 		if (xmlState->hasTagName("SimpleSynthParameters")) 
 		{
+			presetsParameters.loadParameters(*xmlState);
 			chipOscParameters.loadParameters(*xmlState);
 			sweepParameters.loadParameters(*xmlState);
 			vibratoParameters.loadParameters(*xmlState);
@@ -453,6 +507,9 @@ void SimpleSynthAudioProcessor::setStateInformation (const void* data, int sizeI
 			waveformMemoryParameters.loadParameters(*xmlState);
 			filterParameters.loadParameters(*xmlState);
 		}
+
+		//Preset用のパラメータを更新（変数をローカルintで保存しないとシンセ終了時にフリーズする
+		currentProgIndex = presetsParameters.ProgramIndex->get();
 	}
 }
 

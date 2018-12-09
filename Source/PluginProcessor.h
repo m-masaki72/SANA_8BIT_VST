@@ -17,6 +17,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "DSP/SimpleSynthParameters.h"
 #include "GUI/ScopeComponent.h"
+#include "DSP/AudioEQ.h"
 
 //==============================================================================
 class SimpleSynthAudioProcessor  : public AudioProcessor
@@ -90,6 +91,7 @@ public:
 		"Negative"
 	};
 
+	PresetsParameters presetsParameters;
 	ChipOscillatorParameters chipOscParameters;
 	SweepParameters sweepParameters;
 	VibratoParameters vibratoParameters;
@@ -98,6 +100,7 @@ public:
 	WaveformMemoryParameters waveformMemoryParameters;
 	MidiEchoParameters midiEchoParameters;
 	FilterParameters filterParameters;
+
 
 	//HOST先APPの情報を保持する
 	AudioPlayHead* playHead;
@@ -114,6 +117,10 @@ private:
 
 	//[3]のオブジェクトの初期化に必要な情報を保持する構造体[4]
 	dsp::ProcessSpec spec;
+
+	//アンチエイリアスフィルタ用
+	CMyFilter antiAliasFilter;
+	const int upSamplingFactor = 3;
 
 	//DSPエフェクト，クリッパー，ドライブ，フィルタ
 	dsp::WaveShaper<float> clipper;

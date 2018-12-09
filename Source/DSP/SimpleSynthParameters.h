@@ -197,3 +197,20 @@ public:
 private:
 	FilterParameters() {};
 };
+
+class PresetsParameters : public SynthParametersBase
+{
+public:
+	AudioParameterInt* ProgramIndex;
+	PresetsParameters(
+		AudioParameterInt* programIndex
+	);
+
+	virtual void addAllParameters(AudioProcessor& processor) override;
+	virtual void saveParameters(XmlElement& xml) override;
+	virtual void loadParameters(XmlElement& xml) override;
+
+private:
+	PresetsParameters() {};
+};
+

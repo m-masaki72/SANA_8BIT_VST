@@ -205,9 +205,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 							outputBuffer.addSample(channelNum, startSample, eb.getSample(i));
 						}
 					}
-
 				}
-
 
 				//	リアルタイム音処理  バッファに対して加算処理を行う。ポリフォニックでは、各ボイスの音を加算処理する必要がある。
 				for (int channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;) 

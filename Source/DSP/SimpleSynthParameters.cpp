@@ -289,3 +289,24 @@ void FilterParameters::loadParameters(XmlElement& xml)
 }
 
 //-----------------------------------------------------------------------------------------
+
+PresetsParameters::PresetsParameters(AudioParameterInt* programIndex)
+	: ProgramIndex(programIndex)
+{}
+
+void PresetsParameters::addAllParameters(AudioProcessor& processor)
+{
+	processor.addParameter(ProgramIndex);
+}
+
+void PresetsParameters::saveParameters(XmlElement& xml)
+{
+	xml.setAttribute(ProgramIndex->paramID, ProgramIndex->get());
+}
+
+void PresetsParameters::loadParameters(XmlElement& xml)
+{
+	*ProgramIndex = xml.getIntAttribute(ProgramIndex->paramID, 0);
+}
+
+//-----------------------------------------------------------------------------------------
