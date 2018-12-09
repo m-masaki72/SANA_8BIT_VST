@@ -213,7 +213,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 					outputBuffer.addSample(channelNum, startSample, currentSample);
 				}
 
-				// VOiceの初期化処理
+				// Voiceの初期化処理
 				// エンベロープにおいて，エフェクトエコーが終わっている or リリース状態のとき				
 				if (ampEnv.isEchoEnded() || (ampEnv.isReleaseEnded() && !_midiEchoParamsPtr->IsEchoEnable->get()))
 				{
@@ -223,6 +223,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 						portaAngleDelta = 0.0f;
 						currentAngle = 0.0f;
 						pitchSweep = 0.0f;
+						eb.init();
 						break;
 					}
 				}

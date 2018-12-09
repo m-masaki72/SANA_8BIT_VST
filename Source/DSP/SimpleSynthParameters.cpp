@@ -162,6 +162,7 @@ void OptionsParameters::loadParameters(XmlElement& xml)
 //-----------------------------------------------------------------------------------------
 
 WaveformMemoryParameters::WaveformMemoryParameters()
+/*
 	: WaveSamplesArray{
 	new AudioParameterInt("w0", "w0", 0, 31, 0),
 	new AudioParameterInt("w1", "w1", 0, 31, 0),
@@ -196,11 +197,18 @@ WaveformMemoryParameters::WaveformMemoryParameters()
 	new AudioParameterInt("w30", "w30", 0, 31, 0),
 	new AudioParameterInt("w31", "w31", 0, 31, 0)
 	}
-{}
+*/
+{
+	for (int i = 0; i < WAVESAMPLE_LENGTH; i++)
+	{
+		std::string name = "w" + std::to_string(i);
+		WaveSamplesArray[i] = new AudioParameterInt(name, name, 0, 31, 0);
+	}
+}
 
 void WaveformMemoryParameters::addAllParameters(AudioProcessor& processor)
 {
-	for (int i = 0; i < 32; i++)
+	for (int i = 0; i < WAVESAMPLE_LENGTH; i++)
 	{
 		processor.addParameter(WaveSamplesArray[i]);
 	}
@@ -208,7 +216,7 @@ void WaveformMemoryParameters::addAllParameters(AudioProcessor& processor)
 
 void WaveformMemoryParameters::saveParameters(XmlElement& xml)
 {
-	for (int i = 0; i < 32; i++)
+	for (int i = 0; i < WAVESAMPLE_LENGTH; i++)
 	{
 		xml.setAttribute(WaveSamplesArray[i]->paramID, (int)WaveSamplesArray[i]->get());
 	}
@@ -216,7 +224,7 @@ void WaveformMemoryParameters::saveParameters(XmlElement& xml)
 
 void WaveformMemoryParameters::loadParameters(XmlElement& xml)
 {
-	for (int i = 0; i < 32; i++)
+	for (int i = 0; i < WAVESAMPLE_LENGTH; i++)
 	{
 		*WaveSamplesArray[i] = xml.getIntAttribute(WaveSamplesArray[i]->paramID, 0);
 	}
