@@ -208,17 +208,15 @@ float Waveforms::nesTriangle(float angle)
 {
 	checkAngleRanage(angle);
 
-	if (angle <= HALF_PI)
+	if (angle < ONE_PI)
 	{
-		return quantize(angle / HALF_PI);
-	}
-	else if (angle > HALF_PI && angle <= (ONE_PI + HALF_PI))
-	{
-		return quantize(2.0f - (2.0f * angle / ONE_PI));
+		int value = int(angle / ONE_PI * 16) * 2;
+		return ( -1.0f + value / 15.0f);
 	}
 	else
 	{
-		return quantize(-4.0f + (angle / HALF_PI));
+		int value = int((angle-ONE_PI) / ONE_PI * 16) * 2;
+		return (1.0f - value / 15.0f);
 	}
 }
 

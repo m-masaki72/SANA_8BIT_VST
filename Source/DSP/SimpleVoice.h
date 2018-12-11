@@ -49,7 +49,6 @@ private:
 	float pitchBend, pitchSweep;
 	std::vector<float> echoSamples;
 	
-	//RingBuffer rb;
 	EchoBuffer eb;
 
 	//Waveform用のパラメータ

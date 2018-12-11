@@ -223,7 +223,6 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 						portaAngleDelta = 0.0f;
 						currentAngle = 0.0f;
 						pitchSweep = 0.0f;
-						eb.init();
 						break;
 					}
 				}

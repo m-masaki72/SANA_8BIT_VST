@@ -120,7 +120,7 @@ private:
 
 	//アンチエイリアスフィルタ用
 	CMyFilter antiAliasFilter;
-	const int upSamplingFactor = 3;
+	const int upSamplingFactor = 2;
 
 	//DSPエフェクト，クリッパー，ドライブ，フィルタ
 	dsp::WaveShaper<float> clipper;

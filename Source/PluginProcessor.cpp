@@ -307,7 +307,7 @@ void SimpleSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 	spec.maximumBlockSize = samplesPerBlock;
 
 	// カットオフ周波数 1000Hz、Q値 1/√2のローパスフィルタに設定
-	antiAliasFilter.LowPass(20000, 1 / 12.0, sampleRate * upSamplingFactor);
+	antiAliasFilter.LowPass(20000.0, 1 / 4.0, sampleRate * upSamplingFactor);
 
 	drive.prepare(spec);
 
@@ -350,12 +350,12 @@ bool SimpleSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 
 void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
-	playHead = getPlayHead();
-	if (playHead)
-	{
-		playHead->getCurrentPosition(currentPositionInfo);
-	}
-	optionsParameters.currentBPM = (float)currentPositionInfo.bpm;
+	//playHead = getPlayHead();
+	//if (playHead)
+	//{
+	//	playHead->getCurrentPosition(currentPositionInfo);
+	//}
+	//optionsParameters.currentBPM = (float)currentPositionInfo.bpm;
 
 	// ⑦MidiKeyboardStateクラスのオブジェクトにMIDIデバイスから入力されたMIDIバッファを渡すとともに、
 	//   GUIのキーボードコンポーネントで生成されたMIDIデータをのMIDIバッファに追加する処理を行う。
@@ -385,6 +385,7 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     }
 
 	AudioBuffer<float> upSampleBuffer(buffer.getNumChannels(), buffer.getNumSamples() * upSamplingFactor);
+
 	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 	{
 		upSampleBuffer.clear(i, 0, upSampleBuffer.getNumSamples());

@@ -220,7 +220,6 @@ void SimpleSynthAudioProcessorEditor::buttonClicked(Button* button)
 		filterParamsComponent.setVisible(true);
 		OscButton.setToggleState(false, NotificationType::dontSendNotification);
 		EffectButton.setToggleState(true, NotificationType::dontSendNotification);
-
 	}
 	resized();
 }
