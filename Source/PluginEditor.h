@@ -19,16 +19,24 @@
 #include "GUI/ParametersComponent.h"
 #include "GUI/ScopeComponent.h"
 
-class OscPage : public Component
+class SimpleSynthAudioProcessorEditor : public AudioProcessorEditor, public Button::Listener
 {
 public:
-	OscPage(SimpleSynthAudioProcessor& p);
-	~OscPage();
-	void paint(Graphics& g) override;
-	void resized() override;
-	void setLookAndFeel(LookAndFeel* customLookAndFeel);
+	SimpleSynthAudioProcessorEditor(SimpleSynthAudioProcessor& p);
+    ~SimpleSynthAudioProcessorEditor();
+    void paint (Graphics& g) override;
+    void resized() override;
+	void buttonClicked(Button* button) override;
 
 private:
+	SimpleSynthAudioProcessor& processor;
+
+	MidiKeyboardComponent keyboardComponent;
+
+	TextButton OscButton;
+	TextButton EffectButton;
+
+	//Oscillator Page Component
 	ScopeComponent<float> scopeComponent;
 	ChipOscillatorComponent chipOscComponent;
 	SweepParametersComponent sweepParamsComponent;
@@ -36,48 +44,9 @@ private:
 	VoicingParametersComponent voicingParamsComponent;
 	OptionsParametersComponent optionsParamsComponent;
 	WaveformMemoryParametersComponent waveformMemoryParamsComponent;
-
-	LookAndFeel* customLookAndFeel;
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OscPage)
-};
-
-//==============================================================================
-
-class EffectPage : public Component
-{
-public:
-	EffectPage(SimpleSynthAudioProcessor& p);
-	~EffectPage();
-	void paint(Graphics& g) override;
-	void resized() override;
-	void setLookAndFeel(LookAndFeel* customLookAndFeel);
-
-private:
+	//Effects Page Component
 	MidiEchoParametersComponent midiEchoParamsComponent;
 	FilterParametersComponent filterParamsComponent;
-	ScopeComponent<float> scopeComponent;
-
-	LookAndFeel* customLookAndFeel;
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EffectPage)
-};
-
-//==============================================================================
-
-class SimpleSynthAudioProcessorEditor : public AudioProcessorEditor
-{
-public:
-	SimpleSynthAudioProcessorEditor(SimpleSynthAudioProcessor& p);
-    ~SimpleSynthAudioProcessorEditor();
-    void paint (Graphics& g) override;
-    void resized() override;
-
-private:
-	SimpleSynthAudioProcessor& processor;
-
-	MidiKeyboardComponent keyboardComponent;
-	OscPage p1;
-	EffectPage p2;
-	TabbedComponent tabs;
 
 	LookAndFeel* customLookAndFeel;
 

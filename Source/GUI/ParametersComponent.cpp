@@ -23,8 +23,8 @@ namespace {
 	const int LOCAL_MARGIN = 2;
 	const int LABEL_WIDTH = 80;
 
-	const Font panelNameFont = Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
-	const Font paramLabelFont = Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
+	const Font panelNameFont() { return Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic"); };
+	const Font paramLabelFont() { return Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular"); };
 
 	static File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
 }
@@ -100,37 +100,37 @@ ChipOscillatorComponent::ChipOscillatorComponent(ChipOscillatorParameters* oscPa
 	releaseSlider.addListener(this);
 	addAndMakeVisible(releaseSlider);
 
-	waveTypeSelectorLabel.setFont(paramLabelFont);
+	waveTypeSelectorLabel.setFont(paramLabelFont());
 	waveTypeSelectorLabel.setText("Type", dontSendNotification);
 	waveTypeSelectorLabel.setJustificationType(Justification::centred);
 	waveTypeSelectorLabel.setEditable(false, false, false);
 	addAndMakeVisible(waveTypeSelectorLabel);
 
-	volumeLevelLabel.setFont(paramLabelFont);
+	volumeLevelLabel.setFont(paramLabelFont());
 	volumeLevelLabel.setText("Volume", dontSendNotification);
 	volumeLevelLabel.setJustificationType(Justification::centred);
 	volumeLevelLabel.setEditable(false, false, false);
 	addAndMakeVisible(volumeLevelLabel);
 
-	attackLabel.setFont(paramLabelFont);
+	attackLabel.setFont(paramLabelFont());
 	attackLabel.setText("Attack", dontSendNotification);
 	attackLabel.setJustificationType(Justification::centred);
 	attackLabel.setEditable(false, false, false);
 	addAndMakeVisible(attackLabel);
 
-	decayLabel.setFont(paramLabelFont);
+	decayLabel.setFont(paramLabelFont());
 	decayLabel.setText("Decay", dontSendNotification);
 	decayLabel.setJustificationType(Justification::centred);
 	decayLabel.setEditable(false, false, false);
 	addAndMakeVisible(decayLabel);
 
-	sustainLabel.setFont(paramLabelFont);
+	sustainLabel.setFont(paramLabelFont());
 	sustainLabel.setText("Sustain", dontSendNotification);
 	sustainLabel.setJustificationType(Justification::centred);
 	sustainLabel.setEditable(false, false, false);
 	addAndMakeVisible(sustainLabel);
 
-	releaseLabel.setFont(paramLabelFont);
+	releaseLabel.setFont(paramLabelFont());
 	releaseLabel.setText("Release", dontSendNotification);
 	releaseLabel.setJustificationType(Justification::centred);
 	releaseLabel.setEditable(false, false, false);
@@ -160,7 +160,7 @@ void ChipOscillatorComponent::paint(Graphics& g)
 
 		String text("OSCILLATOR");
 		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont);
+		g.setFont(panelNameFont());
 		g.drawText(text, textArea, Justification::centred, false);
 	}
 }
@@ -268,13 +268,13 @@ SweepParametersComponent::SweepParametersComponent(SweepParameters* sweepParams)
 	timeSlider.addListener(this);
 	addAndMakeVisible(timeSlider);
 
-	switchLabel.setFont(paramLabelFont);
+	switchLabel.setFont(paramLabelFont());
 	switchLabel.setText("Switch", dontSendNotification);
 	switchLabel.setJustificationType(Justification::centred);
 	switchLabel.setEditable(false, false, false);
 	addAndMakeVisible(switchLabel);
 	
-	timeLabel.setFont(paramLabelFont);
+	timeLabel.setFont(paramLabelFont());
 	timeLabel.setText("Speed", dontSendNotification);
 	timeLabel.setJustificationType(Justification::centred);
 	timeLabel.setEditable(false, false, false);
@@ -305,7 +305,7 @@ void SweepParametersComponent::paint(Graphics& g)
 
 		String text("PITCH SWEEP");
 		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont);
+		g.setFont(panelNameFont());
 		g.drawText(text, textArea, Justification::centred, false);
 	}
 }
@@ -401,19 +401,19 @@ VibratoParametersComponent::VibratoParametersComponent(VibratoParameters* vibrat
 	attackTimeSlider.addListener(this);
 	addAndMakeVisible(attackTimeSlider);
 
-	amountLabel.setFont(paramLabelFont);
+	amountLabel.setFont(paramLabelFont());
 	amountLabel.setText("Depth", dontSendNotification);
 	amountLabel.setJustificationType(Justification::centred);
 	amountLabel.setEditable(false, false, false);
 	addAndMakeVisible(amountLabel);
 
-	speedLabel.setFont(paramLabelFont);
+	speedLabel.setFont(paramLabelFont());
 	speedLabel.setText("Speed", dontSendNotification);
 	speedLabel.setJustificationType(Justification::centred);
 	speedLabel.setEditable(false, false, false);
 	addAndMakeVisible(speedLabel);
 	
-	attackTimeLabel.setFont(paramLabelFont);
+	attackTimeLabel.setFont(paramLabelFont());
 	attackTimeLabel.setText("Attack", dontSendNotification);
 	attackTimeLabel.setJustificationType(Justification::centred);
 	attackTimeLabel.setEditable(false, false, false);
@@ -443,7 +443,7 @@ void VibratoParametersComponent::paint(Graphics& g)
 
 		String text("VIBRATO");
 		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont);
+		g.setFont(panelNameFont());
 		g.drawText(text, textArea, Justification::centred, false);
 	}
 }
@@ -547,13 +547,13 @@ VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicin
 	portaTimeSlider.addListener(this);
 	addAndMakeVisible(portaTimeSlider);
 
-	voicingTypeSelectorLabel.setFont(paramLabelFont);
+	voicingTypeSelectorLabel.setFont(paramLabelFont());
 	voicingTypeSelectorLabel.setText("Type", dontSendNotification);
 	voicingTypeSelectorLabel.setJustificationType(Justification::centred);
 	voicingTypeSelectorLabel.setEditable(false, false, false);
 	addAndMakeVisible(voicingTypeSelectorLabel);
 
-	portaTimeLabel.setFont(paramLabelFont);
+	portaTimeLabel.setFont(paramLabelFont());
 	portaTimeLabel.setText("PortaTime", dontSendNotification);
 	portaTimeLabel.setJustificationType(Justification::centred);
 	portaTimeLabel.setEditable(false, false, false);
@@ -583,7 +583,7 @@ void VoicingParametersComponent::paint(Graphics& g)
 
 		String text("VOICING");
 		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont);
+		g.setFont(panelNameFont());
 		g.drawText(text, textArea, Justification::centred, false);
 	}
 
@@ -661,13 +661,13 @@ OptionsParametersComponent::OptionsParametersComponent(OptionsParameters* option
 	pitchBendRangeSlider.addListener(this);
 	addAndMakeVisible(pitchBendRangeSlider);
 
-	pitchStandardLabel.setFont(paramLabelFont);
+	pitchStandardLabel.setFont(paramLabelFont());
 	pitchStandardLabel.setText("Tunes", dontSendNotification);
 	pitchStandardLabel.setJustificationType(Justification::centred);
 	pitchStandardLabel.setEditable(false, false, false);
 	addAndMakeVisible(pitchStandardLabel);
 
-	pitchBendRangeLabel.setFont(paramLabelFont);
+	pitchBendRangeLabel.setFont(paramLabelFont());
 	pitchBendRangeLabel.setText("PB Range", dontSendNotification);
 	pitchBendRangeLabel.setJustificationType(Justification::centred);
 	pitchBendRangeLabel.setEditable(false, false, false);
@@ -697,7 +697,7 @@ void OptionsParametersComponent::paint(Graphics& g)
 
 		String text("OPTIONS");
 		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont);
+		g.setFont(panelNameFont());
 		g.drawText(text, textArea, Justification::centred, false);
 	}
 }
@@ -783,19 +783,19 @@ MidiEchoParametersComponent::MidiEchoParametersComponent(MidiEchoParameters* mid
 	volumeOffsetSlider.addListener(this);
 	addAndMakeVisible(volumeOffsetSlider);
 
-	durationLabel.setFont(paramLabelFont);
+	durationLabel.setFont(paramLabelFont());
 	durationLabel.setText("Duration", dontSendNotification);
 	durationLabel.setJustificationType(Justification::centred);
 	durationLabel.setEditable(false, false, false);
 	addAndMakeVisible(durationLabel);
 
-	repeatLabel.setFont(paramLabelFont);
+	repeatLabel.setFont(paramLabelFont());
 	repeatLabel.setText("Repeat", dontSendNotification);
 	repeatLabel.setJustificationType(Justification::centred);
 	repeatLabel.setEditable(false, false, false);
 	addAndMakeVisible(repeatLabel);
 
-	volumeOffsetLabel.setFont(paramLabelFont);
+	volumeOffsetLabel.setFont(paramLabelFont());
 	volumeOffsetLabel.setText("Vol Offset", dontSendNotification);
 	volumeOffsetLabel.setJustificationType(Justification::centred);
 	volumeOffsetLabel.setEditable(false, false, false);
@@ -825,7 +825,7 @@ void MidiEchoParametersComponent::paint(Graphics& g)
 
 		String text("MIDI ECHO");
 		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont);
+		g.setFont(panelNameFont());
 		g.drawText(text, textArea, Justification::centred, false);
 	}
 }
@@ -955,7 +955,7 @@ void WaveformMemoryParametersComponent::paint(Graphics& g)
 
 		String text("WAVEFORM MEMORY");
 		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont);
+		g.setFont(panelNameFont());
 		g.drawText(text, textArea, Justification::centred, false);
 	}
 
@@ -1206,13 +1206,13 @@ FilterParametersComponent::FilterParametersComponent(FilterParameters* filterPar
 	lowcutFreqSlider.addListener(this);
 	addAndMakeVisible(lowcutFreqSlider);
 
-	hicutFreqLabel.setFont(paramLabelFont);
+	hicutFreqLabel.setFont(paramLabelFont());
 	hicutFreqLabel.setText("HiCut", dontSendNotification);
 	hicutFreqLabel.setJustificationType(Justification::centred);
 	hicutFreqLabel.setEditable(false, false, false);
 	addAndMakeVisible(hicutFreqLabel);
 
-	lowcutFreqLabel.setFont(paramLabelFont);
+	lowcutFreqLabel.setFont(paramLabelFont());
 	lowcutFreqLabel.setText("LowCut", dontSendNotification);
 	lowcutFreqLabel.setJustificationType(Justification::centred);
 	lowcutFreqLabel.setEditable(false, false, false);
@@ -1242,7 +1242,7 @@ void FilterParametersComponent::paint(Graphics& g)
 
 		String text("FILTER");
 		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont);
+		g.setFont(panelNameFont());
 		g.drawText(text, textArea, Justification::centred, false);
 	}
 }

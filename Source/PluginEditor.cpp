@@ -26,203 +26,59 @@ namespace
 	const Colour TAB_BACKGROUND_COLOUR() { return Colours::rebeccapurple.darker(); }
 }
 
-//----------------------------------------------------------------------------------------------------
-
-OscPage::OscPage(SimpleSynthAudioProcessor& p)
-	: chipOscComponent(&p.chipOscParameters)
+SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudioProcessor& p)
+	: AudioProcessorEditor(&p), processor(p)
+	, keyboardComponent(p.getKeyboardState(), MidiKeyboardComponent::Orientation::horizontalKeyboard)
+	, OscButton("Oscilator"), EffectButton("Effects")
+	, chipOscComponent(&p.chipOscParameters)
 	, sweepParamsComponent(&p.sweepParameters)
 	, vibratoParamsComponent(&p.vibratoParameters)
 	, voicingParamsComponent(&p.voicingParameters)
 	, optionsParamsComponent(&p.optionsParameters)
 	, waveformMemoryParamsComponent(&p.waveformMemoryParameters)
-	, scopeComponent(p.getAudioBufferQueue())
-{
-	addAndMakeVisible(chipOscComponent);
-	addAndMakeVisible(sweepParamsComponent);
-	addAndMakeVisible(vibratoParamsComponent);
-	addAndMakeVisible(voicingParamsComponent);
-	addAndMakeVisible(optionsParamsComponent);
-	addAndMakeVisible(waveformMemoryParamsComponent);
-	addAndMakeVisible(scopeComponent);
-
-	{
-		customLookAndFeel = new LookAndFeel_V4(LookAndFeel_V4::getLightColourScheme());
-
-		customLookAndFeel->setColour(Slider::ColourIds::trackColourId, Colours::lime);
-		customLookAndFeel->setColour(Slider::ColourIds::thumbColourId, Colours::darkslategrey);
-		customLookAndFeel->setColour(Slider::ColourIds::backgroundColourId, Colours::lightgrey);
-
-		customLookAndFeel->setColour(ToggleButton::ColourIds::textColourId, Colours::black);
-		customLookAndFeel->setColour(ToggleButton::ColourIds::tickColourId, Colours::black);
-		customLookAndFeel->setColour(ToggleButton::ColourIds::tickDisabledColourId, Colours::black);
-
-		customLookAndFeel->setColour(Slider::ColourIds::textBoxBackgroundColourId, Colours::white);
-		customLookAndFeel->setColour(Slider::ColourIds::textBoxTextColourId, Colours::black);
-
-		customLookAndFeel->setColour(Label::textColourId, Colours::black);
-
-		for (Component* child : getChildren())
-		{
-			child->setLookAndFeel(customLookAndFeel);
-		}
-	}
-}
-
-OscPage::~OscPage()
-{
-	for (Component* child : getChildren())
-	{
-		child->setLookAndFeel(nullptr);
-	}
-
-	delete(customLookAndFeel);
-}
-
-void OscPage::paint(Graphics& g)
-{
-	g.fillAll(BACKGROUND_COLOUR());
-}
-
-void OscPage::resized()
-{
-	Rectangle<int> bounds = getLocalBounds();
-	{
-		Rectangle<int> leftArea = bounds.removeFromLeft(bounds.getWidth() * 0.45f);
-		chipOscComponent.setBounds(leftArea.removeFromTop(leftArea.getHeight() * 0.5f).reduced(PANEL_MARGIN));
-		scopeComponent.setBounds(leftArea.reduced(PANEL_MARGIN));
-	}
-	{
-		Rectangle<int> rightArea = bounds;
-		int HEIGHT = rightArea.getHeight();
-		waveformMemoryParamsComponent.setBounds(rightArea.removeFromTop(HEIGHT * 0.45f).reduced(PANEL_MARGIN));
-		{
-			Rectangle<int> area = rightArea.removeFromTop(HEIGHT * 0.33f);
-			sweepParamsComponent.setBounds(area.removeFromLeft(area.getWidth() * 0.5f).reduced(PANEL_MARGIN));
-			vibratoParamsComponent.setBounds(area.reduced(PANEL_MARGIN));
-		}
-		{
-			Rectangle<int> area = rightArea.reduced(PANEL_MARGIN);
-			voicingParamsComponent.setBounds(area.removeFromLeft(area.getWidth() * 0.5f).reduced(PANEL_MARGIN));
-			optionsParamsComponent.setBounds(area.reduced(PANEL_MARGIN));
-		}
-	}
-}
-
-void OscPage::setLookAndFeel(LookAndFeel* t)
-{
-	customLookAndFeel = new LookAndFeel_V4();
-	customLookAndFeel = t;
-
-	for (Component* child : getChildren())
-	{
-		child->setLookAndFeel(customLookAndFeel);
-	}
-}
-
-//----------------------------------------------------------------------------------------------------
-
-EffectPage::EffectPage(SimpleSynthAudioProcessor& p)
-	: midiEchoParamsComponent(&p.midiEchoParameters)
+	, midiEchoParamsComponent(&p.midiEchoParameters)
 	, filterParamsComponent(&p.filterParameters)
 	, scopeComponent(p.getAudioBufferQueue())
 {
-	addAndMakeVisible(midiEchoParamsComponent);
-	addAndMakeVisible(filterParamsComponent);
-	addAndMakeVisible(scopeComponent);
-
-	{
-		customLookAndFeel = new LookAndFeel_V4(LookAndFeel_V4::getLightColourScheme());
-
-		customLookAndFeel->setColour(Slider::ColourIds::trackColourId, Colours::lime);
-		customLookAndFeel->setColour(Slider::ColourIds::thumbColourId, Colours::darkslategrey);
-		customLookAndFeel->setColour(Slider::ColourIds::backgroundColourId, Colours::lightgrey);
-
-		customLookAndFeel->setColour(ToggleButton::ColourIds::textColourId, Colours::black);
-		customLookAndFeel->setColour(ToggleButton::ColourIds::tickColourId, Colours::black);
-		customLookAndFeel->setColour(ToggleButton::ColourIds::tickDisabledColourId, Colours::black);
-
-		customLookAndFeel->setColour(Slider::ColourIds::textBoxBackgroundColourId, Colours::white);
-		customLookAndFeel->setColour(Slider::ColourIds::textBoxTextColourId, Colours::black);
-
-		customLookAndFeel->setColour(Label::textColourId, Colours::black);
-
-		for (Component* child : getChildren())
-		{
-			child->setLookAndFeel(customLookAndFeel);
-		}
-	}
-}
-
-EffectPage::~EffectPage()
-{
-	for (Component* child : getChildren())
-	{
-		child->setLookAndFeel(nullptr);
-	}
-
-	delete customLookAndFeel;
-}
-
-void EffectPage::paint(Graphics& g)
-{
-	g.fillAll(BACKGROUND_COLOUR());
-}
-
-void EffectPage::resized()
-{
-	Rectangle<int> bounds = getLocalBounds();
-
-	{
-		Rectangle<int> leftArea = bounds.removeFromLeft(bounds.getWidth() * 0.45f);
-		midiEchoParamsComponent.setBounds(leftArea.removeFromTop(leftArea.getHeight() * 0.5f).reduced(PANEL_MARGIN));
-		scopeComponent.setBounds(leftArea.reduced(PANEL_MARGIN));
-	}
-	{
-		Rectangle<int> rightArea = bounds;
-		filterParamsComponent.setBounds(rightArea.removeFromTop(rightArea.getHeight() * 0.5f).reduced(PANEL_MARGIN));
-	}
-}
-
-void EffectPage::setLookAndFeel(LookAndFeel* t)
-{
-	customLookAndFeel = new LookAndFeel_V4();
-	customLookAndFeel = t;
-
-	for (Component* child : getChildren())
-	{
-		child->setLookAndFeel(customLookAndFeel);
-	}
-}
-
-//----------------------------------------------------------------------------------------------------
-
-SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudioProcessor& p)
-	: AudioProcessorEditor(&p), processor(p)
-	, keyboardComponent(p.getKeyboardState(), MidiKeyboardComponent::Orientation::horizontalKeyboard)
-	, tabs(TabbedButtonBar::TabsAtTop)
-	, p1(p)
-	, p2(p)
-{
 	/*
-	順番に注意すること
-	以下順番を守らないと，DAWによって表示されたりされなかったりする
-	
-	1. コンポーネントのコンストラクタ
-	2. メインのAddAndMakeVisible
-	3. setSize()
-	4. LookAndFeelの更新
+		TabComponentを使いたかったが，Tabだとメモリリークが収まらないので現在の形に．
+		デストラクタ時にメモリリーク，CustomLookAndFeelまわりでエラーが取れない．
+		安定化のためにアルファ切り替えによるGUI管理方式に変更
 	*/
-	
-	addAndMakeVisible(keyboardComponent);
-	addAndMakeVisible(p1);
-	addAndMakeVisible(p2);
-	addAndMakeVisible(tabs);
 
-	keyboardComponent.setKeyWidth(KEY_WIDTH);
-	keyboardComponent.setScrollButtonWidth(KEY_SCROLL_WIDTH);
-
-	tabs.addTab("OSCILLATOR", BACKGROUND_COLOUR(), &p1, false);
-	tabs.addTab("EFFECTS", BACKGROUND_COLOUR(), &p2, false);
+	{
+		addAndMakeVisible(keyboardComponent);
+		keyboardComponent.setKeyWidth(KEY_WIDTH);
+		keyboardComponent.setScrollButtonWidth(KEY_SCROLL_WIDTH);
+		addAndMakeVisible(OscButton);
+		OscButton.addListener(this);
+		addAndMakeVisible(EffectButton);
+		EffectButton.addListener(this);
+		OscButton.setColour(TextButton::ColourIds::buttonColourId, Colours::rebeccapurple);
+		OscButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::rebeccapurple.darker().darker());
+		OscButton.setColour(TextButton::ColourIds::textColourOffId, Colours::white);
+		OscButton.setColour(TextButton::ColourIds::textColourOnId, Colours::white);
+		OscButton.setToggleState(true, NotificationType::dontSendNotification);
+		EffectButton.setColour(TextButton::ColourIds::buttonColourId, Colours::rebeccapurple);
+		EffectButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::rebeccapurple.darker().darker());
+		EffectButton.setColour(TextButton::ColourIds::textColourOffId, Colours::white);
+		EffectButton.setColour(TextButton::ColourIds::textColourOnId, Colours::white);
+		EffectButton.setToggleState(false, NotificationType::dontSendNotification);
+	}
+	{
+		addAndMakeVisible(chipOscComponent);
+		addAndMakeVisible(sweepParamsComponent);
+		addAndMakeVisible(vibratoParamsComponent);
+		addAndMakeVisible(voicingParamsComponent);
+		addAndMakeVisible(optionsParamsComponent);
+		addAndMakeVisible(waveformMemoryParamsComponent);
+		addAndMakeVisible(scopeComponent);
+	}
+	{
+		addAndMakeVisible(midiEchoParamsComponent);
+		addAndMakeVisible(filterParamsComponent);
+		addAndMakeVisible(scopeComponent);
+	}
 
 	setSize(960, 540 + KEY_HEIGHT);
 
@@ -242,26 +98,32 @@ SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudi
 
 		customLookAndFeel->setColour(Label::textColourId, Colours::black);
 
-		for (Component* child : getChildren()) 
+		for (Component* child : AudioProcessorEditor::getChildren())
 		{
 			child->setLookAndFeel(customLookAndFeel);
 		}
+	}
 
-		//Set Tabs Style
-		{
-			//tabs.setTabBarDepth(TAB_HEIGHT);
-			//tabs.setIndent(5.0f);
-		}
+	//init each GUI Alpha 
+	{
+		chipOscComponent.setVisible(true);
+		sweepParamsComponent.setVisible(true);
+		vibratoParamsComponent.setVisible(true);
+		voicingParamsComponent.setVisible(true);
+		optionsParamsComponent.setVisible(true);
+		waveformMemoryParamsComponent.setVisible(true);
+		midiEchoParamsComponent.setVisible(false);
+		filterParamsComponent.setVisible(false);
 	}
 }
 
 SimpleSynthAudioProcessorEditor::~SimpleSynthAudioProcessorEditor()
 {
-	tabs.clearTabs();
-	for (Component* child : getChildren()) 
+	for (Component* child : getChildren())
 	{
 		child->setLookAndFeel(nullptr);
 	}
+
 	delete customLookAndFeel;
 }
 
@@ -269,9 +131,10 @@ void SimpleSynthAudioProcessorEditor::paint (Graphics& g)
 {
 	g.fillAll(TAB_BACKGROUND_COLOUR());
 
-	//g.setColour(Colours::white);
-	//g.setFont(32.0f);
+	g.setColour(Colours::white);
+	g.setFont(32.0f);
 	//g.drawFittedText("BPM: " + std::to_string(processor.currentPositionInfo.bpm), getLocalBounds(), Justification::topRight, 1);
+	g.drawFittedText("Version 1.41", AudioProcessorEditor::getLocalBounds(), Justification::topRight, 1);
 }
 
 void SimpleSynthAudioProcessorEditor::resized()
@@ -279,5 +142,85 @@ void SimpleSynthAudioProcessorEditor::resized()
 	Rectangle<int> bounds = getLocalBounds();
 
 	keyboardComponent.setBounds(bounds.removeFromBottom(KEY_HEIGHT));
-	tabs.setBounds(bounds);
+
+	{
+		Rectangle<int> area = bounds.removeFromTop(40);
+		OscButton.setBounds(area.removeFromLeft(80));
+		EffectButton.setBounds(area.removeFromLeft(80));
+	}
+
+	//Oscillator Page
+	{
+		Rectangle<int> mainbounds = bounds;
+		{
+			Rectangle<int> leftArea = mainbounds.removeFromLeft(bounds.getWidth() * 0.45f);
+			chipOscComponent.setBounds(leftArea.removeFromTop(leftArea.getHeight() * 0.5f).reduced(PANEL_MARGIN));
+			scopeComponent.setBounds(leftArea.reduced(PANEL_MARGIN));
+		}
+		{
+			Rectangle<int> rightArea = mainbounds;
+			int HEIGHT = rightArea.getHeight();
+			waveformMemoryParamsComponent.setBounds(rightArea.removeFromTop(HEIGHT * 0.45f).reduced(PANEL_MARGIN));
+			{
+				Rectangle<int> area = rightArea.removeFromTop(HEIGHT * 0.33f);
+				sweepParamsComponent.setBounds(area.removeFromLeft(area.getWidth() * 0.5f).reduced(PANEL_MARGIN));
+				vibratoParamsComponent.setBounds(area.reduced(PANEL_MARGIN));
+			}
+			{
+				Rectangle<int> area = rightArea.reduced(PANEL_MARGIN);
+				voicingParamsComponent.setBounds(area.removeFromLeft(area.getWidth() * 0.5f).reduced(PANEL_MARGIN));
+				optionsParamsComponent.setBounds(area.reduced(PANEL_MARGIN));
+			}
+		}
+	}
+
+	//EffectPage
+	{
+		Rectangle<int> mainbounds = bounds;
+		{
+			Rectangle<int> leftArea = mainbounds.removeFromLeft(bounds.getWidth() * 0.45f);
+			midiEchoParamsComponent.setBounds(leftArea.removeFromTop(leftArea.getHeight() * 0.5f).reduced(PANEL_MARGIN));
+			scopeComponent.setBounds(leftArea.reduced(PANEL_MARGIN));
+		}
+		{
+			Rectangle<int> rightArea = mainbounds;
+			filterParamsComponent.setBounds(rightArea.removeFromTop(rightArea.getHeight() * 0.5f).reduced(PANEL_MARGIN));
+		}
+	}
+}
+
+void SimpleSynthAudioProcessorEditor::buttonClicked(Button* button)
+{
+	{
+		chipOscComponent.setVisible(false);
+		sweepParamsComponent.setVisible(false);
+		vibratoParamsComponent.setVisible(false);
+		voicingParamsComponent.setVisible(false);
+		optionsParamsComponent.setVisible(false);
+		waveformMemoryParamsComponent.setVisible(false);
+		midiEchoParamsComponent.setVisible(false);
+		filterParamsComponent.setVisible(false);
+	}
+
+	if (button == &OscButton)
+	{
+		chipOscComponent.setVisible(true);
+		sweepParamsComponent.setVisible(true);
+		vibratoParamsComponent.setVisible(true);
+		voicingParamsComponent.setVisible(true);
+		optionsParamsComponent.setVisible(true);
+		waveformMemoryParamsComponent.setVisible(true);
+		OscButton.setToggleState(true, NotificationType::dontSendNotification);
+		EffectButton.setToggleState(false, NotificationType::dontSendNotification);
+
+	}
+	else if (button == &EffectButton)
+	{
+		midiEchoParamsComponent.setVisible(true);
+		filterParamsComponent.setVisible(true);
+		OscButton.setToggleState(false, NotificationType::dontSendNotification);
+		EffectButton.setToggleState(true, NotificationType::dontSendNotification);
+
+	}
+	resized();
 }
