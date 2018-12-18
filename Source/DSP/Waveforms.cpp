@@ -24,8 +24,8 @@ Waveforms::Waveforms()
 
 void Waveforms::init()
 {
-	rand = Random(0);	
-	noizeReg = 1 << 14;
+	//rand = Random(0);	
+	//noizeReg = 1 << 14;
 	noiseVal = 0.0f;
 	freqCounter = 0;
 }
@@ -124,13 +124,13 @@ float Waveforms::longNoise(float angleDelta)
 {
 	//noiseVal *= 0.99;
 
-	if (++freqCounter > TWO_PI / angleDelta / (2 << 4)) 
+	if (++freqCounter > 1 / angleDelta / TWO_PI / (2 >> 1))
 	{
 		freqCounter = 0;
-		int result = (noizeReg ^ (noizeReg >> 1)) & 1;
-		noizeReg = noizeReg >> 1;
-		noizeReg |= result << 14;
-		noiseVal = (noizeReg & 1) * 2.0f - 1.0f;
+		int result = (longNoizeReg ^ (longNoizeReg >> 1)) & 1;
+		longNoizeReg = longNoizeReg >> 1;
+		longNoizeReg |= result << 14;
+		noiseVal = (result & 1) * 2.0f - 1.0f;
 	}
 	return noiseVal;
 }
@@ -140,13 +140,13 @@ float Waveforms::shortNoise(float angleDelta)
 {
 	//noiseVal *= 0.99;
 
-	if (++freqCounter > TWO_PI / angleDelta / (2 << 4)) 
+	if (++freqCounter > 1 / angleDelta / TWO_PI / (2 >> 1))
 	{
 		freqCounter = 0;
-		int result = (noizeReg ^ (noizeReg >> 6)) & 1;
-		noizeReg = noizeReg >> 1;
-		noizeReg |= result << 14;
-		noiseVal = (noizeReg & 1) * 2.0f - 1.0f;
+		int result = (shortNoizeReg ^ (shortNoizeReg >> 6)) & 1;
+		shortNoizeReg = shortNoizeReg >> 1;
+		shortNoizeReg |= result << 14;
+		noiseVal = (result & 1) * 2.0f - 1.0f;
 	}
 	return noiseVal;
 }
@@ -154,7 +154,7 @@ float Waveforms::shortNoise(float angleDelta)
 //乱数を時間軸と振幅軸側でクオンタイズしたもの
 float Waveforms::lobitNoise(float angleDelta)
 {
-	if (++freqCounter > TWO_PI / angleDelta / (2 << 4)) 
+	if (++freqCounter > 1 / angleDelta / TWO_PI / (2 >> 1))
 	{
 		freqCounter = 0;
 		noiseVal = rand.nextFloat() * 2.0f - 1.0f;
