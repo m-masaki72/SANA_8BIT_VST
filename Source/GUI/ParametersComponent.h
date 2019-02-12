@@ -13,6 +13,7 @@
 
 #include "JuceHeader.h"
 #include "../DSP/SimpleSynthParameters.h"
+#include "ComponentUtil.h"
 
 class ChipOscillatorComponent : public Component, ComboBox::Listener, Slider::Listener, private Timer
 {
@@ -33,18 +34,13 @@ private:
 	ChipOscillatorParameters* _oscParamsPtr;
 
 	ComboBox waveTypeSelector;
-	Slider volumeLevelSlider;
-	Slider attackSlider;
-	Slider decaySlider;
-	Slider sustainSlider;
-	Slider releaseSlider;
-
 	Label waveTypeSelectorLabel;
-	Label volumeLevelLabel;
-	Label attackLabel;
-	Label decayLabel;
-	Label sustainLabel;
-	Label releaseLabel;
+
+	TextSlider volumeLevelSlider;
+	TextSlider attackSlider;
+	TextSlider decaySlider;
+	TextSlider sustainSlider;
+	TextSlider releaseSlider;
 };
 
 class SweepParametersComponent : public Component, Slider::Listener, ComboBox::Listener, private Timer
@@ -67,10 +63,9 @@ private:
 	SweepParameters* _sweepParamsPtr;
 
 	ComboBox sweepSwitchSelector;
-	Slider timeSlider;
-
 	Label switchLabel;
-	Label timeLabel;
+
+	TextSlider timeSlider;
 };
 
 class VibratoParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
@@ -94,16 +89,15 @@ private:
 
 	ToggleButton enableButton;
 	ComboBox targetSelector;
-	ComboBox waveTypeSelector;
-	Slider amountSlider;
-	Slider speedSlider;
-	Slider attackTimeSlider;
-
 	Label targetLabel;
+	ComboBox waveTypeSelector;
 	Label waveTypeLabel;
-	Label amountLabel;
-	Label speedLabel;
-	Label attackTimeLabel;
+
+
+	TextSlider amountSlider;
+	TextSlider speedSlider;
+	TextSlider attackTimeSlider;
+
 };
 
 class VoicingParametersComponent : public Component, ComboBox::Listener, Slider::Listener, private Timer
@@ -125,10 +119,9 @@ private:
 	VoicingParameters* _voicingParamsPtr;
 
 	ComboBox voicingTypeSelector;
-	Slider portaTimeSlider;
-
 	Label voicingTypeSelectorLabel;
-	Label portaTimeLabel;
+
+	TextSlider portaTimeSlider;
 };
 
 class OptionsParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
@@ -150,11 +143,9 @@ private:
 	OptionsParameters* _optionsParamsPtr;
 
 	ToggleButton velocitySenseButton;
-	Slider pitchStandardSlider;
-	Slider pitchBendRangeSlider;
+	TextSliderIncDec pitchStandardSlider;
+	TextSliderIncDec pitchBendRangeSlider;
 
-	Label pitchStandardLabel;
-	Label pitchBendRangeLabel;
 };
 
 class MidiEchoParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
@@ -177,13 +168,9 @@ private:
 	MidiEchoParameters* _midiEchoParamsPtr;
 
 	ToggleButton enableButton;
-	Slider durationSlider;
-	Slider repeatSlider;
-	Slider volumeOffsetSlider;
-
-	Label durationLabel;
-	Label repeatLabel;
-	Label volumeOffsetLabel;
+	TextSlider durationSlider;
+	TextSlider repeatSlider;
+	TextSlider volumeOffsetSlider;
 };
 
 class WaveformMemoryParametersComponent : public Component, Button::Listener, private Timer, public FileDragAndDropTarget
@@ -295,9 +282,14 @@ private:
 
 	ToggleButton hiCutSwitch;
 	ToggleButton lowCutSwitch;
+
+	/*
 	Slider hicutFreqSlider;
 	Slider lowcutFreqSlider;
-
 	Label hicutFreqLabel;
 	Label lowcutFreqLabel;
+	*/
+
+	TextSlider hicutFreqSlider;
+	TextSlider lowcutFreqSlider;
 };

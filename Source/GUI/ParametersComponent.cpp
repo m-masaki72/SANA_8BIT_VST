@@ -53,14 +53,35 @@ std::vector<std::string> split(std::string str, char del)
 	return result;
 }
 
+void paintHeader(Graphics& g, Rectangle<int> bounds, std::string text)
+{
+	{
+		float x = 0.0f, y = 0.0f, width = (float)bounds.getWidth(), height = (float)bounds.getHeight();
+		g.setColour(PANEL_COLOUR());
+		g.fillRoundedRectangle(x, y, width, height, 10.0f);
+	}
+	{
+		float x = 0.0f, y = 0.0f, width = (float)bounds.getWidth(), height = PANEL_NAME_HEIGHT;
+		g.setColour(HEADER_COLOUR());
+		g.fillRoundedRectangle(x, y, width, height, 10.0f);
+	}
+	{
+		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
+
+		g.setColour(TEXT_COLOUR());
+		g.setFont(panelNameFont());
+		g.drawText(text, textArea, Justification::centred, false);
+	}
+}
+
 ChipOscillatorComponent::ChipOscillatorComponent(ChipOscillatorParameters* oscParams)
 	: _oscParamsPtr(oscParams)
 	, waveTypeSelector("waveForm")
-	, volumeLevelSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
-	, attackSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
-	, decaySlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
-	, sustainSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
-	, releaseSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
+	, volumeLevelSlider("Volume", "dB", _oscParamsPtr->VolumeLevel, 0.01f)
+	, attackSlider("Attack", "sec", _oscParamsPtr->Attack, 0.0001f,1.0f)
+	, decaySlider("Decay", "sec", _oscParamsPtr->Decay, 0.0001f, 1.0f)
+	, sustainSlider("Sustain", "", _oscParamsPtr->Sustain, 0.0001f)
+	, releaseSlider("Release", "sec", _oscParamsPtr->Release, 0.0001f, 1.0f)
 {
 	waveTypeSelector.addItemList(_oscParamsPtr->OscWaveType->getAllValueStrings(), 1);
 	waveTypeSelector.setSelectedItemIndex(_oscParamsPtr->OscWaveType->getIndex(), dontSendNotification);
@@ -68,73 +89,23 @@ ChipOscillatorComponent::ChipOscillatorComponent(ChipOscillatorParameters* oscPa
 	waveTypeSelector.addListener(this);
 	addAndMakeVisible(waveTypeSelector);
 
-	volumeLevelSlider.setRange(_oscParamsPtr->VolumeLevel->range.start, _oscParamsPtr->VolumeLevel->range.end, 0.01);
-	volumeLevelSlider.setValue(_oscParamsPtr->VolumeLevel->get(), dontSendNotification);
-	volumeLevelSlider.setTextValueSuffix(" dB");
-	volumeLevelSlider.addListener(this);
-	addAndMakeVisible(volumeLevelSlider);
-
-	attackSlider.setRange(_oscParamsPtr->Attack->range.start, _oscParamsPtr->Attack->range.end, 0.0001);
-	attackSlider.setSkewFactorFromMidPoint(1.0f);
-	attackSlider.setValue(_oscParamsPtr->Attack->get(), dontSendNotification);
-	attackSlider.setTextValueSuffix(" sec");
-	attackSlider.addListener(this);
-	addAndMakeVisible(attackSlider);
-
-	decaySlider.setRange(_oscParamsPtr->Decay->range.start, _oscParamsPtr->Decay->range.end, 0.0001);
-	decaySlider.setSkewFactorFromMidPoint(1.0f);
-	decaySlider.setValue(_oscParamsPtr->Decay->get(), dontSendNotification);
-	decaySlider.setTextValueSuffix(" sec");
-	decaySlider.addListener(this);
-	addAndMakeVisible(decaySlider);
-
-	sustainSlider.setRange(_oscParamsPtr->Sustain->range.start, _oscParamsPtr->Sustain->range.end, 0.0001);
-	sustainSlider.setValue(_oscParamsPtr->Sustain->get(), dontSendNotification);
-	sustainSlider.addListener(this);
-	addAndMakeVisible(sustainSlider);
-
-	releaseSlider.setRange(_oscParamsPtr->Release->range.start, _oscParamsPtr->Release->range.end, 0.0001);
-	releaseSlider.setSkewFactorFromMidPoint(1.0f);
-	releaseSlider.setValue(_oscParamsPtr->Release->get(), dontSendNotification);
-	releaseSlider.setTextValueSuffix(" sec");
-	releaseSlider.addListener(this);
-	addAndMakeVisible(releaseSlider);
-
 	waveTypeSelectorLabel.setFont(paramLabelFont());
 	waveTypeSelectorLabel.setText("Type", dontSendNotification);
 	waveTypeSelectorLabel.setJustificationType(Justification::centred);
 	waveTypeSelectorLabel.setEditable(false, false, false);
 	addAndMakeVisible(waveTypeSelectorLabel);
 
-	volumeLevelLabel.setFont(paramLabelFont());
-	volumeLevelLabel.setText("Volume", dontSendNotification);
-	volumeLevelLabel.setJustificationType(Justification::centred);
-	volumeLevelLabel.setEditable(false, false, false);
-	addAndMakeVisible(volumeLevelLabel);
+	volumeLevelSlider.slider.addListener(this);
+	attackSlider.slider.addListener(this);
+	decaySlider.slider.addListener(this);
+	sustainSlider.slider.addListener(this);
+	releaseSlider.slider.addListener(this);
 
-	attackLabel.setFont(paramLabelFont());
-	attackLabel.setText("Attack", dontSendNotification);
-	attackLabel.setJustificationType(Justification::centred);
-	attackLabel.setEditable(false, false, false);
-	addAndMakeVisible(attackLabel);
-
-	decayLabel.setFont(paramLabelFont());
-	decayLabel.setText("Decay", dontSendNotification);
-	decayLabel.setJustificationType(Justification::centred);
-	decayLabel.setEditable(false, false, false);
-	addAndMakeVisible(decayLabel);
-
-	sustainLabel.setFont(paramLabelFont());
-	sustainLabel.setText("Sustain", dontSendNotification);
-	sustainLabel.setJustificationType(Justification::centred);
-	sustainLabel.setEditable(false, false, false);
-	addAndMakeVisible(sustainLabel);
-
-	releaseLabel.setFont(paramLabelFont());
-	releaseLabel.setText("Release", dontSendNotification);
-	releaseLabel.setJustificationType(Justification::centred);
-	releaseLabel.setEditable(false, false, false);
-	addAndMakeVisible(releaseLabel);
+	addAndMakeVisible(volumeLevelSlider);
+	addAndMakeVisible(attackSlider);
+	addAndMakeVisible(decaySlider);
+	addAndMakeVisible(sustainSlider);
+	addAndMakeVisible(releaseSlider);
 
 	startTimerHz(30);
 }
@@ -144,25 +115,7 @@ ChipOscillatorComponent::~ChipOscillatorComponent()
 
 void ChipOscillatorComponent::paint(Graphics& g)
 {
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
-		g.setColour(PANEL_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
-		g.setColour(HEADER_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-	{
-		Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
-		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
-
-		String text("OSCILLATOR");
-		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont());
-		g.drawText(text, textArea, Justification::centred, false);
-	}
+	paintHeader(g, getLocalBounds(), "OSCILLATOR");
 }
 
 void ChipOscillatorComponent::resized()
@@ -181,27 +134,22 @@ void ChipOscillatorComponent::resized()
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		volumeLevelLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		volumeLevelSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		attackLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		attackSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		decayLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		decaySlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		sustainLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		sustainSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		releaseLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		releaseSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 }
@@ -209,32 +157,32 @@ void ChipOscillatorComponent::resized()
 void ChipOscillatorComponent::timerCallback()
 {
 	waveTypeSelector.setSelectedItemIndex(_oscParamsPtr->OscWaveType->getIndex(), dontSendNotification);
-	volumeLevelSlider.setValue(_oscParamsPtr->VolumeLevel->get(), dontSendNotification);
-	attackSlider.setValue(_oscParamsPtr->Attack->get(), dontSendNotification);
-	decaySlider.setValue(_oscParamsPtr->Decay->get(), dontSendNotification);
-	sustainSlider.setValue(_oscParamsPtr->Sustain->get(), dontSendNotification);
-	releaseSlider.setValue(_oscParamsPtr->Release->get(), dontSendNotification);
+	volumeLevelSlider.setValue(_oscParamsPtr->VolumeLevel->get());
+	attackSlider.setValue(_oscParamsPtr->Attack->get());
+	decaySlider.setValue(_oscParamsPtr->Decay->get());
+	sustainSlider.setValue(_oscParamsPtr->Sustain->get());
+	releaseSlider.setValue(_oscParamsPtr->Release->get());
 }
 
 void ChipOscillatorComponent::sliderValueChanged(Slider* slider)
 {
-	if (slider == &volumeLevelSlider)
+	if (slider == &volumeLevelSlider.slider)
 	{
 		*_oscParamsPtr->VolumeLevel = (float)volumeLevelSlider.getValue();
 	}
-	else if (slider == &attackSlider)
+	else if (slider == &attackSlider.slider)
 	{
 		*_oscParamsPtr->Attack = (float)attackSlider.getValue();
 	}
-	else if (slider == &decaySlider)
+	else if (slider == &decaySlider.slider)
 	{
 		*_oscParamsPtr->Decay = (float)decaySlider.getValue();
 	}
-	else if (slider == &sustainSlider)
+	else if (slider == &sustainSlider.slider)
 	{
 		*_oscParamsPtr->Sustain = (float)sustainSlider.getValue();
 	}
-	else if (slider == &releaseSlider)
+	else if (slider == &releaseSlider.slider)
 	{
 		*_oscParamsPtr->Release = (float)releaseSlider.getValue();
 	}
@@ -253,7 +201,7 @@ void ChipOscillatorComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 SweepParametersComponent::SweepParametersComponent(SweepParameters* sweepParams)
 	:_sweepParamsPtr(sweepParams)
 	, sweepSwitchSelector("Sweep-Swetch")
-	, timeSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
+	, timeSlider("Speed", "sec", _sweepParamsPtr->SweepTime, 0.01f, 1.0f)
 {
 	sweepSwitchSelector.addItemList(_sweepParamsPtr->SweepSwitch ->getAllValueStrings(), 1);
 	sweepSwitchSelector.setSelectedItemIndex(_sweepParamsPtr->SweepSwitch->getIndex(), dontSendNotification);
@@ -261,24 +209,14 @@ SweepParametersComponent::SweepParametersComponent(SweepParameters* sweepParams)
 	sweepSwitchSelector.addListener(this);
 	addAndMakeVisible(sweepSwitchSelector);
 
-	timeSlider.setRange(_sweepParamsPtr->SweepTime->range.start, _sweepParamsPtr->SweepTime->range.end, 0.01);
-	timeSlider.setValue(_sweepParamsPtr->SweepTime->get(), dontSendNotification);
-	timeSlider.setSkewFactorFromMidPoint(1.0f);
-	timeSlider.setTextValueSuffix(" sec");
-	timeSlider.addListener(this);
-	addAndMakeVisible(timeSlider);
-
 	switchLabel.setFont(paramLabelFont());
 	switchLabel.setText("Switch", dontSendNotification);
 	switchLabel.setJustificationType(Justification::centred);
 	switchLabel.setEditable(false, false, false);
 	addAndMakeVisible(switchLabel);
 	
-	timeLabel.setFont(paramLabelFont());
-	timeLabel.setText("Speed", dontSendNotification);
-	timeLabel.setJustificationType(Justification::centred);
-	timeLabel.setEditable(false, false, false);
-	addAndMakeVisible(timeLabel);
+	timeSlider.slider.addListener(this);
+	addAndMakeVisible(timeSlider);
 
 	startTimerHz(30);
 }
@@ -288,26 +226,7 @@ SweepParametersComponent::~SweepParametersComponent()
 
 void SweepParametersComponent::paint(Graphics& g)
 {
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
-		g.setColour(PANEL_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
-		g.setColour(HEADER_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-	{
-		Rectangle<int> bounds = getLocalBounds();
-		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
-
-		String text("PITCH SWEEP");
-		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont());
-		g.drawText(text, textArea, Justification::centred, false);
-	}
+	paintHeader(g, getLocalBounds(), "PITCH SWEEP");
 }
 
 void SweepParametersComponent::resized()
@@ -321,7 +240,6 @@ void SweepParametersComponent::resized()
 
 	{
 		float alpha = isEditable() ? 1.0f : 0.4f;
-		timeLabel.setAlpha(alpha);
 		timeSlider.setAlpha(alpha);
 	}
 	{
@@ -331,7 +249,6 @@ void SweepParametersComponent::resized()
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		timeLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		timeSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 }
@@ -339,12 +256,12 @@ void SweepParametersComponent::resized()
 void SweepParametersComponent::timerCallback()
 {
 	sweepSwitchSelector.setSelectedItemIndex(_sweepParamsPtr->SweepSwitch->getIndex(), dontSendNotification);
-	timeSlider.setValue(_sweepParamsPtr->SweepTime->get(), dontSendNotification);
+	timeSlider.setValue(_sweepParamsPtr->SweepTime->get());
 }
 
 void SweepParametersComponent::sliderValueChanged(Slider* slider)
 {
-	if (slider == &timeSlider)
+	if (slider == &timeSlider.slider)
 	{
 		*_sweepParamsPtr->SweepTime = (float)timeSlider.getValue();
 	}
@@ -372,52 +289,23 @@ VibratoParametersComponent::VibratoParametersComponent(VibratoParameters* vibrat
 	, enableButton("Vibrato-Enable")
 	, targetSelector("LFO-Target")
 	, waveTypeSelector("LFO-WaveType")
-	, amountSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
-	, speedSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
-	, attackTimeSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
+	, amountSlider("Depth", "HarfTone", _vibratoParamsPtr->VibratoAmount, 0.01f, 2.0f)
+	, speedSlider("Speed", "hz", _vibratoParamsPtr->VibratoSpeed, 0.001f, 2.0f)
+	, attackTimeSlider("Attack", "sec", _vibratoParamsPtr->VibratoAttackTime, 0.001f, 2.0f)
 {
 	enableButton.setButtonText("ON / OFF");
 	enableButton.setToggleState(_vibratoParamsPtr->VibratoEnable->get(), dontSendNotification);
 	enableButton.addListener(this);
 	addAndMakeVisible(enableButton);
 
-	amountSlider.setRange(_vibratoParamsPtr->VibratoAmount->range.start, _vibratoParamsPtr->VibratoAmount->range.end, 0.01);
-	amountSlider.setSkewFactorFromMidPoint(2.0f);
-	amountSlider.setValue(_vibratoParamsPtr->VibratoAmount->get(), dontSendNotification);	
-	amountSlider.setTextValueSuffix(" HarfTone");
-	amountSlider.addListener(this);
+	amountSlider.slider.addListener(this);
 	addAndMakeVisible(amountSlider);
 
-	speedSlider.setRange(_vibratoParamsPtr->VibratoSpeed->range.start, _vibratoParamsPtr->VibratoSpeed->range.end, 0.001);
-	speedSlider.setSkewFactorFromMidPoint(2.0f);
-	speedSlider.setValue(_vibratoParamsPtr->VibratoSpeed->get(), dontSendNotification);
-	speedSlider.setTextValueSuffix(" hz");
-	speedSlider.addListener(this);
+	speedSlider.slider.addListener(this);
 	addAndMakeVisible(speedSlider);
 
-	attackTimeSlider.setRange(_vibratoParamsPtr->VibratoAttackTime->range.start, _vibratoParamsPtr->VibratoAttackTime->range.end, 0.1);
-	attackTimeSlider.setValue(_vibratoParamsPtr->VibratoAttackTime->get(), dontSendNotification);
-	attackTimeSlider.setTextValueSuffix(" sec");
-	attackTimeSlider.addListener(this);
+	attackTimeSlider.slider.addListener(this);
 	addAndMakeVisible(attackTimeSlider);
-
-	amountLabel.setFont(paramLabelFont());
-	amountLabel.setText("Depth", dontSendNotification);
-	amountLabel.setJustificationType(Justification::centred);
-	amountLabel.setEditable(false, false, false);
-	addAndMakeVisible(amountLabel);
-
-	speedLabel.setFont(paramLabelFont());
-	speedLabel.setText("Speed", dontSendNotification);
-	speedLabel.setJustificationType(Justification::centred);
-	speedLabel.setEditable(false, false, false);
-	addAndMakeVisible(speedLabel);
-	
-	attackTimeLabel.setFont(paramLabelFont());
-	attackTimeLabel.setText("Attack", dontSendNotification);
-	attackTimeLabel.setJustificationType(Justification::centred);
-	attackTimeLabel.setEditable(false, false, false);
-	addAndMakeVisible(attackTimeLabel);
 
 	startTimerHz(30);
 }
@@ -427,25 +315,7 @@ VibratoParametersComponent::~VibratoParametersComponent()
 
 void VibratoParametersComponent::paint(Graphics& g)
 {
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
-		g.setColour(PANEL_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
-		g.setColour(HEADER_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-	{
-		Rectangle<int> bounds = getLocalBounds();
-		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
-
-		String text("VIBRATO");
-		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont());
-		g.drawText(text, textArea, Justification::centred, false);
-	}
+	paintHeader(g, getLocalBounds(), "VIBRATO");
 }
 
 void VibratoParametersComponent::resized()
@@ -459,11 +329,8 @@ void VibratoParametersComponent::resized()
 
 	{
 		float alpha = isEditable() ? 1.0f : 0.4f;
-		amountLabel.setAlpha(alpha);
 		amountSlider.setAlpha(alpha);
-		speedLabel.setAlpha(alpha);
 		speedSlider.setAlpha(alpha);
-		attackTimeLabel.setAlpha(alpha);
 		attackTimeSlider.setAlpha(alpha);
 	}
 	{
@@ -473,18 +340,15 @@ void VibratoParametersComponent::resized()
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		amountLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		amountSlider.setBounds(area.reduced(LOCAL_MARGIN));
 
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		speedLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		speedSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		attackTimeLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		attackTimeSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 }
@@ -492,22 +356,22 @@ void VibratoParametersComponent::resized()
 void VibratoParametersComponent::timerCallback()
 {
 	enableButton.setToggleState(_vibratoParamsPtr->VibratoEnable->get(), dontSendNotification);
-	amountSlider.setValue(_vibratoParamsPtr->VibratoAmount->get(), dontSendNotification);
-	speedSlider.setValue(_vibratoParamsPtr->VibratoSpeed->get(), dontSendNotification);
-	attackTimeSlider.setValue(_vibratoParamsPtr->VibratoAttackTime->get(), dontSendNotification);
+	amountSlider.setValue(_vibratoParamsPtr->VibratoAmount->get());
+	speedSlider.setValue(_vibratoParamsPtr->VibratoSpeed->get());
+	attackTimeSlider.setValue(_vibratoParamsPtr->VibratoAttackTime->get());
 }
 
 void VibratoParametersComponent::sliderValueChanged(Slider* slider)
 {
-	if (slider == &amountSlider)
+	if (slider == &amountSlider.slider)
 	{
 		*_vibratoParamsPtr->VibratoAmount = (float)amountSlider.getValue();
 	}
-	else if (slider == &speedSlider)
+	else if (slider == &speedSlider.slider)
 	{
 		*_vibratoParamsPtr->VibratoSpeed = (float)speedSlider.getValue();
 	}
-	else if (slider == &attackTimeSlider)
+	else if (slider == &attackTimeSlider.slider)
 	{
 		*_vibratoParamsPtr->VibratoAttackTime = (float)attackTimeSlider.getValue();
 	}
@@ -532,7 +396,7 @@ bool VibratoParametersComponent::isEditable()
 VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicingParams)
 	: _voicingParamsPtr(voicingParams)
 	, voicingTypeSelector("voicing")
-	, portaTimeSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
+	, portaTimeSlider("PortaTime", "sec", _voicingParamsPtr->PortaTime, 0.01f, 0.5f)
 {
 	voicingTypeSelector.addItemList(_voicingParamsPtr->VoicingSwitch->getAllValueStrings(), 1);
 	voicingTypeSelector.setSelectedItemIndex(_voicingParamsPtr->VoicingSwitch->getIndex(), dontSendNotification);
@@ -540,11 +404,7 @@ VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicin
 	voicingTypeSelector.addListener(this);
 	addAndMakeVisible(voicingTypeSelector);
 
-	portaTimeSlider.setRange(_voicingParamsPtr->PortaTime->range.start, _voicingParamsPtr->PortaTime->range.end, 0.01);
-	portaTimeSlider.setValue(_voicingParamsPtr->PortaTime->get(), dontSendNotification);
-	portaTimeSlider.setSkewFactorFromMidPoint(0.5f);
-	portaTimeSlider.setTextValueSuffix(" sec");
-	portaTimeSlider.addListener(this);
+	portaTimeSlider.slider.addListener(this);
 	addAndMakeVisible(portaTimeSlider);
 
 	voicingTypeSelectorLabel.setFont(paramLabelFont());
@@ -552,12 +412,6 @@ VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicin
 	voicingTypeSelectorLabel.setJustificationType(Justification::centred);
 	voicingTypeSelectorLabel.setEditable(false, false, false);
 	addAndMakeVisible(voicingTypeSelectorLabel);
-
-	portaTimeLabel.setFont(paramLabelFont());
-	portaTimeLabel.setText("PortaTime", dontSendNotification);
-	portaTimeLabel.setJustificationType(Justification::centred);
-	portaTimeLabel.setEditable(false, false, false);
-	addAndMakeVisible(portaTimeLabel);
 
 	startTimerHz(30);
 }
@@ -567,26 +421,7 @@ VoicingParametersComponent::~VoicingParametersComponent()
 
 void VoicingParametersComponent::paint(Graphics& g)
 {
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
-		g.setColour(PANEL_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
-		g.setColour(HEADER_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-	{
-		Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
-		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
-
-		String text("VOICING");
-		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont());
-		g.drawText(text, textArea, Justification::centred, false);
-	}
-
+	paintHeader(g, getLocalBounds(), "VOICING");
 }
 
 void VoicingParametersComponent::resized()
@@ -600,7 +435,6 @@ void VoicingParametersComponent::resized()
 
 	{
 		float alpha = _voicingParamsPtr->VoicingSwitch->getCurrentChoiceName() == "PORTAMENTO" ? 1.0f : 0.4f;
-		portaTimeLabel.setAlpha(alpha);
 		portaTimeSlider.setAlpha(alpha);
 	}
 	{
@@ -610,7 +444,6 @@ void VoicingParametersComponent::resized()
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		portaTimeLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		portaTimeSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 }
@@ -618,12 +451,12 @@ void VoicingParametersComponent::resized()
 void VoicingParametersComponent::timerCallback()
 {
 	voicingTypeSelector.setSelectedItemIndex(_voicingParamsPtr->VoicingSwitch->getIndex(), dontSendNotification);
-	portaTimeSlider.setValue(_voicingParamsPtr->PortaTime->get(), dontSendNotification);
+	portaTimeSlider.setValue(_voicingParamsPtr->PortaTime->get());
 }
 
 void VoicingParametersComponent::sliderValueChanged(Slider* slider)
 {
-	if (slider == &portaTimeSlider)
+	if (slider == &portaTimeSlider.slider)
 	{
 		*_voicingParamsPtr->PortaTime = (float)portaTimeSlider.getValue();
 	}
@@ -643,35 +476,13 @@ void VoicingParametersComponent::comboBoxChanged(ComboBox* comboBoxThatHasChange
 OptionsParametersComponent::OptionsParametersComponent(OptionsParameters* optionsParams)
 	: _optionsParamsPtr(optionsParams)
 	, velocitySenseButton()
-	, pitchStandardSlider(Slider::SliderStyle::IncDecButtons, Slider::TextEntryBoxPosition::TextBoxLeft)
-	, pitchBendRangeSlider(Slider::SliderStyle::IncDecButtons, Slider::TextEntryBoxPosition::TextBoxLeft)
-{
-	//velocitySenseButton.setButtonText("Key Velocity Sense");
-	//velocitySenseButton.setToggleState(_optionsParamsPtr->IsVelocitySense->get(), dontSendNotification);
-	//velocitySenseButton.addListener(this);
-	//addAndMakeVisible(velocitySenseButton);
-
-	pitchStandardSlider.setRange(_optionsParamsPtr->PitchStandard->getRange().getStart(), _optionsParamsPtr->PitchStandard->getRange().getEnd(), 1);
-	pitchStandardSlider.setValue(_optionsParamsPtr->PitchStandard->get(), dontSendNotification);
-	pitchStandardSlider.addListener(this);
+	, pitchStandardSlider("Tunes", "", _optionsParamsPtr->PitchStandard)
+	, pitchBendRangeSlider("PB Range", "", _optionsParamsPtr->PitchBendRange)
+{	
+	pitchStandardSlider.slider.addListener(this);
 	addAndMakeVisible(pitchStandardSlider);
-
-	pitchBendRangeSlider.setRange(_optionsParamsPtr->PitchBendRange->getRange().getStart(), _optionsParamsPtr->PitchBendRange->getRange().getEnd(), 1);
-	pitchBendRangeSlider.setValue(_optionsParamsPtr->PitchBendRange->get(), dontSendNotification);
-	pitchBendRangeSlider.addListener(this);
+	pitchBendRangeSlider.slider.addListener(this);
 	addAndMakeVisible(pitchBendRangeSlider);
-
-	pitchStandardLabel.setFont(paramLabelFont());
-	pitchStandardLabel.setText("Tunes", dontSendNotification);
-	pitchStandardLabel.setJustificationType(Justification::centred);
-	pitchStandardLabel.setEditable(false, false, false);
-	addAndMakeVisible(pitchStandardLabel);
-
-	pitchBendRangeLabel.setFont(paramLabelFont());
-	pitchBendRangeLabel.setText("PB Range", dontSendNotification);
-	pitchBendRangeLabel.setJustificationType(Justification::centred);
-	pitchBendRangeLabel.setEditable(false, false, false);
-	addAndMakeVisible(pitchBendRangeLabel);
 
 	startTimerHz(30);
 }
@@ -681,25 +492,7 @@ OptionsParametersComponent::~OptionsParametersComponent()
 
 void OptionsParametersComponent::paint(Graphics& g)
 {
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
-		g.setColour(PANEL_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)PANEL_NAME_HEIGHT;
-		g.setColour(HEADER_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-	{
-		Rectangle<int> bounds = getLocalBounds();
-		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
-
-		String text("OPTIONS");
-		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont());
-		g.drawText(text, textArea, Justification::centred, false);
-	}
+	paintHeader(g, getLocalBounds(), "OPTIONS");
 }
 
 void OptionsParametersComponent::resized()
@@ -713,12 +506,10 @@ void OptionsParametersComponent::resized()
 
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		pitchStandardLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		pitchStandardSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		pitchBendRangeLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		pitchBendRangeSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 }
@@ -726,8 +517,8 @@ void OptionsParametersComponent::resized()
 void OptionsParametersComponent::timerCallback()
 {
 	velocitySenseButton.setToggleState(_optionsParamsPtr->IsVelocitySense->get(), dontSendNotification);
-	pitchStandardSlider.setValue(_optionsParamsPtr->PitchStandard->get(), dontSendNotification);
-	pitchBendRangeSlider.setValue(_optionsParamsPtr->PitchBendRange->get(), dontSendNotification);
+	pitchStandardSlider.setValue(_optionsParamsPtr->PitchStandard->get());
+	pitchBendRangeSlider.setValue(_optionsParamsPtr->PitchBendRange->get());
 }
 
 void OptionsParametersComponent::buttonClicked(Button* button)
@@ -740,11 +531,11 @@ void OptionsParametersComponent::buttonClicked(Button* button)
 
 void OptionsParametersComponent::sliderValueChanged(Slider* slider)
 {
-	if (slider == &pitchStandardSlider)
+	if (slider == &pitchStandardSlider.slider)
 	{
 		*_optionsParamsPtr->PitchStandard = (int)pitchStandardSlider.getValue();
 	}
-	else if (slider == &pitchBendRangeSlider)
+	else if (slider == &pitchBendRangeSlider.slider)
 	{
 		*_optionsParamsPtr->PitchBendRange = (int)pitchBendRangeSlider.getValue();
 	}
@@ -755,51 +546,23 @@ void OptionsParametersComponent::sliderValueChanged(Slider* slider)
 MidiEchoParametersComponent::MidiEchoParametersComponent(MidiEchoParameters* midiEchoParams)
 	:_midiEchoParamsPtr(midiEchoParams)
 	, enableButton("MidiEcho-Enable")
-	, durationSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
-	, repeatSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
-	, volumeOffsetSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
+	, durationSlider("Duration", "sec", _midiEchoParamsPtr->EchoDuration, 0.01f, 0.5f)
+	, repeatSlider("Repeat", "", _midiEchoParamsPtr->EchoRepeat->get(), _midiEchoParamsPtr->EchoRepeat->getRange().getStart(), _midiEchoParamsPtr->EchoRepeat->getRange().getEnd() , 1.0f)
+	, volumeOffsetSlider("Vol Offset", "%", _midiEchoParamsPtr->VolumeOffset, 0.1f, 100.0f)
 {
 	enableButton.setButtonText("ON / OFF");
 	enableButton.setToggleState(_midiEchoParamsPtr->IsEchoEnable->get(), dontSendNotification);
 	enableButton.addListener(this);
 	addAndMakeVisible(enableButton);
 
-	durationSlider.setRange(_midiEchoParamsPtr->EchoDuration->range.start, _midiEchoParamsPtr->EchoDuration->range.end, 0.01);
-	durationSlider.setValue(_midiEchoParamsPtr->EchoDuration->get(), dontSendNotification);
-	durationSlider.setTextValueSuffix(" sec");
-	durationSlider.setSkewFactorFromMidPoint(0.5f);
-	durationSlider.addListener(this);
+	durationSlider.slider.addListener(this);
 	addAndMakeVisible(durationSlider);
 
-	repeatSlider.setRange(_midiEchoParamsPtr->EchoRepeat->getRange().getStart(), _midiEchoParamsPtr->EchoRepeat->getRange().getEnd(), 1);
-	repeatSlider.setValue(_midiEchoParamsPtr->EchoRepeat->get(), dontSendNotification);
-	repeatSlider.addListener(this);
+	repeatSlider.slider.addListener(this);
 	addAndMakeVisible(repeatSlider);
 
-	volumeOffsetSlider.setRange(_midiEchoParamsPtr->VolumeOffset->range.start, _midiEchoParamsPtr->VolumeOffset->range.end, 0.1);
-	volumeOffsetSlider.setSkewFactorFromMidPoint(100.0f);
-	volumeOffsetSlider.setValue(_midiEchoParamsPtr->VolumeOffset->get(), dontSendNotification);
-	volumeOffsetSlider.setTextValueSuffix(" %");
-	volumeOffsetSlider.addListener(this);
+	volumeOffsetSlider.slider.addListener(this);
 	addAndMakeVisible(volumeOffsetSlider);
-
-	durationLabel.setFont(paramLabelFont());
-	durationLabel.setText("Duration", dontSendNotification);
-	durationLabel.setJustificationType(Justification::centred);
-	durationLabel.setEditable(false, false, false);
-	addAndMakeVisible(durationLabel);
-
-	repeatLabel.setFont(paramLabelFont());
-	repeatLabel.setText("Repeat", dontSendNotification);
-	repeatLabel.setJustificationType(Justification::centred);
-	repeatLabel.setEditable(false, false, false);
-	addAndMakeVisible(repeatLabel);
-
-	volumeOffsetLabel.setFont(paramLabelFont());
-	volumeOffsetLabel.setText("Vol Offset", dontSendNotification);
-	volumeOffsetLabel.setJustificationType(Justification::centred);
-	volumeOffsetLabel.setEditable(false, false, false);
-	addAndMakeVisible(volumeOffsetLabel);
 
 	startTimerHz(30);
 }
@@ -809,25 +572,7 @@ MidiEchoParametersComponent::~MidiEchoParametersComponent()
 
 void MidiEchoParametersComponent::paint(Graphics& g)
 {
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
-		g.setColour(PANEL_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
-		g.setColour(HEADER_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-	{
-		Rectangle<int> bounds = getLocalBounds();
-		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
-
-		String text("MIDI ECHO");
-		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont());
-		g.drawText(text, textArea, Justification::centred, false);
-	}
+	paintHeader(g, getLocalBounds(), "MIDI ECHO");
 }
 
 void MidiEchoParametersComponent::resized()
@@ -841,11 +586,8 @@ void MidiEchoParametersComponent::resized()
 	
 	{
 		float alpha = isEditable() ? 1.0f : 0.4f;
-		durationLabel.setAlpha(alpha);
 		durationSlider.setAlpha(alpha);
-		repeatLabel.setAlpha(alpha);
 		repeatSlider.setAlpha(alpha);
-		volumeOffsetLabel.setAlpha(alpha);
 		volumeOffsetSlider.setAlpha(alpha);
 	}
 	{
@@ -855,18 +597,15 @@ void MidiEchoParametersComponent::resized()
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		durationLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		durationSlider.setBounds(area.reduced(LOCAL_MARGIN));
 
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		repeatLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		repeatSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		volumeOffsetLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
 		volumeOffsetSlider.setBounds(area.reduced(LOCAL_MARGIN));
 	}
 }
@@ -874,22 +613,22 @@ void MidiEchoParametersComponent::resized()
 void MidiEchoParametersComponent::timerCallback()
 {
 	enableButton.setToggleState(_midiEchoParamsPtr->IsEchoEnable->get(), dontSendNotification);
-	durationSlider.setValue(_midiEchoParamsPtr->EchoDuration->get(), dontSendNotification);
-	repeatSlider.setValue(_midiEchoParamsPtr->EchoRepeat->get(), dontSendNotification);
-	volumeOffsetSlider.setValue(_midiEchoParamsPtr->VolumeOffset->get(), dontSendNotification);
+	durationSlider.setValue(_midiEchoParamsPtr->EchoDuration->get());
+	repeatSlider.setValue(_midiEchoParamsPtr->EchoRepeat->get());
+	volumeOffsetSlider.setValue(_midiEchoParamsPtr->VolumeOffset->get());
 }
 
 void MidiEchoParametersComponent::sliderValueChanged(Slider* slider)
 {
-	if (slider == &durationSlider)
+	if (slider == &durationSlider.slider)
 	{
 		*_midiEchoParamsPtr->EchoDuration = (float)durationSlider.getValue();
 	}
-	else if (slider == &repeatSlider)
+	else if (slider == &repeatSlider.slider)
 	{
 		*_midiEchoParamsPtr->EchoRepeat = (int)repeatSlider.getValue();
 	}
-	else if (slider == &volumeOffsetSlider)
+	else if (slider == &volumeOffsetSlider.slider)
 	{
 		*_midiEchoParamsPtr->VolumeOffset = (float)volumeOffsetSlider.getValue();
 	}
@@ -940,24 +679,7 @@ WaveformMemoryParametersComponent::~WaveformMemoryParametersComponent()
 
 void WaveformMemoryParametersComponent::paint(Graphics& g)
 {
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
-		g.setColour(PANEL_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
-		g.setColour(HEADER_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-
-		Rectangle<int> bounds = getLocalBounds();
-		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
-
-		String text("WAVEFORM MEMORY");
-		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont());
-		g.drawText(text, textArea, Justification::centred, false);
-	}
+	paintHeader(g, getLocalBounds(), "WAVEFORM MEMORY");
 
 	//update slider Params
 	for (auto* trail : trails)
@@ -1179,8 +901,8 @@ FilterParametersComponent::FilterParametersComponent(FilterParameters* filterPar
 	: _filterParamsPtr(filterParams)
 	, hiCutSwitch()
 	, lowCutSwitch()
-	, hicutFreqSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
-	, lowcutFreqSlider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
+	, hicutFreqSlider("hicut", "Hz", _filterParamsPtr->HicutFreq, 0.1f, 2000.0f)
+	, lowcutFreqSlider("lowcut", "Hz", _filterParamsPtr->LowcutFreq, 0.1f, 2000.0f)
 {
 	hiCutSwitch.setButtonText("HiCut: ON / OFF");
 	hiCutSwitch.setToggleState(_filterParamsPtr->HicutEnable->get(), dontSendNotification);
@@ -1192,31 +914,10 @@ FilterParametersComponent::FilterParametersComponent(FilterParameters* filterPar
 	lowCutSwitch.addListener(this);
 	addAndMakeVisible(lowCutSwitch);
 
-	hicutFreqSlider.setRange(_filterParamsPtr->HicutFreq->range.start, _filterParamsPtr->HicutFreq->range.end, 0.1f);
-	hicutFreqSlider.setValue(_filterParamsPtr->HicutFreq->get(), dontSendNotification);
-	hicutFreqSlider.setTextValueSuffix(" Hz");
-	hicutFreqSlider.setSkewFactorFromMidPoint(2000.0f);
-	hicutFreqSlider.addListener(this);
+	hicutFreqSlider.slider.addListener(this);
+	lowcutFreqSlider.slider.addListener(this);
 	addAndMakeVisible(hicutFreqSlider);
-
-	lowcutFreqSlider.setRange(_filterParamsPtr->LowcutFreq->range.start, _filterParamsPtr->LowcutFreq->range.end, 0.1f);
-	lowcutFreqSlider.setValue(_filterParamsPtr->LowcutFreq->get(), dontSendNotification);
-	lowcutFreqSlider.setTextValueSuffix(" Hz");
-	lowcutFreqSlider.setSkewFactorFromMidPoint(2000.0f);
-	lowcutFreqSlider.addListener(this);
 	addAndMakeVisible(lowcutFreqSlider);
-
-	hicutFreqLabel.setFont(paramLabelFont());
-	hicutFreqLabel.setText("HiCut", dontSendNotification);
-	hicutFreqLabel.setJustificationType(Justification::centred);
-	hicutFreqLabel.setEditable(false, false, false);
-	addAndMakeVisible(hicutFreqLabel);
-
-	lowcutFreqLabel.setFont(paramLabelFont());
-	lowcutFreqLabel.setText("LowCut", dontSendNotification);
-	lowcutFreqLabel.setJustificationType(Justification::centred);
-	lowcutFreqLabel.setEditable(false, false, false);
-	addAndMakeVisible(lowcutFreqLabel);
 
 	startTimerHz(30);
 }
@@ -1226,25 +927,7 @@ FilterParametersComponent::~FilterParametersComponent()
 
 void FilterParametersComponent::paint(Graphics& g)
 {
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
-		g.setColour(PANEL_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-	{
-		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = PANEL_NAME_HEIGHT;
-		g.setColour(HEADER_COLOUR());
-		g.fillRoundedRectangle(x, y, width, height, 10.0f);
-	}
-	{
-		Rectangle<int> bounds = getLocalBounds();
-		Rectangle<int> textArea = bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
-
-		String text("FILTER");
-		g.setColour(TEXT_COLOUR());
-		g.setFont(panelNameFont());
-		g.drawText(text, textArea, Justification::centred, false);
-	}
+	paintHeader(g, getLocalBounds(), "FILTER");
 }
 
 void FilterParametersComponent::resized()
@@ -1258,14 +941,13 @@ void FilterParametersComponent::resized()
 
 	{
 		float alpha = _filterParamsPtr->HicutEnable->get() ? 1.0f : 0.4f;
-		hicutFreqLabel.setAlpha(alpha);
 		hicutFreqSlider.setAlpha(alpha);
 	}
 	{
 		float alpha = _filterParamsPtr->LowcutEnable->get() ? 1.0f : 0.4f;
-		lowcutFreqLabel.setAlpha(alpha);
 		lowcutFreqSlider.setAlpha(alpha);
 	}
+
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
 		area.removeFromLeft(LABEL_WIDTH / 2);
@@ -1273,8 +955,7 @@ void FilterParametersComponent::resized()
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		hicutFreqLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
-		hicutFreqSlider.setBounds(area.reduced(LOCAL_MARGIN));
+		hicutFreqSlider.setBounds(area);
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
@@ -1283,24 +964,23 @@ void FilterParametersComponent::resized()
 	}
 	{
 		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		lowcutFreqLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
-		lowcutFreqSlider.setBounds(area.reduced(LOCAL_MARGIN));
+		lowcutFreqSlider.setBounds(area);
 	}
 }
 
 void FilterParametersComponent::timerCallback()
 {
-	hicutFreqSlider.setValue(_filterParamsPtr->HicutFreq->get(), dontSendNotification);
-	lowcutFreqSlider.setValue(_filterParamsPtr->LowcutFreq->get(), dontSendNotification);
+	hicutFreqSlider.setValue(_filterParamsPtr->HicutFreq->get());
+	lowcutFreqSlider.setValue(_filterParamsPtr->LowcutFreq->get());
 }
 
 void FilterParametersComponent::sliderValueChanged(Slider* slider)
 {
-	if (slider == &hicutFreqSlider)
+	if (slider == &hicutFreqSlider.slider)
 	{
 		*_filterParamsPtr->HicutFreq = (float)hicutFreqSlider.getValue();
 	}
-	else if (slider == &lowcutFreqSlider)
+	else if (slider == &lowcutFreqSlider.slider)
 	{
 		*_filterParamsPtr->LowcutFreq = (float)lowcutFreqSlider.getValue();
 	}
