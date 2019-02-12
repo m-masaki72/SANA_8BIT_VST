@@ -38,7 +38,9 @@ private:
 	float quantize(float sample);
 	float checkAngleRanage(float angle);
 
-	int noizeReg = 1 << 14;
+	std::uint16_t longNoizeReg = 0x0002;
+	std::uint16_t shortNoizeReg = 0x0002;
+
 	float noiseVal = 1.0f;
 	int freqCounter = 0;
 	Random rand;

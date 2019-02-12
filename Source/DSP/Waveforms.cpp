@@ -25,7 +25,6 @@ Waveforms::Waveforms()
 void Waveforms::init()
 {
 	rand = Random(0);	
-	noizeReg = 1 << 14;
 	noiseVal = 0.0f;
 	freqCounter = 0;
 }
@@ -122,15 +121,13 @@ float Waveforms::triangle(float angle)
 //NESの長周期ノイズの再現
 float Waveforms::longNoise(float angleDelta)
 {
-	//noiseVal *= 0.99;
-
-	if (++freqCounter > TWO_PI / angleDelta / (2 << 4)) 
+	if (++freqCounter > 1 / TWO_PI / angleDelta * (2 >> 0)) 
 	{
 		freqCounter = 0;
-		int result = (noizeReg ^ (noizeReg >> 1)) & 1;
-		noizeReg = noizeReg >> 1;
-		noizeReg |= result << 14;
-		noiseVal = (noizeReg & 1) * 2.0f - 1.0f;
+		std::uint16_t result = ((longNoizeReg & (0x0002)) >> 1) ^ ((longNoizeReg & (0x0004)) >> 2);
+		result = result << 15;
+		longNoizeReg = (longNoizeReg >> 1) | result;
+		noiseVal = (longNoizeReg & 0x0001) * 2.0f - 1.0f;
 	}
 	return noiseVal;
 }
@@ -138,15 +135,14 @@ float Waveforms::longNoise(float angleDelta)
 //NESの短周期ノイズの再現
 float Waveforms::shortNoise(float angleDelta)
 {
-	//noiseVal *= 0.99;
-
 	if (++freqCounter > TWO_PI / angleDelta / (2 << 4)) 
 	{
 		freqCounter = 0;
-		int result = (noizeReg ^ (noizeReg >> 6)) & 1;
-		noizeReg = noizeReg >> 1;
-		noizeReg |= result << 14;
-		noiseVal = (noizeReg & 1) * 2.0f - 1.0f;
+		std::uint16_t result = ((shortNoizeReg & (0x0002)) >> 1) ^ ((shortNoizeReg & (0x00B0)) >> 7);
+		result = result << 15;
+		shortNoizeReg = (shortNoizeReg >> 1) | result;
+		noiseVal = (shortNoizeReg & 0x0001) * 2.0f - 1.0f;
+
 	}
 	return noiseVal;
 }
