@@ -132,29 +132,25 @@ void VoicingParameters::loadParameters(XmlElement& xml)
 
 //-----------------------------------------------------------------------------------------
 
-OptionsParameters::OptionsParameters(AudioParameterBool* isVelocitySense, AudioParameterInt* pitchBendRange, AudioParameterInt* pitchStandard)
-	: IsVelocitySense(isVelocitySense)
-	, PitchBendRange(pitchBendRange)
+OptionsParameters::OptionsParameters(AudioParameterInt* pitchBendRange, AudioParameterInt* pitchStandard)
+	: PitchBendRange(pitchBendRange)
 	, PitchStandard(pitchStandard)
 {}
 
 void OptionsParameters::addAllParameters(AudioProcessor& processor)
 {
-	processor.addParameter(IsVelocitySense);
 	processor.addParameter(PitchBendRange);
 	processor.addParameter(PitchStandard);
 }
 
 void OptionsParameters::saveParameters(XmlElement& xml)
 {
-	xml.setAttribute(IsVelocitySense->paramID, IsVelocitySense->get());
 	xml.setAttribute(PitchBendRange->paramID, (double)PitchBendRange->get());
 	xml.setAttribute(PitchStandard->paramID, (double)PitchStandard->get());
 }
 
 void OptionsParameters::loadParameters(XmlElement& xml)
 {
-	*IsVelocitySense = xml.getBoolAttribute(IsVelocitySense->paramID, true);
 	*PitchBendRange = xml.getIntAttribute(PitchBendRange->paramID, 2);
 	*PitchStandard = xml.getIntAttribute(PitchStandard->paramID, 440);
 }

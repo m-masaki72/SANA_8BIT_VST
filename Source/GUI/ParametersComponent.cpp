@@ -29,14 +29,14 @@ namespace {
 	static File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
 }
 
-std::vector<std::string> split(std::string str, char del) 
+std::vector<std::string> split(std::string str, char del)
 {
 	int first = 0;
 	int last = str.find_first_of(del);
 
 	std::vector<std::string> result;
 
-	while (first < str.size()) 
+	while (first < str.size())
 	{
 		std::string subStr(str, first, last - first);
 
@@ -76,42 +76,27 @@ void paintHeader(Graphics& g, Rectangle<int> bounds, std::string text)
 
 ChipOscillatorComponent::ChipOscillatorComponent(ChipOscillatorParameters* oscParams)
 	: _oscParamsPtr(oscParams)
-	, waveTypeSelector("waveForm")
+	, waveTypeSelector("waveForm", _oscParamsPtr->OscWaveType)
 	, volumeLevelSlider("Volume", "dB", _oscParamsPtr->VolumeLevel, 0.01f)
 	, attackSlider("Attack", "sec", _oscParamsPtr->Attack, 0.0001f,1.0f)
 	, decaySlider("Decay", "sec", _oscParamsPtr->Decay, 0.0001f, 1.0f)
 	, sustainSlider("Sustain", "", _oscParamsPtr->Sustain, 0.0001f)
 	, releaseSlider("Release", "sec", _oscParamsPtr->Release, 0.0001f, 1.0f)
 {
-	waveTypeSelector.addItemList(_oscParamsPtr->OscWaveType->getAllValueStrings(), 1);
-	waveTypeSelector.setSelectedItemIndex(_oscParamsPtr->OscWaveType->getIndex(), dontSendNotification);
-	waveTypeSelector.setJustificationType(Justification::centred);
 	waveTypeSelector.addListener(this);
+	volumeLevelSlider.addListener(this);
+	attackSlider.addListener(this);
+	decaySlider.addListener(this);
+	sustainSlider.addListener(this);
+	releaseSlider.addListener(this);
 	addAndMakeVisible(waveTypeSelector);
-
-	waveTypeSelectorLabel.setFont(paramLabelFont());
-	waveTypeSelectorLabel.setText("Type", dontSendNotification);
-	waveTypeSelectorLabel.setJustificationType(Justification::centred);
-	waveTypeSelectorLabel.setEditable(false, false, false);
-	addAndMakeVisible(waveTypeSelectorLabel);
-
-	volumeLevelSlider.slider.addListener(this);
-	attackSlider.slider.addListener(this);
-	decaySlider.slider.addListener(this);
-	sustainSlider.slider.addListener(this);
-	releaseSlider.slider.addListener(this);
-
 	addAndMakeVisible(volumeLevelSlider);
 	addAndMakeVisible(attackSlider);
 	addAndMakeVisible(decaySlider);
 	addAndMakeVisible(sustainSlider);
 	addAndMakeVisible(releaseSlider);
 
-	startTimerHz(30);
 }
-
-ChipOscillatorComponent::~ChipOscillatorComponent()
-{}
 
 void ChipOscillatorComponent::paint(Graphics& g)
 {
@@ -127,36 +112,17 @@ void ChipOscillatorComponent::resized()
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
 	
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		waveTypeSelectorLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
-		waveTypeSelector.setBounds(area.reduced(LOCAL_MARGIN * 2));
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		volumeLevelSlider.setBounds(area.reduced(LOCAL_MARGIN));
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		attackSlider.setBounds(area.reduced(LOCAL_MARGIN));
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		decaySlider.setBounds(area.reduced(LOCAL_MARGIN));
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		sustainSlider.setBounds(area.reduced(LOCAL_MARGIN));
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		releaseSlider.setBounds(area.reduced(LOCAL_MARGIN));
-	}
+	waveTypeSelector.setBounds(bounds.removeFromTop(compHeight));
+	volumeLevelSlider.setBounds(bounds.removeFromTop(compHeight));
+	attackSlider.setBounds(bounds.removeFromTop(compHeight));
+	decaySlider.setBounds(bounds.removeFromTop(compHeight));
+	sustainSlider.setBounds(bounds.removeFromTop(compHeight));
+	releaseSlider.setBounds(bounds.removeFromTop(compHeight));
 }
 
 void ChipOscillatorComponent::timerCallback()
 {
-	waveTypeSelector.setSelectedItemIndex(_oscParamsPtr->OscWaveType->getIndex(), dontSendNotification);
+	waveTypeSelector.setSelectedItemIndex(_oscParamsPtr->OscWaveType->getIndex());
 	volumeLevelSlider.setValue(_oscParamsPtr->VolumeLevel->get());
 	attackSlider.setValue(_oscParamsPtr->Attack->get());
 	decaySlider.setValue(_oscParamsPtr->Decay->get());
@@ -190,7 +156,7 @@ void ChipOscillatorComponent::sliderValueChanged(Slider* slider)
 
 void ChipOscillatorComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 {
-	if (comboBoxThatHasChanged == &waveTypeSelector)
+	if (comboBoxThatHasChanged == &waveTypeSelector.selector)
 	{
 		*_oscParamsPtr->OscWaveType = waveTypeSelector.getSelectedItemIndex();
 	}
@@ -200,29 +166,15 @@ void ChipOscillatorComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 
 SweepParametersComponent::SweepParametersComponent(SweepParameters* sweepParams)
 	:_sweepParamsPtr(sweepParams)
-	, sweepSwitchSelector("Sweep-Swetch")
+	, sweepSwitchSelector("Sweep-Swetch", _sweepParamsPtr->SweepSwitch)
 	, timeSlider("Speed", "sec", _sweepParamsPtr->SweepTime, 0.01f, 1.0f)
 {
-	sweepSwitchSelector.addItemList(_sweepParamsPtr->SweepSwitch ->getAllValueStrings(), 1);
-	sweepSwitchSelector.setSelectedItemIndex(_sweepParamsPtr->SweepSwitch->getIndex(), dontSendNotification);
-	sweepSwitchSelector.setJustificationType(Justification::centred);
 	sweepSwitchSelector.addListener(this);
-	addAndMakeVisible(sweepSwitchSelector);
+	timeSlider.addListener(this);
 
-	switchLabel.setFont(paramLabelFont());
-	switchLabel.setText("Switch", dontSendNotification);
-	switchLabel.setJustificationType(Justification::centred);
-	switchLabel.setEditable(false, false, false);
-	addAndMakeVisible(switchLabel);
-	
-	timeSlider.slider.addListener(this);
+	addAndMakeVisible(sweepSwitchSelector);	
 	addAndMakeVisible(timeSlider);
-
-	startTimerHz(30);
 }
-
-SweepParametersComponent::~SweepParametersComponent()
-{}
 
 void SweepParametersComponent::paint(Graphics& g)
 {
@@ -242,20 +194,13 @@ void SweepParametersComponent::resized()
 		float alpha = isEditable() ? 1.0f : 0.4f;
 		timeSlider.setAlpha(alpha);
 	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		switchLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
-		sweepSwitchSelector.setBounds(area.reduced(LOCAL_MARGIN * 2));
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		timeSlider.setBounds(area.reduced(LOCAL_MARGIN));
-	}
+	sweepSwitchSelector.setBounds(bounds.removeFromTop(compHeight));
+	timeSlider.setBounds(bounds.removeFromTop(compHeight));
 }
 
 void SweepParametersComponent::timerCallback()
 {
-	sweepSwitchSelector.setSelectedItemIndex(_sweepParamsPtr->SweepSwitch->getIndex(), dontSendNotification);
+	sweepSwitchSelector.setSelectedItemIndex(_sweepParamsPtr->SweepSwitch->getIndex());
 	timeSlider.setValue(_sweepParamsPtr->SweepTime->get());
 }
 
@@ -270,7 +215,7 @@ void SweepParametersComponent::sliderValueChanged(Slider* slider)
 
 void SweepParametersComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 {
-	if (comboBoxThatHasChanged == &sweepSwitchSelector)
+	if (comboBoxThatHasChanged == &sweepSwitchSelector.selector)
 	{
 		*_sweepParamsPtr->SweepSwitch = sweepSwitchSelector.getSelectedItemIndex();
 	}
@@ -286,32 +231,21 @@ bool SweepParametersComponent::isEditable()
 
 VibratoParametersComponent::VibratoParametersComponent(VibratoParameters* vibratoParams)
 	:_vibratoParamsPtr(vibratoParams)
-	, enableButton("Vibrato-Enable")
-	, targetSelector("LFO-Target")
-	, waveTypeSelector("LFO-WaveType")
+	, enableButton("Vibrato-Enable", _vibratoParamsPtr->VibratoEnable)
 	, amountSlider("Depth", "HarfTone", _vibratoParamsPtr->VibratoAmount, 0.01f, 2.0f)
 	, speedSlider("Speed", "hz", _vibratoParamsPtr->VibratoSpeed, 0.001f, 2.0f)
 	, attackTimeSlider("Attack", "sec", _vibratoParamsPtr->VibratoAttackTime, 0.001f, 2.0f)
 {
-	enableButton.setButtonText("ON / OFF");
-	enableButton.setToggleState(_vibratoParamsPtr->VibratoEnable->get(), dontSendNotification);
 	enableButton.addListener(this);
+	amountSlider.addListener(this);
+	speedSlider.addListener(this);
+	attackTimeSlider.addListener(this);
+
 	addAndMakeVisible(enableButton);
-
-	amountSlider.slider.addListener(this);
 	addAndMakeVisible(amountSlider);
-
-	speedSlider.slider.addListener(this);
 	addAndMakeVisible(speedSlider);
-
-	attackTimeSlider.slider.addListener(this);
 	addAndMakeVisible(attackTimeSlider);
-
-	startTimerHz(30);
 }
-
-VibratoParametersComponent::~VibratoParametersComponent()
-{}
 
 void VibratoParametersComponent::paint(Graphics& g)
 {
@@ -333,29 +267,15 @@ void VibratoParametersComponent::resized()
 		speedSlider.setAlpha(alpha);
 		attackTimeSlider.setAlpha(alpha);
 	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		area.removeFromLeft(LABEL_WIDTH / 2);
-		enableButton.setBounds(area.reduced(LOCAL_MARGIN));
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		amountSlider.setBounds(area.reduced(LOCAL_MARGIN));
-
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		speedSlider.setBounds(area.reduced(LOCAL_MARGIN));
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		attackTimeSlider.setBounds(area.reduced(LOCAL_MARGIN));
-	}
+	enableButton.setBounds(bounds.removeFromTop(compHeight));
+	amountSlider.setBounds(bounds.removeFromTop(compHeight));
+	speedSlider.setBounds(bounds.removeFromTop(compHeight));
+	attackTimeSlider.setBounds(bounds.removeFromTop(compHeight));
 }
 
 void VibratoParametersComponent::timerCallback()
 {
-	enableButton.setToggleState(_vibratoParamsPtr->VibratoEnable->get(), dontSendNotification);
+	enableButton.setToggleState(_vibratoParamsPtr->VibratoEnable->get());
 	amountSlider.setValue(_vibratoParamsPtr->VibratoAmount->get());
 	speedSlider.setValue(_vibratoParamsPtr->VibratoSpeed->get());
 	attackTimeSlider.setValue(_vibratoParamsPtr->VibratoAttackTime->get());
@@ -379,7 +299,7 @@ void VibratoParametersComponent::sliderValueChanged(Slider* slider)
 
 void VibratoParametersComponent::buttonClicked(Button* button)
 {
-	if (button == &enableButton)
+	if (button == &enableButton.button)
 	{
 		*_vibratoParamsPtr->VibratoEnable = enableButton.getToggleState();
 	}
@@ -395,29 +315,14 @@ bool VibratoParametersComponent::isEditable()
 
 VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicingParams)
 	: _voicingParamsPtr(voicingParams)
-	, voicingTypeSelector("voicing")
+	, voicingTypeSelector("Type", _voicingParamsPtr->VoicingSwitch)
 	, portaTimeSlider("PortaTime", "sec", _voicingParamsPtr->PortaTime, 0.01f, 0.5f)
 {
-	voicingTypeSelector.addItemList(_voicingParamsPtr->VoicingSwitch->getAllValueStrings(), 1);
-	voicingTypeSelector.setSelectedItemIndex(_voicingParamsPtr->VoicingSwitch->getIndex(), dontSendNotification);
-	voicingTypeSelector.setJustificationType(Justification::centred);
 	voicingTypeSelector.addListener(this);
+	portaTimeSlider.addListener(this);
 	addAndMakeVisible(voicingTypeSelector);
-
-	portaTimeSlider.slider.addListener(this);
 	addAndMakeVisible(portaTimeSlider);
-
-	voicingTypeSelectorLabel.setFont(paramLabelFont());
-	voicingTypeSelectorLabel.setText("Type", dontSendNotification);
-	voicingTypeSelectorLabel.setJustificationType(Justification::centred);
-	voicingTypeSelectorLabel.setEditable(false, false, false);
-	addAndMakeVisible(voicingTypeSelectorLabel);
-
-	startTimerHz(30);
 }
-
-VoicingParametersComponent::~VoicingParametersComponent()
-{}
 
 void VoicingParametersComponent::paint(Graphics& g)
 {
@@ -437,20 +342,13 @@ void VoicingParametersComponent::resized()
 		float alpha = _voicingParamsPtr->VoicingSwitch->getCurrentChoiceName() == "PORTAMENTO" ? 1.0f : 0.4f;
 		portaTimeSlider.setAlpha(alpha);
 	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		voicingTypeSelectorLabel.setBounds(area.removeFromLeft(LABEL_WIDTH).reduced(LOCAL_MARGIN));
-		voicingTypeSelector.setBounds(area.reduced(LOCAL_MARGIN * 2));
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		portaTimeSlider.setBounds(area.reduced(LOCAL_MARGIN));
-	}
+	voicingTypeSelector.setBounds(bounds.removeFromTop(compHeight));
+	portaTimeSlider.setBounds(bounds.removeFromTop(compHeight));
 }
 
 void VoicingParametersComponent::timerCallback()
 {
-	voicingTypeSelector.setSelectedItemIndex(_voicingParamsPtr->VoicingSwitch->getIndex(), dontSendNotification);
+	voicingTypeSelector.setSelectedItemIndex(_voicingParamsPtr->VoicingSwitch->getIndex());
 	portaTimeSlider.setValue(_voicingParamsPtr->PortaTime->get());
 }
 
@@ -464,7 +362,7 @@ void VoicingParametersComponent::sliderValueChanged(Slider* slider)
 
 void VoicingParametersComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 {
-	if (comboBoxThatHasChanged == &voicingTypeSelector)
+	if (comboBoxThatHasChanged == &voicingTypeSelector.selector)
 	{
 		*_voicingParamsPtr->VoicingSwitch = voicingTypeSelector.getSelectedItemIndex();
 	}
@@ -475,20 +373,15 @@ void VoicingParametersComponent::comboBoxChanged(ComboBox* comboBoxThatHasChange
 
 OptionsParametersComponent::OptionsParametersComponent(OptionsParameters* optionsParams)
 	: _optionsParamsPtr(optionsParams)
-	, velocitySenseButton()
 	, pitchStandardSlider("Tunes", "", _optionsParamsPtr->PitchStandard)
 	, pitchBendRangeSlider("PB Range", "", _optionsParamsPtr->PitchBendRange)
 {	
-	pitchStandardSlider.slider.addListener(this);
+	pitchStandardSlider.addListener(this);
+	pitchBendRangeSlider.addListener(this);
+
 	addAndMakeVisible(pitchStandardSlider);
-	pitchBendRangeSlider.slider.addListener(this);
 	addAndMakeVisible(pitchBendRangeSlider);
-
-	startTimerHz(30);
 }
-
-OptionsParametersComponent::~OptionsParametersComponent()
-{}
 
 void OptionsParametersComponent::paint(Graphics& g)
 {
@@ -504,30 +397,16 @@ void OptionsParametersComponent::resized()
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
 
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		pitchStandardSlider.setBounds(area.reduced(LOCAL_MARGIN));
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		pitchBendRangeSlider.setBounds(area.reduced(LOCAL_MARGIN));
-	}
+	pitchStandardSlider.setBounds(bounds.removeFromTop(compHeight));
+	pitchBendRangeSlider.setBounds(bounds.removeFromTop(compHeight));
 }
 
 void OptionsParametersComponent::timerCallback()
 {
-	velocitySenseButton.setToggleState(_optionsParamsPtr->IsVelocitySense->get(), dontSendNotification);
 	pitchStandardSlider.setValue(_optionsParamsPtr->PitchStandard->get());
 	pitchBendRangeSlider.setValue(_optionsParamsPtr->PitchBendRange->get());
 }
 
-void OptionsParametersComponent::buttonClicked(Button* button)
-{
-	if (button == &velocitySenseButton)
-	{
-		*_optionsParamsPtr->IsVelocitySense = velocitySenseButton.getToggleState();
-	}
-}
 
 void OptionsParametersComponent::sliderValueChanged(Slider* slider)
 {
@@ -545,30 +424,20 @@ void OptionsParametersComponent::sliderValueChanged(Slider* slider)
 
 MidiEchoParametersComponent::MidiEchoParametersComponent(MidiEchoParameters* midiEchoParams)
 	:_midiEchoParamsPtr(midiEchoParams)
-	, enableButton("MidiEcho-Enable")
+	, enableButton("ON / OFF", _midiEchoParamsPtr->IsEchoEnable)
 	, durationSlider("Duration", "sec", _midiEchoParamsPtr->EchoDuration, 0.01f, 0.5f)
 	, repeatSlider("Repeat", "", _midiEchoParamsPtr->EchoRepeat->get(), _midiEchoParamsPtr->EchoRepeat->getRange().getStart(), _midiEchoParamsPtr->EchoRepeat->getRange().getEnd() , 1.0f)
 	, volumeOffsetSlider("Vol Offset", "%", _midiEchoParamsPtr->VolumeOffset, 0.1f, 100.0f)
 {
-	enableButton.setButtonText("ON / OFF");
-	enableButton.setToggleState(_midiEchoParamsPtr->IsEchoEnable->get(), dontSendNotification);
 	enableButton.addListener(this);
-	addAndMakeVisible(enableButton);
-
-	durationSlider.slider.addListener(this);
-	addAndMakeVisible(durationSlider);
-
-	repeatSlider.slider.addListener(this);
+	durationSlider.addListener(this);
+	repeatSlider.addListener(this);
+	volumeOffsetSlider.addListener(this);
 	addAndMakeVisible(repeatSlider);
-
-	volumeOffsetSlider.slider.addListener(this);
+	addAndMakeVisible(durationSlider);
+	addAndMakeVisible(enableButton);
 	addAndMakeVisible(volumeOffsetSlider);
-
-	startTimerHz(30);
 }
-
-MidiEchoParametersComponent::~MidiEchoParametersComponent()
-{}
 
 void MidiEchoParametersComponent::paint(Graphics& g)
 {
@@ -590,29 +459,17 @@ void MidiEchoParametersComponent::resized()
 		repeatSlider.setAlpha(alpha);
 		volumeOffsetSlider.setAlpha(alpha);
 	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		area.removeFromLeft(LABEL_WIDTH / 2);
-		enableButton.setBounds(area.reduced(LOCAL_MARGIN));
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		durationSlider.setBounds(area.reduced(LOCAL_MARGIN));
 
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		repeatSlider.setBounds(area.reduced(LOCAL_MARGIN));
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		volumeOffsetSlider.setBounds(area.reduced(LOCAL_MARGIN));
-	}
+	enableButton.setBounds(bounds.removeFromTop(compHeight));
+	durationSlider.setBounds(bounds.removeFromTop(compHeight));
+	repeatSlider.setBounds(bounds.removeFromTop(compHeight));
+	volumeOffsetSlider.setBounds(bounds.removeFromTop(compHeight));
+
 }
 
 void MidiEchoParametersComponent::timerCallback()
 {
-	enableButton.setToggleState(_midiEchoParamsPtr->IsEchoEnable->get(), dontSendNotification);
+	enableButton.setToggleState(_midiEchoParamsPtr->IsEchoEnable->get());
 	durationSlider.setValue(_midiEchoParamsPtr->EchoDuration->get());
 	repeatSlider.setValue(_midiEchoParamsPtr->EchoRepeat->get());
 	volumeOffsetSlider.setValue(_midiEchoParamsPtr->VolumeOffset->get());
@@ -636,7 +493,7 @@ void MidiEchoParametersComponent::sliderValueChanged(Slider* slider)
 
 void MidiEchoParametersComponent::buttonClicked(Button* button)
 {
-	if (button == &enableButton)
+	if (button == &enableButton.button)
 	{
 		*_midiEchoParamsPtr->IsEchoEnable = enableButton.getToggleState();
 	}
@@ -671,11 +528,7 @@ WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(WaveformMem
 	addAndMakeVisible(loadButton);
 
 	timerCallback();
-	startTimerHz(30);
 }
-
-WaveformMemoryParametersComponent::~WaveformMemoryParametersComponent()
-{}
 
 void WaveformMemoryParametersComponent::paint(Graphics& g)
 {
@@ -898,32 +751,22 @@ void WaveformMemoryParametersComponent::filesDropped(const StringArray &files, i
 //----------------------------------------------------------------------------------------------------
 
 FilterParametersComponent::FilterParametersComponent(FilterParameters* filterParams)
-	: _filterParamsPtr(filterParams)
-	, hiCutSwitch()
-	, lowCutSwitch()
+	: BaseComponent()
+	,_filterParamsPtr(filterParams)
+	, hiCutSwitch("HiCut: ON / OFF", _filterParamsPtr->HicutEnable)
+	, lowCutSwitch("LowCut: ON / OFF", _filterParamsPtr->LowcutEnable)
 	, hicutFreqSlider("hicut", "Hz", _filterParamsPtr->HicutFreq, 0.1f, 2000.0f)
 	, lowcutFreqSlider("lowcut", "Hz", _filterParamsPtr->LowcutFreq, 0.1f, 2000.0f)
 {
-	hiCutSwitch.setButtonText("HiCut: ON / OFF");
-	hiCutSwitch.setToggleState(_filterParamsPtr->HicutEnable->get(), dontSendNotification);
 	hiCutSwitch.addListener(this);
-	addAndMakeVisible(hiCutSwitch);
-
-	lowCutSwitch.setButtonText("LowCut: ON / OFF");
-	lowCutSwitch.setToggleState(_filterParamsPtr->LowcutEnable->get(), dontSendNotification);
 	lowCutSwitch.addListener(this);
+	hicutFreqSlider.addListener(this);
+	lowcutFreqSlider.addListener(this);
+	addAndMakeVisible(hiCutSwitch);
 	addAndMakeVisible(lowCutSwitch);
-
-	hicutFreqSlider.slider.addListener(this);
-	lowcutFreqSlider.slider.addListener(this);
 	addAndMakeVisible(hicutFreqSlider);
 	addAndMakeVisible(lowcutFreqSlider);
-
-	startTimerHz(30);
 }
-
-FilterParametersComponent::~FilterParametersComponent()
-{}
 
 void FilterParametersComponent::paint(Graphics& g)
 {
@@ -948,24 +791,10 @@ void FilterParametersComponent::resized()
 		lowcutFreqSlider.setAlpha(alpha);
 	}
 
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		area.removeFromLeft(LABEL_WIDTH / 2);
-		hiCutSwitch.setBounds(area.reduced(LOCAL_MARGIN));
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		hicutFreqSlider.setBounds(area);
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		area.removeFromLeft(LABEL_WIDTH / 2);
-		lowCutSwitch.setBounds(area.reduced(LOCAL_MARGIN));
-	}
-	{
-		Rectangle<int> area = bounds.removeFromTop(compHeight);
-		lowcutFreqSlider.setBounds(area);
-	}
+	hiCutSwitch.setBounds(bounds.removeFromTop(compHeight));
+	hicutFreqSlider.setBounds(bounds.removeFromTop(compHeight));
+	lowCutSwitch.setBounds(bounds.removeFromTop(compHeight));
+	lowcutFreqSlider.setBounds(bounds.removeFromTop(compHeight));
 }
 
 void FilterParametersComponent::timerCallback()
@@ -988,11 +817,11 @@ void FilterParametersComponent::sliderValueChanged(Slider* slider)
 
 void FilterParametersComponent::buttonClicked(Button* button)
 {
-	if (button == &hiCutSwitch)
+	if (button == &hiCutSwitch.button)
 	{
 		*_filterParamsPtr->HicutEnable = hiCutSwitch.getToggleState();
 	}
-	else if (button == &lowCutSwitch)
+	else if (button == &lowCutSwitch.button)
 	{
 		*_filterParamsPtr->LowcutEnable = lowCutSwitch.getToggleState();
 	}

@@ -63,7 +63,6 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 	new AudioParameterFloat("PORTAMENTO_TIME", "Portamento-Time",  0.0f, 3.0f, 0.0f)
 }
 , optionsParameters{
-	new AudioParameterBool("IS_VELOCITY_SENSE", "Is-Velocity-Sense", true),
 	new AudioParameterInt("PITCH_BEND_RANGE", "Pitch-Bend-Range", 1, 13, 2),
 	new AudioParameterInt("PITCH_STANDARD", "Pitch-Standard", 400, 500, 440)
 }

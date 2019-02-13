@@ -15,11 +15,24 @@
 #include "../DSP/SimpleSynthParameters.h"
 #include "ComponentUtil.h"
 
-class ChipOscillatorComponent : public Component, ComboBox::Listener, Slider::Listener, private Timer
+class BaseComponent : public Component, private Timer
+{
+public:
+	BaseComponent() 
+	{
+		startTimerHz(30);
+	};
+	virtual void paint(Graphics& g) = 0;
+	virtual void resized() = 0;
+
+private:
+	virtual void timerCallback() = 0;
+};
+
+class ChipOscillatorComponent : public BaseComponent, ComboBox::Listener, Slider::Listener
 {
 public:
 	ChipOscillatorComponent(ChipOscillatorParameters* oscParams);
-	virtual ~ChipOscillatorComponent();
 
 	virtual void paint(Graphics& g) override;
 	virtual void resized() override;
@@ -33,9 +46,7 @@ private:
 
 	ChipOscillatorParameters* _oscParamsPtr;
 
-	ComboBox waveTypeSelector;
-	Label waveTypeSelectorLabel;
-
+	TextSelector waveTypeSelector;
 	TextSlider volumeLevelSlider;
 	TextSlider attackSlider;
 	TextSlider decaySlider;
@@ -43,11 +54,10 @@ private:
 	TextSlider releaseSlider;
 };
 
-class SweepParametersComponent : public Component, Slider::Listener, ComboBox::Listener, private Timer
+class SweepParametersComponent : public BaseComponent, Slider::Listener, ComboBox::Listener
 {
 public:
 	SweepParametersComponent(SweepParameters* sweepParams);
-	virtual ~SweepParametersComponent();
 
 	virtual void paint(Graphics& g) override;
 	virtual void resized() override;
@@ -62,17 +72,14 @@ private:
 
 	SweepParameters* _sweepParamsPtr;
 
-	ComboBox sweepSwitchSelector;
-	Label switchLabel;
-
+	TextSelector sweepSwitchSelector;
 	TextSlider timeSlider;
 };
 
-class VibratoParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
+class VibratoParametersComponent : public BaseComponent, Button::Listener, Slider::Listener
 {
 public:
 	VibratoParametersComponent(VibratoParameters* vibratoParams);
-	virtual ~VibratoParametersComponent();
 
 	virtual void paint(Graphics& g) override;
 	virtual void resized() override;
@@ -87,24 +94,17 @@ private:
 
 	VibratoParameters* _vibratoParamsPtr;
 
-	ToggleButton enableButton;
-	ComboBox targetSelector;
-	Label targetLabel;
-	ComboBox waveTypeSelector;
-	Label waveTypeLabel;
-
-
+	SwitchButton enableButton;
 	TextSlider amountSlider;
 	TextSlider speedSlider;
 	TextSlider attackTimeSlider;
 
 };
 
-class VoicingParametersComponent : public Component, ComboBox::Listener, Slider::Listener, private Timer
+class VoicingParametersComponent : public BaseComponent, ComboBox::Listener, Slider::Listener
 {
 public:
 	VoicingParametersComponent(VoicingParameters* voicingParams);
-	virtual ~VoicingParametersComponent();
 
 	virtual void paint(Graphics& g) override;
 	virtual void resized() override;
@@ -118,17 +118,14 @@ private:
 
 	VoicingParameters* _voicingParamsPtr;
 
-	ComboBox voicingTypeSelector;
-	Label voicingTypeSelectorLabel;
-
+	TextSelector voicingTypeSelector;
 	TextSlider portaTimeSlider;
 };
 
-class OptionsParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
+class OptionsParametersComponent : public BaseComponent, Slider::Listener
 {
 public:
 	OptionsParametersComponent(OptionsParameters* optionsParams);
-	virtual ~OptionsParametersComponent();
 
 	virtual void paint(Graphics& g) override;
 	virtual void resized() override;
@@ -137,22 +134,19 @@ private:
 	OptionsParametersComponent();
 
 	virtual void timerCallback() override;
-	virtual void buttonClicked(Button* button) override;
 	virtual void sliderValueChanged(Slider* slider) override;
 	
 	OptionsParameters* _optionsParamsPtr;
 
-	ToggleButton velocitySenseButton;
 	TextSliderIncDec pitchStandardSlider;
 	TextSliderIncDec pitchBendRangeSlider;
 
 };
 
-class MidiEchoParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
+class MidiEchoParametersComponent : public BaseComponent, Button::Listener, Slider::Listener
 {
 public:
 	MidiEchoParametersComponent(MidiEchoParameters* midiEchoParams);
-	virtual ~MidiEchoParametersComponent();
 
 	virtual void paint(Graphics& g) override;
 	virtual void resized() override;
@@ -167,17 +161,16 @@ private:
 
 	MidiEchoParameters* _midiEchoParamsPtr;
 
-	ToggleButton enableButton;
+	SwitchButton enableButton;
 	TextSlider durationSlider;
 	TextSlider repeatSlider;
 	TextSlider volumeOffsetSlider;
 };
 
-class WaveformMemoryParametersComponent : public Component, Button::Listener, private Timer, public FileDragAndDropTarget
+class WaveformMemoryParametersComponent : public BaseComponent, Button::Listener, public FileDragAndDropTarget
 {
 public:
 	WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams);
-	virtual ~WaveformMemoryParametersComponent();
 
 	virtual void paint(Graphics& g) override;
 	virtual void resized() override;
@@ -203,7 +196,6 @@ private:
 
 	TextButton saveButton;
 	TextButton loadButton;
-	//File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
 	const int BUTTON_HEIGHT = 32;
 
 	//=====================================================================================
@@ -262,11 +254,10 @@ private:
 	//=====================================================================================
 };
 
-class FilterParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
+class FilterParametersComponent : public BaseComponent, Button::Listener, Slider::Listener
 {
 public:
 	FilterParametersComponent(FilterParameters* filterParams);
-	virtual ~FilterParametersComponent();
 
 	virtual void paint(Graphics& g) override;
 	virtual void resized() override;
@@ -280,15 +271,8 @@ private:
 
 	FilterParameters* _filterParamsPtr;
 
-	ToggleButton hiCutSwitch;
-	ToggleButton lowCutSwitch;
-
-	/*
-	Slider hicutFreqSlider;
-	Slider lowcutFreqSlider;
-	Label hicutFreqLabel;
-	Label lowcutFreqLabel;
-	*/
+	SwitchButton hiCutSwitch;
+	SwitchButton lowCutSwitch;
 
 	TextSlider hicutFreqSlider;
 	TextSlider lowcutFreqSlider;
