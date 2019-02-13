@@ -74,21 +74,58 @@ void paintHeader(Graphics& g, Rectangle<int> bounds, std::string text)
 	}
 }
 
+void saveWaveFile(WaveformMemoryParameters *_waveformMemoryParamsPtr)
+{
+	FileChooser fileSaver(
+		"Save File As",
+		preFilePath,
+		"*.wfm"
+	);
+
+	if (fileSaver.browseForFileToSave(true))
+	{
+		File newFile(fileSaver.getResult());
+		newFile.create();
+		newFile.replaceWithText("");
+		for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
+		{
+			newFile.appendText(std::to_string(*_waveformMemoryParamsPtr->WaveSamplesArray[i]));
+			newFile.appendText(" ");
+		}
+		preFilePath = fileSaver.getResult();
+	}
+}
+void loadWaveFile(WaveformMemoryParameters *_waveformMemoryParamsPtr)
+{
+	FileChooser fileLoader(
+		"Load File From",
+		preFilePath,
+		"*.wfm"
+	);
+
+	if (fileLoader.browseForFileToOpen(true))
+	{
+		File waveformFile(fileLoader.getResult());
+		std::string data = waveformFile.loadFileAsString().toStdString();
+		int count = 0;
+		for (const auto subStr : split(data, ' '))
+		{
+			*_waveformMemoryParamsPtr->WaveSamplesArray[count] = atoi(subStr.c_str());
+			++count;
+		}
+		preFilePath = fileLoader.getResult();
+	}
+}
+
 ChipOscillatorComponent::ChipOscillatorComponent(ChipOscillatorParameters* oscParams)
 	: _oscParamsPtr(oscParams)
-	, waveTypeSelector("waveForm", _oscParamsPtr->OscWaveType)
-	, volumeLevelSlider("Volume", "dB", _oscParamsPtr->VolumeLevel, 0.01f)
-	, attackSlider("Attack", "sec", _oscParamsPtr->Attack, 0.0001f,1.0f)
-	, decaySlider("Decay", "sec", _oscParamsPtr->Decay, 0.0001f, 1.0f)
-	, sustainSlider("Sustain", "", _oscParamsPtr->Sustain, 0.0001f)
-	, releaseSlider("Release", "sec", _oscParamsPtr->Release, 0.0001f, 1.0f)
+	, waveTypeSelector("waveForm", _oscParamsPtr->OscWaveType, this)
+	, volumeLevelSlider("Volume", "dB", _oscParamsPtr->VolumeLevel, this, 0.01f)
+	, attackSlider("Attack", "sec", _oscParamsPtr->Attack, this, 0.0001f, 1.0f)
+	, decaySlider("Decay", "sec", _oscParamsPtr->Decay, this, 0.0001f, 1.0f)
+	, sustainSlider("Sustain", "", _oscParamsPtr->Sustain, this, 0.0001f)
+	, releaseSlider("Release", "sec", _oscParamsPtr->Release, this, 0.0001f, 1.0f)
 {
-	waveTypeSelector.addListener(this);
-	volumeLevelSlider.addListener(this);
-	attackSlider.addListener(this);
-	decaySlider.addListener(this);
-	sustainSlider.addListener(this);
-	releaseSlider.addListener(this);
 	addAndMakeVisible(waveTypeSelector);
 	addAndMakeVisible(volumeLevelSlider);
 	addAndMakeVisible(attackSlider);
@@ -166,12 +203,9 @@ void ChipOscillatorComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 
 SweepParametersComponent::SweepParametersComponent(SweepParameters* sweepParams)
 	:_sweepParamsPtr(sweepParams)
-	, sweepSwitchSelector("Sweep-Swetch", _sweepParamsPtr->SweepSwitch)
-	, timeSlider("Speed", "sec", _sweepParamsPtr->SweepTime, 0.01f, 1.0f)
+	, sweepSwitchSelector("Sweep-Swetch", _sweepParamsPtr->SweepSwitch, this)
+	, timeSlider("Speed", "sec", _sweepParamsPtr->SweepTime, this, 0.01f, 1.0f)
 {
-	sweepSwitchSelector.addListener(this);
-	timeSlider.addListener(this);
-
 	addAndMakeVisible(sweepSwitchSelector);	
 	addAndMakeVisible(timeSlider);
 }
@@ -231,16 +265,11 @@ bool SweepParametersComponent::isEditable()
 
 VibratoParametersComponent::VibratoParametersComponent(VibratoParameters* vibratoParams)
 	:_vibratoParamsPtr(vibratoParams)
-	, enableButton("Vibrato-Enable", _vibratoParamsPtr->VibratoEnable)
-	, amountSlider("Depth", "HarfTone", _vibratoParamsPtr->VibratoAmount, 0.01f, 2.0f)
-	, speedSlider("Speed", "hz", _vibratoParamsPtr->VibratoSpeed, 0.001f, 2.0f)
-	, attackTimeSlider("Attack", "sec", _vibratoParamsPtr->VibratoAttackTime, 0.001f, 2.0f)
+	, enableButton("Vibrato-Enable", _vibratoParamsPtr->VibratoEnable, this)
+	, amountSlider("Depth", "HarfTone", _vibratoParamsPtr->VibratoAmount, this, 0.01f, 2.0f)
+	, speedSlider("Speed", "hz", _vibratoParamsPtr->VibratoSpeed, this, 0.001f, 2.0f)
+	, attackTimeSlider("Attack", "sec", _vibratoParamsPtr->VibratoAttackTime, this, 0.001f, 2.0f)
 {
-	enableButton.addListener(this);
-	amountSlider.addListener(this);
-	speedSlider.addListener(this);
-	attackTimeSlider.addListener(this);
-
 	addAndMakeVisible(enableButton);
 	addAndMakeVisible(amountSlider);
 	addAndMakeVisible(speedSlider);
@@ -315,11 +344,9 @@ bool VibratoParametersComponent::isEditable()
 
 VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicingParams)
 	: _voicingParamsPtr(voicingParams)
-	, voicingTypeSelector("Type", _voicingParamsPtr->VoicingSwitch)
-	, portaTimeSlider("PortaTime", "sec", _voicingParamsPtr->PortaTime, 0.01f, 0.5f)
+	, voicingTypeSelector("Type", _voicingParamsPtr->VoicingSwitch, this)
+	, portaTimeSlider("PortaTime", "sec", _voicingParamsPtr->PortaTime, this, 0.01f, 0.5f)
 {
-	voicingTypeSelector.addListener(this);
-	portaTimeSlider.addListener(this);
 	addAndMakeVisible(voicingTypeSelector);
 	addAndMakeVisible(portaTimeSlider);
 }
@@ -373,12 +400,9 @@ void VoicingParametersComponent::comboBoxChanged(ComboBox* comboBoxThatHasChange
 
 OptionsParametersComponent::OptionsParametersComponent(OptionsParameters* optionsParams)
 	: _optionsParamsPtr(optionsParams)
-	, pitchStandardSlider("Tunes", "", _optionsParamsPtr->PitchStandard)
-	, pitchBendRangeSlider("PB Range", "", _optionsParamsPtr->PitchBendRange)
+	, pitchStandardSlider("Tunes", "", _optionsParamsPtr->PitchStandard, this)
+	, pitchBendRangeSlider("PB Range", "", _optionsParamsPtr->PitchBendRange, this)
 {	
-	pitchStandardSlider.addListener(this);
-	pitchBendRangeSlider.addListener(this);
-
 	addAndMakeVisible(pitchStandardSlider);
 	addAndMakeVisible(pitchBendRangeSlider);
 }
@@ -424,15 +448,11 @@ void OptionsParametersComponent::sliderValueChanged(Slider* slider)
 
 MidiEchoParametersComponent::MidiEchoParametersComponent(MidiEchoParameters* midiEchoParams)
 	:_midiEchoParamsPtr(midiEchoParams)
-	, enableButton("ON / OFF", _midiEchoParamsPtr->IsEchoEnable)
-	, durationSlider("Duration", "sec", _midiEchoParamsPtr->EchoDuration, 0.01f, 0.5f)
-	, repeatSlider("Repeat", "", _midiEchoParamsPtr->EchoRepeat->get(), _midiEchoParamsPtr->EchoRepeat->getRange().getStart(), _midiEchoParamsPtr->EchoRepeat->getRange().getEnd() , 1.0f)
-	, volumeOffsetSlider("Vol Offset", "%", _midiEchoParamsPtr->VolumeOffset, 0.1f, 100.0f)
+	, enableButton("ON / OFF", _midiEchoParamsPtr->IsEchoEnable, this)
+	, durationSlider("Duration", "sec", _midiEchoParamsPtr->EchoDuration, this, 0.01f, 0.5f)
+	, repeatSlider("Repeat", "", _midiEchoParamsPtr->EchoRepeat , this)
+	, volumeOffsetSlider("Vol Offset", "%", _midiEchoParamsPtr->VolumeOffset, this, 0.1f, 100.0f)
 {
-	enableButton.addListener(this);
-	durationSlider.addListener(this);
-	repeatSlider.addListener(this);
-	volumeOffsetSlider.addListener(this);
 	addAndMakeVisible(repeatSlider);
 	addAndMakeVisible(durationSlider);
 	addAndMakeVisible(enableButton);
@@ -672,45 +692,11 @@ void WaveformMemoryParametersComponent::buttonClicked(Button* button)
 {
 	if (button == &saveButton)
 	{
-		FileChooser fileSaver(
-			"Save File As",
-			preFilePath,
-			"*.wfm"
-		);
-
-		if (fileSaver.browseForFileToSave(true))
-		{
-			File newFile(fileSaver.getResult());
-			newFile.create();
-			newFile.replaceWithText("");
-			for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
-			{
-				newFile.appendText(std::to_string(*_waveformMemoryParamsPtr->WaveSamplesArray[i]));
-				newFile.appendText(" ");
-			}
-			preFilePath = fileSaver.getResult();
-		}
+		saveWaveFile(_waveformMemoryParamsPtr);
 	}
 	else if (button = &loadButton)
 	{
-		FileChooser fileLoader(
-			"Load File From",
-			preFilePath,
-			"*.wfm"
-		);
-
-		if (fileLoader.browseForFileToOpen())
-		{
-			File waveformFile(fileLoader.getResult());
-			std::string data = waveformFile.loadFileAsString().toStdString();
-			int count = 0;
-			for (const auto subStr : split(data, ' '))
-			{
-				*_waveformMemoryParamsPtr->WaveSamplesArray[count] = atoi(subStr.c_str());
-				++count;
-			}
-			preFilePath = fileLoader.getResult();
-		}
+		loadWaveFile(_waveformMemoryParamsPtr);
 	}
 	timerCallback();
 	repaint();
@@ -753,15 +739,11 @@ void WaveformMemoryParametersComponent::filesDropped(const StringArray &files, i
 FilterParametersComponent::FilterParametersComponent(FilterParameters* filterParams)
 	: BaseComponent()
 	,_filterParamsPtr(filterParams)
-	, hiCutSwitch("HiCut: ON / OFF", _filterParamsPtr->HicutEnable)
-	, lowCutSwitch("LowCut: ON / OFF", _filterParamsPtr->LowcutEnable)
-	, hicutFreqSlider("hicut", "Hz", _filterParamsPtr->HicutFreq, 0.1f, 2000.0f)
-	, lowcutFreqSlider("lowcut", "Hz", _filterParamsPtr->LowcutFreq, 0.1f, 2000.0f)
+	, hiCutSwitch("HiCut: ON / OFF", _filterParamsPtr->HicutEnable, this)
+	, lowCutSwitch("LowCut: ON / OFF", _filterParamsPtr->LowcutEnable, this)
+	, hicutFreqSlider("hicut", "Hz", _filterParamsPtr->HicutFreq, this, 0.1f, 2000.0f)
+	, lowcutFreqSlider("lowcut", "Hz", _filterParamsPtr->LowcutFreq, this, 0.1f, 2000.0f)
 {
-	hiCutSwitch.addListener(this);
-	lowCutSwitch.addListener(this);
-	hicutFreqSlider.addListener(this);
-	lowcutFreqSlider.addListener(this);
 	addAndMakeVisible(hiCutSwitch);
 	addAndMakeVisible(lowCutSwitch);
 	addAndMakeVisible(hicutFreqSlider);

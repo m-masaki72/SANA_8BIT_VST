@@ -14,12 +14,14 @@ public:
 	Slider slider;
 	Label label;
 
-	TextSlider(std::string labelName, std::string unit, float value, float start, float end, float degree = 0.1f, float pivot = NULL)
+	TextSlider(std::string labelName, std::string unit, float value, float start, float end, Slider::Listener *listener, float degree = 0.1f, float pivot = NULL)
 		:slider(Slider::SliderStyle::LinearHorizontal, Slider::TextEntryBoxPosition::TextBoxLeft)
 	{
 		slider.setRange(start, end, degree);
 		slider.setValue(value, dontSendNotification);
 		slider.setTextValueSuffix(std::string(" ") + unit);
+		slider.addListener(listener);
+
 		if (pivot != NULL)
 		{
 			slider.setSkewFactorFromMidPoint(pivot);
@@ -34,10 +36,12 @@ public:
 		addAndMakeVisible(label);
 	};
 
-	TextSlider(std::string labelName, std::string unit, AudioParameterFloat *param, float degree = 0.1f, float pivot = NULL)
-		: TextSlider(labelName, unit, param->get(), param->range.start, param->range.end, degree, pivot)
-	{
-	};
+	TextSlider(std::string labelName, std::string unit, AudioParameterFloat *param, Slider::Listener *listener, float degree = 0.1f, float pivot = NULL)
+		: TextSlider(labelName, unit, param->get(), param->range.start, param->range.end, listener, degree, pivot)
+	{};
+	TextSlider(std::string labelName, std::string unit, AudioParameterInt *param, Slider::Listener *listener)
+		: TextSlider(labelName, unit, param->get(), param->getRange().getEnd(), param->getRange().getEnd(), listener, 1.0f)
+	{};
 
 	virtual void setAlpha(float alpha)
 	{
@@ -75,16 +79,15 @@ class TextSliderIncDec : public TextSlider
 {
 public:
 
-	TextSliderIncDec(std::string labelName, std::string unit, int value, int start, int end)
-		: TextSlider(labelName, unit, value, start, end, 1.0f)
+	TextSliderIncDec(std::string labelName, std::string unit, int value, int start, int end, Slider::Listener *listener)
+		: TextSlider(labelName, unit, value, start, end, listener, 1.0f)
 	{
 		slider.setSliderStyle(Slider::SliderStyle::IncDecButtons);
 	};
 
-	TextSliderIncDec(std::string labelName, std::string unit, AudioParameterInt *param)
-		: TextSliderIncDec(labelName, unit, param->get(), param->getRange().getStart(), param->getRange().getEnd())
-	{
-	};
+	TextSliderIncDec(std::string labelName, std::string unit, AudioParameterInt *param, Slider::Listener *listener)
+		: TextSliderIncDec(labelName, unit, param->get(), param->getRange().getStart(), param->getRange().getEnd(), listener)
+	{};
 
 private:
 	TextSliderIncDec();
@@ -104,12 +107,13 @@ public:
 	ComboBox selector;
 	Label label;
 
-	TextSelector(std::string labelName, AudioParameterChoice *paramList)
+	TextSelector(std::string labelName, AudioParameterChoice *paramList, ComboBox::Listener *listener)
 		:selector(labelName)
 	{
 		selector.addItemList(paramList->getAllValueStrings(), 1);
 		selector.setSelectedItemIndex(paramList->getIndex(), dontSendNotification);
 		selector.setJustificationType(Justification::centred);
+		selector.addListener(listener);
 		addAndMakeVisible(selector);
 
 		label.setFont(paramLabelFont());
@@ -158,10 +162,11 @@ public:
 
 	ToggleButton button;
 
-	SwitchButton(std::string label, AudioParameterBool *param)
+	SwitchButton(std::string label, AudioParameterBool *param, ToggleButton::Listener *listener)
 	{
 		button.setButtonText("ON / OFF");
 		button.setToggleState(param->get(), dontSendNotification);
+		button.addListener(listener);
 		addAndMakeVisible(button);
 
 	};
