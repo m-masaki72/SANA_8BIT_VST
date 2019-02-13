@@ -198,3 +198,43 @@ public:
 private:
 	SwitchButton();
 };
+
+class PageButton : public Component
+{
+public:
+	const float PANEL_NAME_FONT_SIZE = 24.0f;
+	const float PARAM_LABEL_FONT_SIZE = 18.0f;
+	const int PANEL_NAME_HEIGHT = 32;
+	const int LOCAL_MARGIN = 2;
+	const int LABEL_WIDTH = 80;
+	const Font panelNameFont() { return Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic"); };
+	const Font paramLabelFont() { return Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular"); };
+
+	TextButton button;
+
+	PageButton(std::string labelName, Button::Listener *listener)
+		:button(labelName)
+	{
+		button.addListener(listener);
+		button.setColour(TextButton::ColourIds::buttonColourId, Colours::rebeccapurple);
+		button.setColour(TextButton::ColourIds::buttonOnColourId, Colours::rebeccapurple.darker().darker());
+		button.setColour(TextButton::ColourIds::textColourOffId, Colours::white);
+		button.setColour(TextButton::ColourIds::textColourOnId, Colours::white);
+		button.setToggleState(true, NotificationType::dontSendNotification);
+
+		addAndMakeVisible(button);
+	};
+	virtual void resized() override
+	{
+		Rectangle<int> bounds = getLocalBounds();
+		button.setBounds(bounds.reduced(LOCAL_MARGIN));
+	};
+
+	virtual void setToggleState(bool flag)
+	{
+		button.setToggleState(flag, NotificationType::dontSendNotification);
+	};
+
+private:
+	PageButton();
+};

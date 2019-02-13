@@ -17,7 +17,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "DSP/SimpleSynthParameters.h"
 #include "GUI/ScopeComponent.h"
-#include "DSP/AudioEQ.h"
+#include "DSP/DspUtils.h"
 
 //==============================================================================
 class SimpleSynthAudioProcessor  : public AudioProcessor
@@ -119,7 +119,7 @@ private:
 	dsp::ProcessSpec spec;
 
 	//アンチエイリアスフィルタ用
-	CMyFilter antiAliasFilter;
+	antiAliasFilter antiAliasFilter;
 	const int upSamplingFactor = 2;
 
 	//DSPエフェクト，クリッパー，ドライブ，フィルタ

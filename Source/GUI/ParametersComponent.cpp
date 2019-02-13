@@ -103,7 +103,7 @@ void loadWaveFile(WaveformMemoryParameters *_waveformMemoryParamsPtr)
 		"*.wfm"
 	);
 
-	if (fileLoader.browseForFileToOpen(true))
+	if (fileLoader.browseForFileToOpen())
 	{
 		File waveformFile(fileLoader.getResult());
 		std::string data = waveformFile.loadFileAsString().toStdString();

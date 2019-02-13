@@ -1,5 +1,7 @@
-#pragma once;
+
+#include "../JuceLibraryCode/JuceHeader.h"
 #include <math.h>
+
 /* 
 --------------------------------------------------------------------------------
 CMyFilter
@@ -68,7 +70,7 @@ CMyFilter::CMyFilter()
 
 	out1 = 0.0f;
 	out2 = 0.0f;
-}
+};
 
 // --------------------------------------------------------------------------------
 // 入力信号にフィルタを適用する関数
@@ -208,7 +210,6 @@ void CMyFilter::HighShelf(float freq, float q, float gain, float samplerate)
 	b2 = A * ((A + 1.0f) + (A - 1.0f) * cos(omega) - beta * sin(omega));
 }
 
-
 void CMyFilter::Peaking(float freq, float bw, float gain, float samplerate)
 {
 	// フィルタ係数計算で使用する中間値を求める。
@@ -239,3 +240,63 @@ void CMyFilter::AllPass(float freq, float q, float samplerate)
 	b1 = -2.0f * cos(omega);
 	b2 = 1.0f + alpha;
 }
+
+class antiAliasFilter
+{
+public:
+	CMyFilter simpleFilter;
+	int sampleRate;
+	int upSamplingFactor;
+	int totalNumInputChannels;
+	int totalNumOutputChannels;
+
+	antiAliasFilter()
+	{};
+
+	void prepare(int _sampleRate, int _upsamplingFactor, int _totalNumInputChannels, int _totalNumOutputCHannel)
+	{
+		sampleRate = _sampleRate;
+		upSamplingFactor = upSamplingFactor;
+		totalNumInputChannels = _totalNumInputChannels;
+		totalNumInputChannels = _totalNumOutputCHannel;
+
+		// カットオフ周波数 1000Hz、Q値 1/√2のローパスフィルタに設定
+		simpleFilter.LowPass(20000.0, 1 / 4.0, sampleRate * upSamplingFactor);
+
+	};
+
+	void process(AudioSampleBuffer &buffer, AudioSampleBuffer &upSampleBuffer)
+	{
+		int size = buffer.getNumSamples();
+		float* input = new float[size * upSamplingFactor];
+		float* output = new float[size * upSamplingFactor];
+
+		for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+		{
+			for (auto j = 0; j < size * upSamplingFactor; ++j)
+			{
+				input[j] = upSampleBuffer.getSample(i, j);
+			}
+		}
+
+		// apply LPF for anti aliasing
+		for (auto i = 0; i < size * upSamplingFactor; i++)
+		{
+			output[i] = simpleFilter.Process(input[i]);
+		}
+
+		//DownSampling
+		for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+		{
+			for (auto j = 0; j < size; ++j)
+			{
+				buffer.setSample(i, j, output[upSamplingFactor * j]);
+			}
+		}
+
+		delete[] input;
+		delete[] output;
+	};
+
+private:
+};

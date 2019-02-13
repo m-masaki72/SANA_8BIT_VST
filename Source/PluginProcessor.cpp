@@ -21,8 +21,8 @@
 
 namespace
 {
-	int NUM_OF_PRESETS = 12;
-	int VOICE_MAX = 8;
+	const int NUM_OF_PRESETS = 12;
+	const int VOICE_MAX = 8;
 }
 
 //==============================================================================
@@ -305,8 +305,7 @@ void SimpleSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 	spec.numChannels = getTotalNumOutputChannels();
 	spec.maximumBlockSize = samplesPerBlock;
 
-	// カットオフ周波数 1000Hz、Q値 1/√2のローパスフィルタに設定
-	antiAliasFilter.LowPass(20000.0, 1 / 4.0, sampleRate * upSamplingFactor);
+	antiAliasFilter.prepare(sampleRate, upSamplingFactor, getTotalNumInputChannels(), getTotalNumOutputChannels());
 
 	drive.prepare(spec);
 
@@ -392,39 +391,11 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 
 	synth.renderNextBlock(upSampleBuffer, midiMessages, 0, upSampleBuffer.getNumSamples());
 
+	//================================ アンチエイリアス     ====================================
+	
+	antiAliasFilter.process(buffer, upSampleBuffer);
+
 	//================================ エフェクトセクション ====================================
-
-	{
-		int size = buffer.getNumSamples();
-		float* input = new float[size * upSamplingFactor];
-		float* output = new float[size * upSamplingFactor];
-
-		for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-		{
-			for (auto j = 0; j < size * upSamplingFactor; ++j)
-			{
-				input[j] = upSampleBuffer.getSample(i, j);
-			}
-		}
-
-		// apply LPF for anti aliasing
-		for (auto i = 0; i < size * upSamplingFactor; i++)
-		{
-			output[i] = antiAliasFilter.Process(input[i]);
-		}
-
-		//DownSampling
-		for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-		{
-			for (auto j = 0; j < size; ++j)
-			{
-				buffer.setSample(i, j, output[upSamplingFactor * j]);
-			}
-		}
-
-		delete[] input;
-		delete[] output;
-	}
 
 	dsp::AudioBlock<float> audioBlock(buffer);
 	dsp::ProcessContextReplacing<float> context(audioBlock);

@@ -29,7 +29,7 @@ namespace
 SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudioProcessor& p)
 	: AudioProcessorEditor(&p), processor(p)
 	, keyboardComponent(p.getKeyboardState(), MidiKeyboardComponent::Orientation::horizontalKeyboard)
-	, OscButton("Oscilator"), EffectButton("Effects")
+	, OscButton("Oscilator", this), EffectButton("Effects", this)
 	, chipOscComponent(&p.chipOscParameters)
 	, sweepParamsComponent(&p.sweepParameters)
 	, vibratoParamsComponent(&p.vibratoParameters)
@@ -50,20 +50,11 @@ SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(SimpleSynthAudi
 		addAndMakeVisible(keyboardComponent);
 		keyboardComponent.setKeyWidth(KEY_WIDTH);
 		keyboardComponent.setScrollButtonWidth(KEY_SCROLL_WIDTH);
+
 		addAndMakeVisible(OscButton);
-		OscButton.addListener(this);
 		addAndMakeVisible(EffectButton);
-		EffectButton.addListener(this);
-		OscButton.setColour(TextButton::ColourIds::buttonColourId, Colours::rebeccapurple);
-		OscButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::rebeccapurple.darker().darker());
-		OscButton.setColour(TextButton::ColourIds::textColourOffId, Colours::white);
-		OscButton.setColour(TextButton::ColourIds::textColourOnId, Colours::white);
-		OscButton.setToggleState(true, NotificationType::dontSendNotification);
-		EffectButton.setColour(TextButton::ColourIds::buttonColourId, Colours::rebeccapurple);
-		EffectButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::rebeccapurple.darker().darker());
-		EffectButton.setColour(TextButton::ColourIds::textColourOffId, Colours::white);
-		EffectButton.setColour(TextButton::ColourIds::textColourOnId, Colours::white);
-		EffectButton.setToggleState(false, NotificationType::dontSendNotification);
+		OscButton.setToggleState(true);
+		EffectButton.setToggleState(false);
 	}
 	{
 		addAndMakeVisible(chipOscComponent);
@@ -200,9 +191,12 @@ void SimpleSynthAudioProcessorEditor::buttonClicked(Button* button)
 		waveformMemoryParamsComponent.setVisible(false);
 		midiEchoParamsComponent.setVisible(false);
 		filterParamsComponent.setVisible(false);
+
+		OscButton.setToggleState(false);
+		EffectButton.setToggleState(false);
 	}
 
-	if (button == &OscButton)
+	if (button == &OscButton.button)
 	{
 		chipOscComponent.setVisible(true);
 		sweepParamsComponent.setVisible(true);
@@ -210,16 +204,15 @@ void SimpleSynthAudioProcessorEditor::buttonClicked(Button* button)
 		voicingParamsComponent.setVisible(true);
 		optionsParamsComponent.setVisible(true);
 		waveformMemoryParamsComponent.setVisible(true);
-		OscButton.setToggleState(true, NotificationType::dontSendNotification);
-		EffectButton.setToggleState(false, NotificationType::dontSendNotification);
 
+		OscButton.setToggleState(true);
 	}
-	else if (button == &EffectButton)
+	else if (button == &EffectButton.button)
 	{
 		midiEchoParamsComponent.setVisible(true);
 		filterParamsComponent.setVisible(true);
-		OscButton.setToggleState(false, NotificationType::dontSendNotification);
-		EffectButton.setToggleState(true, NotificationType::dontSendNotification);
+
+		EffectButton.setToggleState(true);
 	}
 	resized();
 }
