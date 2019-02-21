@@ -186,41 +186,27 @@ private:
 	Label volumeOffsetLabel;
 };
 
-class WaveformMemoryParametersComponent : public Component, Button::Listener, private Timer, public FileDragAndDropTarget
+class RangeSlider : public Component, private Timer
 {
 public:
-	WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams);
-	virtual ~WaveformMemoryParametersComponent();
+	RangeSlider(WaveformMemoryParameters* waveformMemoryParams);
 
 	virtual void paint(Graphics& g) override;
-	virtual void resized() override;
 
 private:
-	WaveformMemoryParametersComponent();
-
 	virtual void timerCallback() override;
 	virtual void updateValue();
 	virtual void mouseDrag(const MouseEvent& e) override;
 	virtual void mouseDown(const MouseEvent& e) override;
 	virtual void mouseUp(const MouseEvent& e) override;
-	virtual void buttonClicked(Button* button) override;
-	virtual bool isInterestedInFileDrag(const StringArray & files) override;
-	virtual void fileDragEnter(const StringArray &files, int x, int y) override;
-	virtual void fileDragMove(const StringArray &files, int x, int y)override;
-	virtual void fileDragExit(const StringArray &files)override;
-	virtual void filesDropped(const StringArray &files, int x, int y) override;
+
+	Slider waveSampleSlider[32];
+	const int BUTTON_HEIGHT = 32;
 
 	WaveformMemoryParameters* _waveformMemoryParamsPtr;
 
-	Slider waveSampleSlider[32];
-
-	TextButton saveButton;
-	TextButton loadButton;
-	//File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
-	const int BUTTON_HEIGHT = 32;
-
 	//=====================================================================================
-
+	
 	struct Trail
 	{
 		Trail(const MouseInputSource& ms)
@@ -271,8 +257,37 @@ private:
 
 		return nullptr;
 	}
-
 	//=====================================================================================
+};
+
+class WaveformMemoryParametersComponent : public Component, Button::Listener, public FileDragAndDropTarget
+{
+public:
+	WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams);
+	virtual ~WaveformMemoryParametersComponent();
+
+	virtual void paint(Graphics& g) override;
+	virtual void resized() override;
+
+private:
+	WaveformMemoryParametersComponent();
+
+	virtual void buttonClicked(Button* button) override;
+	virtual bool isInterestedInFileDrag(const StringArray & files) override;
+	virtual void fileDragEnter(const StringArray &files, int x, int y) override;
+	virtual void fileDragMove(const StringArray &files, int x, int y)override;
+	virtual void fileDragExit(const StringArray &files)override;
+	virtual void filesDropped(const StringArray &files, int x, int y) override;
+
+	WaveformMemoryParameters* _waveformMemoryParamsPtr;
+
+	//Slider waveSampleSlider[32];
+	RangeSlider waveRangeSlider;
+
+	TextButton saveButton;
+	TextButton loadButton;
+	//File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
+	const int BUTTON_HEIGHT = 32;
 };
 
 class FilterParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer

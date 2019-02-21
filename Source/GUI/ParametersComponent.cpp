@@ -911,11 +911,9 @@ bool MidiEchoParametersComponent::isEditable()
 
 //----------------------------------------------------------------------------------------------------
 
-WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams)
+RangeSlider::RangeSlider(WaveformMemoryParameters* waveformMemoryParams)
 	: _waveformMemoryParamsPtr(waveformMemoryParams)
 	, waveSampleSlider{}
-	, saveButton()
-	, loadButton()
 {
 	for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
 	{
@@ -923,22 +921,10 @@ WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(WaveformMem
 		waveSampleSlider[i].setValue(7, dontSendNotification);
 	}
 
-	saveButton.setButtonText("Save to File");
-	saveButton.addListener(this);
-	addAndMakeVisible(saveButton);
-
-	loadButton.setButtonText("Load from File");
-	loadButton.addListener(this);
-	addAndMakeVisible(loadButton);
-
 	timerCallback();
 	startTimerHz(30);
 }
-
-WaveformMemoryParametersComponent::~WaveformMemoryParametersComponent()
-{}
-
-void WaveformMemoryParametersComponent::paint(Graphics& g)
+void RangeSlider::paint(Graphics& g)
 {
 	{
 		float x = 0.0f, y = 0.0f, width = (float)getWidth(), height = (float)getHeight();
@@ -961,8 +947,8 @@ void WaveformMemoryParametersComponent::paint(Graphics& g)
 
 	//update slider Params
 	for (auto* trail : trails)
-	{	
-		float compWidth = (float)(getWidth()) -12.0f; // 微調整値
+	{
+		float compWidth = (float)(getWidth()) - 12.0f; // 微調整値
 		int compHeight = getHeight() - PANEL_NAME_HEIGHT - BUTTON_HEIGHT;
 
 		int index = (int)(trail->currentPosition.x * (float)WAVESAMPLE_LENGTH / compWidth);
@@ -980,7 +966,7 @@ void WaveformMemoryParametersComponent::paint(Graphics& g)
 		updateValue();
 	}
 	//repaint Sliders
-	{	
+	{
 		float columnSize = (float)WAVESAMPLE_LENGTH;
 		float rowSize = (float)16;
 		float divide = 1.0f / columnSize;
@@ -1001,7 +987,7 @@ void WaveformMemoryParametersComponent::paint(Graphics& g)
 		for (int i = 1; i < 8; ++i)
 		{
 			float p_x = compWidth * i * 4.0f;
-			Line<float> line(p_x, (float)PANEL_NAME_HEIGHT , p_x, (float)(bounds.getHeight() + PANEL_NAME_HEIGHT));
+			Line<float> line(p_x, (float)PANEL_NAME_HEIGHT, p_x, (float)(bounds.getHeight() + PANEL_NAME_HEIGHT));
 			g.setColour(Colours::darkslateblue);
 			g.drawLine(line, 1.4f);
 		}
@@ -1019,19 +1005,7 @@ void WaveformMemoryParametersComponent::paint(Graphics& g)
 	}
 }
 
-void WaveformMemoryParametersComponent::resized()
-{
-	Rectangle<int> bounds = getLocalBounds();
-	bounds.removeFromTop(PANEL_NAME_HEIGHT);
-
-	{
-		Rectangle<int> area = bounds.removeFromBottom(BUTTON_HEIGHT);
-		saveButton.setBounds(area.removeFromLeft(area.getWidth() / 2).reduced(LOCAL_MARGIN));
-		loadButton.setBounds(area.reduced(LOCAL_MARGIN));
-	}
-}
-
-void WaveformMemoryParametersComponent::timerCallback()
+void RangeSlider::timerCallback()
 {
 	for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
 	{
@@ -1039,7 +1013,7 @@ void WaveformMemoryParametersComponent::timerCallback()
 	}
 }
 
-void WaveformMemoryParametersComponent::updateValue()
+void RangeSlider::updateValue()
 {
 	for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
 	{
@@ -1047,7 +1021,7 @@ void WaveformMemoryParametersComponent::updateValue()
 	}
 }
 
-void WaveformMemoryParametersComponent::mouseDown(const MouseEvent& e)
+void RangeSlider::mouseDown(const MouseEvent& e)
 {
 	auto* t = getTrail(e.source);
 
@@ -1057,13 +1031,13 @@ void WaveformMemoryParametersComponent::mouseDown(const MouseEvent& e)
 		t->path.startNewSubPath(e.position);
 		trails.add(t);
 	}
-	
+
 	t->pushPoint(e.position, e.mods, e.pressure);
 
 	repaint();
 }
 
-void WaveformMemoryParametersComponent::mouseUp(const MouseEvent& e)
+void RangeSlider::mouseUp(const MouseEvent& e)
 {
 	auto* t = getTrail(e.source);
 
@@ -1075,7 +1049,7 @@ void WaveformMemoryParametersComponent::mouseUp(const MouseEvent& e)
 	repaint();
 }
 
-void WaveformMemoryParametersComponent::mouseDrag(const MouseEvent& e)
+void RangeSlider::mouseDrag(const MouseEvent& e)
 {
 	auto* t = getTrail(e.source);
 
@@ -1092,6 +1066,47 @@ void WaveformMemoryParametersComponent::mouseDrag(const MouseEvent& e)
 	repaint();
 }
 
+//----------------------------------------------------------------------------------------------------
+WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams)
+	: _waveformMemoryParamsPtr(waveformMemoryParams)
+	//, waveSampleSlider{}
+	, waveRangeSlider(waveformMemoryParams)
+	, saveButton()
+	, loadButton()
+{
+	saveButton.setButtonText("Save to File");
+	saveButton.addListener(this);
+	addAndMakeVisible(saveButton);
+
+	loadButton.setButtonText("Load from File");
+	loadButton.addListener(this);
+	addAndMakeVisible(loadButton);
+
+	waveRangeSlider.addMouseListener(this, true);
+	addAndMakeVisible(waveRangeSlider);
+}
+
+WaveformMemoryParametersComponent::~WaveformMemoryParametersComponent()
+{}
+
+void WaveformMemoryParametersComponent::paint(Graphics& g)
+{
+	waveRangeSlider.paint(g);
+}
+
+void WaveformMemoryParametersComponent::resized()
+{
+	Rectangle<int> bounds = getLocalBounds();
+	bounds.removeFromTop(PANEL_NAME_HEIGHT);
+	
+	waveRangeSlider.setBounds(getLocalBounds());
+
+	{
+		Rectangle<int> area = bounds.removeFromBottom(BUTTON_HEIGHT);
+		saveButton.setBounds(area.removeFromLeft(area.getWidth() / 2).reduced(LOCAL_MARGIN));
+		loadButton.setBounds(area.reduced(LOCAL_MARGIN));
+	}
+}	
 
 void WaveformMemoryParametersComponent::buttonClicked(Button* button)
 {
@@ -1137,8 +1152,8 @@ void WaveformMemoryParametersComponent::buttonClicked(Button* button)
 			preFilePath = fileLoader.getResult();
 		}
 	}
-	timerCallback();
-	repaint();
+	//timerCallback();
+	//repaint();
 }
 
 bool WaveformMemoryParametersComponent::isInterestedInFileDrag(const StringArray & files)
@@ -1169,8 +1184,8 @@ void WaveformMemoryParametersComponent::filesDropped(const StringArray &files, i
 			++count;
 		}
 	}
-	timerCallback();
-	repaint();
+	//timerCallback();
+	//repaint();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -1320,3 +1335,4 @@ void FilterParametersComponent::buttonClicked(Button* button)
 }
 
 //----------------------------------------------------------------------------------------------------
+
