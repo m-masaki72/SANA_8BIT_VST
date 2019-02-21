@@ -119,13 +119,11 @@ private:
 class OptionsParameters : public SynthParametersBase
 {
 public:
-	AudioParameterBool* IsVelocitySense;
 	AudioParameterInt*	PitchBendRange;
 	AudioParameterInt*	PitchStandard;
 	float currentBPM;
 
 	OptionsParameters(
-		AudioParameterBool* isVelocitySense,
 		AudioParameterInt* pitchBendRange,
 		AudioParameterInt*	pitchStandard
 	);

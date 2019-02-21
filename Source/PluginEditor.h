@@ -33,8 +33,8 @@ private:
 
 	MidiKeyboardComponent keyboardComponent;
 
-	TextButton OscButton;
-	TextButton EffectButton;
+	PageButton OscButton;
+	PageButton EffectButton;
 
 	//Oscillator Page Component
 	ScopeComponent<float> scopeComponent;

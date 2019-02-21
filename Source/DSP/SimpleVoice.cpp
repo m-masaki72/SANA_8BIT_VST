@@ -64,18 +64,11 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 			waveForms.init();
 			eb.updateParam(_midiEchoParamsPtr->EchoDuration->get(), _midiEchoParamsPtr->EchoRepeat->get());
 		}
-		// ベロシティ有効/無効のフラグに応じて音量レベルを決定する。有効...ベロシティの値から算出する。 無効...固定値を使用する。
-		if (_optionsParamsPtr->IsVelocitySense->get())
-		{
-			if (velocity <= 0.01f) {
-				velocity = 0.01f;
-			}
-			level = velocity * 0.8f;
+
+		if (velocity <= 0.01f) {
+			velocity = 0.01f;
 		}
-		else
-		{
-			level = velocity * 0.8f;
-		}
+		level = velocity * 0.8f;
 
 		pitchBend = ((float)currentPitchWheelPosition - 8192.0f) / 8192.0f;
 
