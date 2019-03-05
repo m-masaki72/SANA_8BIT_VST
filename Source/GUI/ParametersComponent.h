@@ -167,18 +167,10 @@ private:
 	TextSlider volumeOffsetSlider;
 };
 
-<<<<<<< HEAD
 class RangeSlider : public Component, private Timer
 {
 public:
 	RangeSlider(WaveformMemoryParameters* waveformMemoryParams);
-=======
-class WaveformMemoryParametersComponent : public BaseComponent, Button::Listener, public FileDragAndDropTarget
-{
-public:
-	WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams);
->>>>>>> e3142f42cde34501752a4826bc26deed9a937194
-
 	virtual void paint(Graphics& g) override;
 
 private:
@@ -189,12 +181,6 @@ private:
 	virtual void mouseUp(const MouseEvent& e) override;
 
 	Slider waveSampleSlider[32];
-<<<<<<< HEAD
-=======
-
-	TextButton saveButton;
-	TextButton loadButton;
->>>>>>> e3142f42cde34501752a4826bc26deed9a937194
 	const int BUTTON_HEIGHT = 32;
 
 	WaveformMemoryParameters* _waveformMemoryParamsPtr;
@@ -254,12 +240,10 @@ private:
 	//=====================================================================================
 };
 
-<<<<<<< HEAD
 class WaveformMemoryParametersComponent : public Component, Button::Listener, public FileDragAndDropTarget
 {
 public:
 	WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams);
-	virtual ~WaveformMemoryParametersComponent();
 
 	virtual void paint(Graphics& g) override;
 	virtual void resized() override;
@@ -285,10 +269,7 @@ private:
 	const int BUTTON_HEIGHT = 32;
 };
 
-class FilterParametersComponent : public Component, Button::Listener, Slider::Listener, private Timer
-=======
 class FilterParametersComponent : public BaseComponent, Button::Listener, Slider::Listener
->>>>>>> e3142f42cde34501752a4826bc26deed9a937194
 {
 public:
 	FilterParametersComponent(FilterParameters* filterParams);

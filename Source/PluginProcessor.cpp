@@ -305,7 +305,7 @@ void SimpleSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 	spec.numChannels = getTotalNumOutputChannels();
 	spec.maximumBlockSize = samplesPerBlock;
 
-	antiAliasFilter.prepare(sampleRate, upSamplingFactor, getTotalNumInputChannels(), getTotalNumOutputChannels());
+	antiAliasFilter.prepare(sampleRate, upSamplingFactor);
 
 	drive.prepare(spec);
 
@@ -365,8 +365,8 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	}
 
     ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
+    int totalNumInputChannels  = getTotalNumInputChannels();
+    int totalNumOutputChannels = getTotalNumOutputChannels();
 
 	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 	{
@@ -393,8 +393,8 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 
 	//================================ アンチエイリアス     ====================================
 	
-	antiAliasFilter.process(buffer, upSampleBuffer);
-
+	antiAliasFilter.process(buffer, upSampleBuffer, totalNumInputChannels, totalNumOutputChannels);
+	
 	//================================ エフェクトセクション ====================================
 
 	dsp::AudioBlock<float> audioBlock(buffer);

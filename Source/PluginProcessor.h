@@ -120,6 +120,7 @@ private:
 
 	//アンチエイリアスフィルタ用
 	antiAliasFilter antiAliasFilter;
+	
 	const int upSamplingFactor = 2;
 
 	//DSPエフェクト，クリッパー，ドライブ，フィルタ

@@ -539,12 +539,8 @@ RangeSlider::RangeSlider(WaveformMemoryParameters* waveformMemoryParams)
 
 	timerCallback();
 }
-<<<<<<< HEAD
-void RangeSlider::paint(Graphics& g)
-=======
 
-void WaveformMemoryParametersComponent::paint(Graphics& g)
->>>>>>> e3142f42cde34501752a4826bc26deed9a937194
+void RangeSlider::paint(Graphics& g)
 {
 	paintHeader(g, getLocalBounds(), "WAVEFORM MEMORY");
 
@@ -688,9 +684,6 @@ WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(WaveformMem
 	waveRangeSlider.addMouseListener(this, true);
 	addAndMakeVisible(waveRangeSlider);
 }
-
-WaveformMemoryParametersComponent::~WaveformMemoryParametersComponent()
-{}
 
 void WaveformMemoryParametersComponent::paint(Graphics& g)
 {

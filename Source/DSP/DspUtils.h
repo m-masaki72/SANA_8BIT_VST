@@ -247,25 +247,20 @@ public:
 	CMyFilter simpleFilter;
 	int sampleRate;
 	int upSamplingFactor;
-	int totalNumInputChannels;
-	int totalNumOutputChannels;
 
 	antiAliasFilter()
 	{};
 
-	void prepare(int _sampleRate, int _upsamplingFactor, int _totalNumInputChannels, int _totalNumOutputCHannel)
+	void prepare(int _sampleRate, int _upsamplingFactor)
 	{
 		sampleRate = _sampleRate;
-		upSamplingFactor = upSamplingFactor;
-		totalNumInputChannels = _totalNumInputChannels;
-		totalNumInputChannels = _totalNumOutputCHannel;
+		upSamplingFactor = _upsamplingFactor;
 
 		// カットオフ周波数 1000Hz、Q値 1/√2のローパスフィルタに設定
 		simpleFilter.LowPass(20000.0, 1 / 4.0, sampleRate * upSamplingFactor);
-
 	};
 
-	void process(AudioSampleBuffer &buffer, AudioSampleBuffer &upSampleBuffer)
+	void process(AudioBuffer<float> &buffer, AudioBuffer<float> &upSampleBuffer, int totalNumInputChannels, int totalNumOutputChannels)
 	{
 		int size = buffer.getNumSamples();
 		float* input = new float[size * upSamplingFactor];
@@ -296,7 +291,7 @@ public:
 
 		delete[] input;
 		delete[] output;
-	};
+	}
 
 private:
 };
