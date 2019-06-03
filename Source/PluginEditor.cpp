@@ -16,10 +16,10 @@
 
 namespace 
 {
-	const int KEY_HEIGHT = 80;
+	const std::int32_t KEY_HEIGHT = 80;
 	const float KEY_WIDTH = 32.0f;
 	const float KEY_SCROLL_WIDTH = 32.0f;
-	const int PANEL_MARGIN = 3;
+	const std::int32_t PANEL_MARGIN = 3;
 	const float TAB_HEIGHT = 40.0f;
 
 	const Colour BACKGROUND_COLOUR() { return Colours::rebeccapurple.darker().darker(); }
@@ -150,7 +150,7 @@ void SimpleSynthAudioProcessorEditor::resized()
 		}
 		{
 			Rectangle<int> rightArea = mainbounds;
-			int HEIGHT = rightArea.getHeight();
+			auto HEIGHT = rightArea.getHeight();
 			waveformMemoryParamsComponent.setBounds(rightArea.removeFromTop(HEIGHT * 0.45f).reduced(PANEL_MARGIN));
 			{
 				Rectangle<int> area = rightArea.removeFromTop(HEIGHT * 0.33f);

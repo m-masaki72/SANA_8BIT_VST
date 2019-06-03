@@ -28,7 +28,7 @@ public:
     ~SimpleSynthAudioProcessor();
 
     //==============================================================================
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override;
+    void prepareToPlay (double sampleRate, std::int32_t samplesPerBlock) override;
     void releaseResources() override;
 
    #ifndef JucePlugin_PreferredChannelConfigurations
@@ -110,7 +110,7 @@ private:
 	Synthesiser synth;
 
 	//preset index
-	int currentProgIndex;
+	std::int32_t currentProgIndex;
 
 	//歪み用の関数[2]
 	static float clippingFunction(float inputValue);
@@ -121,7 +121,7 @@ private:
 	//アンチエイリアスフィルタ用
 	antiAliasFilter antiAliasFilter;
 	
-	const int upSamplingFactor = 2;
+	const std::int32_t upSamplingFactor = 2;
 
 	//DSPエフェクト，クリッパー，ドライブ，フィルタ
 	dsp::WaveShaper<float> clipper;

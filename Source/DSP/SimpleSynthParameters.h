@@ -15,7 +15,7 @@
 
 namespace
 {
-	const int WAVESAMPLE_LENGTH = 32;
+	const std::int32_t WAVESAMPLE_LENGTH = 32;
 }
 
 class SynthParametersBase

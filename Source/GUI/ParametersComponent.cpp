@@ -19,9 +19,9 @@ namespace {
 
 	const float PANEL_NAME_FONT_SIZE = 24.0f;
 	const float PARAM_LABEL_FONT_SIZE = 18.0f;
-	const int PANEL_NAME_HEIGHT = 32;
-	const int LOCAL_MARGIN = 2;
-	const int LABEL_WIDTH = 80;
+	const std::int32_t PANEL_NAME_HEIGHT = 32;
+	const std::int32_t LOCAL_MARGIN = 2;
+	const std::int32_t LABEL_WIDTH = 80;
 
 	const Font panelNameFont() { return Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic"); };
 	const Font paramLabelFont() { return Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular"); };
@@ -31,8 +31,8 @@ namespace {
 
 std::vector<std::string> split(std::string str, char del)
 {
-	int first = 0;
-	int last = str.find_first_of(del);
+	auto first = 0;
+	auto last = str.find_first_of(del);
 
 	std::vector<std::string> result;
 
@@ -87,7 +87,7 @@ void saveWaveFile(WaveformMemoryParameters *_waveformMemoryParamsPtr)
 		File newFile(fileSaver.getResult());
 		newFile.create();
 		newFile.replaceWithText("");
-		for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
+		for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i)
 		{
 			newFile.appendText(std::to_string(*_waveformMemoryParamsPtr->WaveSamplesArray[i]));
 			newFile.appendText(" ");
@@ -107,7 +107,7 @@ void loadWaveFile(WaveformMemoryParameters *_waveformMemoryParamsPtr)
 	{
 		File waveformFile(fileLoader.getResult());
 		std::string data = waveformFile.loadFileAsString().toStdString();
-		int count = 0;
+		auto count = 0;
 		for (const auto subStr : split(data, ' '))
 		{
 			*_waveformMemoryParamsPtr->WaveSamplesArray[count] = atoi(subStr.c_str());
@@ -144,7 +144,7 @@ void ChipOscillatorComponent::resized()
 {
 	float rowSize = 6.0f;
 	float divide = 1.0f / rowSize;
-	int compHeight = int((getHeight() - PANEL_NAME_HEIGHT) * divide);
+	std::int32_t compHeight = std::int32_t((getHeight() - PANEL_NAME_HEIGHT) * divide);
 
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
@@ -219,7 +219,7 @@ void SweepParametersComponent::resized()
 {
 	float rowSize = 2.0f;
 	float divide = 1.0f / rowSize;
-	int compHeight = int((getHeight() - PANEL_NAME_HEIGHT) * divide);
+	std::int32_t compHeight = std::int32_t((getHeight() - PANEL_NAME_HEIGHT) * divide);
 
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
@@ -285,7 +285,7 @@ void VibratoParametersComponent::resized()
 {
 	float rowSize = 4.0f;
 	float divide = 1.0f / rowSize;
-	int compHeight = int((getHeight() - PANEL_NAME_HEIGHT) * divide);
+	std::int32_t compHeight = std::int32_t((getHeight() - PANEL_NAME_HEIGHT) * divide);
 
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
@@ -360,7 +360,7 @@ void VoicingParametersComponent::resized()
 {
 	float rowSize = 2.0f;
 	float divide = 1.0f / rowSize;
-	int compHeight = int((getHeight() - PANEL_NAME_HEIGHT) * divide);
+	std::int32_t compHeight = std::int32_t((getHeight() - PANEL_NAME_HEIGHT) * divide);
 
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
@@ -416,7 +416,7 @@ void OptionsParametersComponent::resized()
 {
 	float columnSize = 2.0f;
 	float divide = 1.0f / columnSize;
-	int compHeight = int((getHeight() - PANEL_NAME_HEIGHT) * divide);
+	std::int32_t compHeight = std::int32_t((getHeight() - PANEL_NAME_HEIGHT) * divide);
 
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
@@ -436,11 +436,11 @@ void OptionsParametersComponent::sliderValueChanged(Slider* slider)
 {
 	if (slider == &pitchStandardSlider.slider)
 	{
-		*_optionsParamsPtr->PitchStandard = (int)pitchStandardSlider.getValue();
+		*_optionsParamsPtr->PitchStandard = (std::int32_t)pitchStandardSlider.getValue();
 	}
 	else if (slider == &pitchBendRangeSlider.slider)
 	{
-		*_optionsParamsPtr->PitchBendRange = (int)pitchBendRangeSlider.getValue();
+		*_optionsParamsPtr->PitchBendRange = (std::int32_t)pitchBendRangeSlider.getValue();
 	}
 }
 
@@ -468,7 +468,7 @@ void MidiEchoParametersComponent::resized()
 {
 	float rowSize = 4.0f;
 	float divide = 1.0f / rowSize;
-	int compHeight = int((getHeight() - PANEL_NAME_HEIGHT) * divide);
+	std::int32_t compHeight = std::int32_t((getHeight() - PANEL_NAME_HEIGHT) * divide);
 
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
@@ -503,7 +503,7 @@ void MidiEchoParametersComponent::sliderValueChanged(Slider* slider)
 	}
 	else if (slider == &repeatSlider.slider)
 	{
-		*_midiEchoParamsPtr->EchoRepeat = (int)repeatSlider.getValue();
+		*_midiEchoParamsPtr->EchoRepeat = (std::int32_t)repeatSlider.getValue();
 	}
 	else if (slider == &volumeOffsetSlider.slider)
 	{
@@ -531,7 +531,7 @@ RangeSlider::RangeSlider(WaveformMemoryParameters* waveformMemoryParams)
 	: _waveformMemoryParamsPtr(waveformMemoryParams)
 	, waveSampleSlider{}
 {
-	for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
+	for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i)
 	{
 		waveSampleSlider[i].setRange(0, 15, 1.0);
 		waveSampleSlider[i].setValue(7, dontSendNotification);
@@ -548,9 +548,9 @@ void RangeSlider::paint(Graphics& g)
 	for (auto* trail : trails)
 	{
 		float compWidth = (float)(getWidth()) - 12.0f; // 微調整値
-		int compHeight = getHeight() - PANEL_NAME_HEIGHT - BUTTON_HEIGHT;
+		auto compHeight = getHeight() - PANEL_NAME_HEIGHT - BUTTON_HEIGHT;
 
-		int index = (int)(trail->currentPosition.x * (float)WAVESAMPLE_LENGTH / compWidth);
+		std::int32_t index = (std::int32_t)(trail->currentPosition.x * (float)WAVESAMPLE_LENGTH / compWidth);
 		if (index < 0)
 		{
 			index = 0;
@@ -560,7 +560,7 @@ void RangeSlider::paint(Graphics& g)
 			index = 31;
 		}
 		float point = trail->currentPosition.y - PANEL_NAME_HEIGHT;
-		int value = 15 - (int)(point * 16.0 / compHeight);
+		std::int32_t value = 15 - (std::int32_t)(point * 16.0 / compHeight);
 		waveSampleSlider[index].setValue(value, dontSendNotification);
 		updateValue();
 	}
@@ -569,21 +569,21 @@ void RangeSlider::paint(Graphics& g)
 		float columnSize = (float)WAVESAMPLE_LENGTH;
 		float rowSize = (float)16;
 		float divide = 1.0f / columnSize;
-		int compWidth = int((getWidth()) * divide);
+		std::int32_t compWidth = std::int32_t((getWidth()) * divide);
 
 		Rectangle<int> bounds = getLocalBounds();
 		bounds.removeFromTop(PANEL_NAME_HEIGHT);
 		bounds.removeFromBottom(BUTTON_HEIGHT);
 
 		//Draw Scale Line
-		for (int i = 1; i < 4; ++i)
+		for (auto i = 1; i < 4; ++i)
 		{
 			float p_y = PANEL_NAME_HEIGHT + bounds.getHeight() * 0.25f * i;
 			Line<float> line(0.0f, p_y, (float)(bounds.getWidth()), p_y);
 			g.setColour(Colours::darkslateblue);
 			g.drawLine(line, 1.0f);
 		}
-		for (int i = 1; i < 8; ++i)
+		for (auto i = 1; i < 8; ++i)
 		{
 			float p_x = compWidth * i * 4.0f;
 			Line<float> line(p_x, (float)PANEL_NAME_HEIGHT, p_x, (float)(bounds.getHeight() + PANEL_NAME_HEIGHT));
@@ -592,10 +592,10 @@ void RangeSlider::paint(Graphics& g)
 		}
 
 		//Draw Slider
-		for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
+		for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i)
 		{
 			Rectangle<int> area = bounds.removeFromLeft(compWidth);
-			int barHeight = int(bounds.getHeight() / rowSize * (waveSampleSlider[i].getMaximum() - waveSampleSlider[i].getValue()));
+			std::int32_t barHeight = std::int32_t(bounds.getHeight() / rowSize * (waveSampleSlider[i].getMaximum() - waveSampleSlider[i].getValue()));
 			area.removeFromTop(barHeight);
 			//area.removeFromBottom(BUTTON_HEIGHT);
 			g.setColour(Colours::lime);
@@ -606,7 +606,7 @@ void RangeSlider::paint(Graphics& g)
 
 void RangeSlider::timerCallback()
 {
-	for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
+	for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i)
 	{
 		waveSampleSlider[i].setValue(_waveformMemoryParamsPtr->WaveSamplesArray[i]->get(), dontSendNotification);
 	}
@@ -614,9 +614,9 @@ void RangeSlider::timerCallback()
 
 void RangeSlider::updateValue()
 {
-	for (int i = 0; i < WAVESAMPLE_LENGTH; ++i)
+	for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i)
 	{
-		*_waveformMemoryParamsPtr->WaveSamplesArray[i] = (int)waveSampleSlider[i].getValue();
+		*_waveformMemoryParamsPtr->WaveSamplesArray[i] = (std::int32_t)waveSampleSlider[i].getValue();
 	}
 }
 
@@ -740,7 +740,7 @@ void WaveformMemoryParametersComponent::filesDropped(const StringArray &files, i
 	{
 		File waveformFile(filePath);
 		std::string data = waveformFile.loadFileAsString().toStdString();
-		int count = 0;
+		std::int32_t count = 0;
 		for (const auto subStr : split(data, ' ')) {
 			*_waveformMemoryParamsPtr->WaveSamplesArray[count] = atoi(subStr.c_str());
 			++count;
@@ -775,7 +775,7 @@ void FilterParametersComponent::resized()
 {
 	float rowSize = 4.0f;
 	float divide = 1.0f / rowSize;
-	int compHeight = int((getHeight() - PANEL_NAME_HEIGHT) * divide);
+	std::int32_t compHeight = std::int32_t((getHeight() - PANEL_NAME_HEIGHT) * divide);
 
 	Rectangle<int> bounds = getLocalBounds(); // コンポーネント基準の値
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);

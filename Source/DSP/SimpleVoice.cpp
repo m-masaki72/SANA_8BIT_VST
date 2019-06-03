@@ -34,7 +34,7 @@ SimpleVoice::SimpleVoice(ChipOscillatorParameters* chipOscParams, SweepParameter
 	, currentAngle(0.0f), vibratoAngle(0.0f), angleDelta(0.0f), portaAngleDelta(0.0f)
 	, level(0.0f)
 	, pitchBend(0.0f), pitchSweep(0.0f)
-	, eb((int)getSampleRate(), (float)midiEchoParams->EchoDuration->get(), midiEchoParams->EchoRepeat->get())
+	, eb((std::int32_t)getSampleRate(), (float)midiEchoParams->EchoDuration->get(), midiEchoParams->EchoRepeat->get())
 {}
 
 // デストラクタ
@@ -88,7 +88,7 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity, SynthesiserSound
 //   キーリリースだとallowTailOff == true、キーリリース直後のボイススチールではallowTailOff == false
 void SimpleVoice::stopNote(float velocity, bool allowTailOff)
 {
-	DBG("stopNote : " + juce::String((int)allowTailOff));
+	DBG("stopNote : " + juce::String((std::int32_t)allowTailOff));
 
 	if (allowTailOff)
 	{
@@ -191,9 +191,9 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 					eb.addSample(currentSample, _midiEchoParamsPtr->VolumeOffset->get() / 100.0f);
 					eb.cycle();
 
-					for (int channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;)
+					for (auto channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;)
 					{
-						for (int i = 0; i < _midiEchoParamsPtr->EchoRepeat->get(); ++i)
+						for (auto i = 0; i < _midiEchoParamsPtr->EchoRepeat->get(); ++i)
 						{
 							outputBuffer.addSample(channelNum, startSample, eb.getSample(i));
 						}
@@ -201,7 +201,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 				}
 
 				//	リアルタイム音処理  バッファに対して加算処理を行う。ポリフォニックでは、各ボイスの音を加算処理する必要がある。
-				for (int channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;) 
+				for (auto channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;) 
 				{
 					outputBuffer.addSample(channelNum, startSample, currentSample);
 				}

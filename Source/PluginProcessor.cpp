@@ -21,8 +21,8 @@
 
 namespace
 {
-	const int NUM_OF_PRESETS = 12;
-	const int VOICE_MAX = 8;
+	const std::int32_t NUM_OF_PRESETS = 12;
+	const std::int32_t VOICE_MAX = 8;
 }
 
 //==============================================================================
@@ -294,9 +294,9 @@ void SimpleSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 	canPlayChannels.setRange(1, 2, true);
 	synth.addSound(new SimpleSound(canPlayNotes, canPlayChannels));
 
-	int numVoices = (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? VOICE_MAX : 1;
+	auto numVoices = (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? VOICE_MAX : 1;
 
-	for (int i = 0; i < numVoices; ++i)
+	for (auto i = 0; i < numVoices; ++i)
 	{
 		synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters, &vibratoParameters, &voicingParameters, &optionsParameters, &midiEchoParameters, &waveformMemoryParameters));
 	}
@@ -365,15 +365,15 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	}
 
     ScopedNoDenormals noDenormals;
-    int totalNumInputChannels  = getTotalNumInputChannels();
-    int totalNumOutputChannels = getTotalNumOutputChannels();
+    auto totalNumInputChannels  = getTotalNumInputChannels();
+    auto totalNumOutputChannels = getTotalNumOutputChannels();
 
 	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 	{
 		buffer.clear(i, 0, buffer.getNumSamples());
 	}
 
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    for (auto channel = 0; channel < totalNumInputChannels; ++channel)
     {
         //auto* channelData = buffer.getWritePointer (channel);
         // ..do something to the data...
@@ -486,7 +486,7 @@ void SimpleSynthAudioProcessor::setStateInformation (const void* data, int sizeI
 
 void SimpleSynthAudioProcessor::changeVoiceSize()
 {
-	int voiceNum = (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? VOICE_MAX : 1;
+	auto voiceNum = (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? VOICE_MAX : 1;
 
 	while (synth.getNumVoices() != voiceNum)
 	{

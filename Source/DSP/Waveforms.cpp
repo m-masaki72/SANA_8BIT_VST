@@ -205,12 +205,12 @@ float Waveforms::nesTriangle(float angle)
 
 	if (angle < ONE_PI)
 	{
-		int value = int(angle / ONE_PI * 16) * 2;
+		std::int32_t value = std::int32_t(angle / ONE_PI * 16) * 2;
 		return ( -1.0f + value / 15.0f);
 	}
 	else
 	{
-		int value = int((angle-ONE_PI) / ONE_PI * 16) * 2;
+		std::int32_t value = std::int32_t((angle-ONE_PI) / ONE_PI * 16) * 2;
 		return (1.0f - value / 15.0f);
 	}
 }
@@ -220,14 +220,14 @@ float Waveforms::waveformMemory(float angle, WaveformMemoryParameters* _waveform
 	checkAngleRanage(angle);
 
 	//valの範囲を変換 0~15 -> -1.0~1.0
-	int val = _waveformMemoryParamsPtr->WaveSamplesArray[(int)(angle * WAVESAMPLE_LENGTH / TWO_PI)]->get();
+	std::int32_t val = _waveformMemoryParamsPtr->WaveSamplesArray[(std::int32_t)(angle * WAVESAMPLE_LENGTH / TWO_PI)]->get();
 	return val / 8.0f - 1.0f;
 }
 
 // 4bitクオンタイズ関数 qNum * 2倍の数でクオンタイズする
 float Waveforms::quantize(float sample)
 {
-	const int qNum = 8;
+	const std::int32_t qNum = 8;
 	return round(sample * qNum) / qNum;
 }
 

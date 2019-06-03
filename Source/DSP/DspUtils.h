@@ -12,20 +12,7 @@ example
 // 　float input[]  …44100Hzでサンプリングされた入力信号の格納されたバッファ。
 // 　float output[] …フィルタ処理した値を書き出す出力信号のバッファ。
 // 　int   size     …入力信号・出力信号のバッファのサイズ。
-
-CMyFilter filter;
-
-// カットオフ周波数 1000Hz、Q値 1/√2のローパスフィルタに設定
-filter.LowPass(1000.0f, 1.0f/sqrt(2.0f));
-
-// 入力信号にフィルタを適用していく。
-for(int i = 0; i < size; i++)
-{
-// 入力信号にフィルタを適用し、出力信号として書き出す。
-output[i] = filter.Process(input[i]);
-}
 */
-
 class CMyFilter
 {
 private:
@@ -245,13 +232,13 @@ class antiAliasFilter
 {
 public:
 	CMyFilter simpleFilter;
-	int sampleRate;
-	int upSamplingFactor;
+	std::int32_t sampleRate;
+	std::int32_t upSamplingFactor;
 
 	antiAliasFilter()
 	{};
 
-	void prepare(int _sampleRate, int _upsamplingFactor)
+	void prepare(std::int32_t _sampleRate, std::int32_t _upsamplingFactor)
 	{
 		sampleRate = _sampleRate;
 		upSamplingFactor = _upsamplingFactor;
@@ -260,9 +247,9 @@ public:
 		simpleFilter.LowPass(20000.0, 1 / 4.0, sampleRate * upSamplingFactor);
 	};
 
-	void process(AudioBuffer<float> &buffer, AudioBuffer<float> &upSampleBuffer, int totalNumInputChannels, int totalNumOutputChannels)
+	void process(AudioBuffer<float> &buffer, AudioBuffer<float> &upSampleBuffer, std::int32_t totalNumInputChannels, std::int32_t totalNumOutputChannels)
 	{
-		int size = buffer.getNumSamples();
+		auto size = buffer.getNumSamples();
 		float* input = new float[size * upSamplingFactor];
 		float* output = new float[size * upSamplingFactor];
 
