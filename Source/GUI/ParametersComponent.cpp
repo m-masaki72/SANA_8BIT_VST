@@ -710,7 +710,7 @@ void WaveformMemoryParametersComponent::buttonClicked(Button* button)
 	{
 		saveWaveFile(_waveformMemoryParamsPtr);
 	}
-	else if (button = &loadButton)
+	else if (button == &loadButton)
 	{
 		loadWaveFile(_waveformMemoryParamsPtr);
 	}

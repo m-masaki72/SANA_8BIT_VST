@@ -275,7 +275,7 @@ public:
 		}
 
 		// apply LPF for anti aliasing
-		for (auto i = 0; i < size * upSamplingFactor; i++)
+		for (auto i = 0; i < size * upSamplingFactor; ++i)
 		{
 			output[i] = simpleFilter.Process(input[i]);
 		}
