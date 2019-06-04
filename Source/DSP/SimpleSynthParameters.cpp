@@ -73,8 +73,9 @@ void SweepParameters::loadParameters(XmlElement& xml)
 
 //-----------------------------------------------------------------------------------------
 
-VibratoParameters::VibratoParameters(AudioParameterBool* vibratoEnable, AudioParameterFloat* vibratoAmount, AudioParameterFloat* vibratoSpeed, AudioParameterFloat* vibratoAttackTime)
+VibratoParameters::VibratoParameters(AudioParameterBool* vibratoEnable, AudioParameterBool* vibratoAttackDeleySwitch, AudioParameterFloat* vibratoAmount, AudioParameterFloat* vibratoSpeed, AudioParameterFloat* vibratoAttackTime)
 	: VibratoEnable(vibratoEnable)
+	, VibratoAttackDeleySwitch(vibratoAttackDeleySwitch)
 	, VibratoAmount(vibratoAmount)
 	, VibratoSpeed(vibratoSpeed)
 	, VibratoAttackTime(vibratoAttackTime)
@@ -83,6 +84,7 @@ VibratoParameters::VibratoParameters(AudioParameterBool* vibratoEnable, AudioPar
 void VibratoParameters::addAllParameters(AudioProcessor& processor)
 {
 	processor.addParameter(VibratoEnable);
+	processor.addParameter(VibratoAttackDeleySwitch);
 	processor.addParameter(VibratoAmount);
 	processor.addParameter(VibratoSpeed);
 	processor.addParameter(VibratoAttackTime);
@@ -91,6 +93,7 @@ void VibratoParameters::addAllParameters(AudioProcessor& processor)
 void VibratoParameters::saveParameters(XmlElement& xml)
 {
 	xml.setAttribute(VibratoEnable->paramID, VibratoEnable->get());
+	xml.setAttribute(VibratoAttackDeleySwitch->paramID, VibratoAttackDeleySwitch->get());
 	xml.setAttribute(VibratoAmount->paramID, (double)VibratoAmount->get());
 	xml.setAttribute(VibratoSpeed->paramID, (double)VibratoSpeed->get());
 	xml.setAttribute(VibratoAttackTime->paramID, (double)VibratoAttackTime->get());
@@ -99,6 +102,7 @@ void VibratoParameters::saveParameters(XmlElement& xml)
 void VibratoParameters::loadParameters(XmlElement& xml)
 {
 	*VibratoEnable = (bool)xml.getBoolAttribute(VibratoEnable->paramID, true);
+	*VibratoAttackDeleySwitch = (bool)xml.getBoolAttribute(VibratoAttackDeleySwitch->paramID, true);
 	*VibratoAmount = (float)xml.getDoubleAttribute(VibratoAmount->paramID, 0.3);
 	*VibratoSpeed = (float)xml.getDoubleAttribute(VibratoSpeed->paramID, 2.0);
 	*VibratoAttackTime = (float)xml.getDoubleAttribute(VibratoAttackTime->paramID, 0.0);

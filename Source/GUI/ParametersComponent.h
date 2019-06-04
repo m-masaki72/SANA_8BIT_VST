@@ -94,10 +94,11 @@ private:
 
 	VibratoParameters* _vibratoParamsPtr;
 
-	SwitchButton enableButton;
+	SwitchButton enableSwitch;
+	SwitchButton attackDeleySwitch;
 	TextSlider amountSlider;
 	TextSlider speedSlider;
-	TextSlider attackTimeSlider;
+	TextSlider attackDeleyTimeSlider;
 
 };
 

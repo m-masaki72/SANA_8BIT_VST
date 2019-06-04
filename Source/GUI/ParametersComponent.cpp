@@ -265,15 +265,22 @@ bool SweepParametersComponent::isEditable()
 
 VibratoParametersComponent::VibratoParametersComponent(VibratoParameters* vibratoParams)
 	:_vibratoParamsPtr(vibratoParams)
-	, enableButton("Vibrato-Enable", _vibratoParamsPtr->VibratoEnable, this)
+	, enableSwitch("Vibrato-Switch", _vibratoParamsPtr->VibratoEnable, this)
+	, attackDeleySwitch("Attack-Deley-Switch", _vibratoParamsPtr->VibratoAttackDeleySwitch, this)
 	, amountSlider("Depth", "HarfTone", _vibratoParamsPtr->VibratoAmount, this, 0.01f, 2.0f)
-	, speedSlider("Speed", "hz", _vibratoParamsPtr->VibratoSpeed, this, 0.001f, 2.0f)
-	, attackTimeSlider("Attack", "sec", _vibratoParamsPtr->VibratoAttackTime, this, 0.001f, 2.0f)
+	, speedSlider("Speed", "hz", _vibratoParamsPtr->VibratoSpeed, this, 0.001f, 10.0f)
+	, attackDeleyTimeSlider("Attack", "sec", _vibratoParamsPtr->VibratoAttackTime, this, 0.001f, 2.0f)
 {
-	addAndMakeVisible(enableButton);
+	addAndMakeVisible(enableSwitch);
+	addAndMakeVisible(attackDeleySwitch);
 	addAndMakeVisible(amountSlider);
 	addAndMakeVisible(speedSlider);
-	addAndMakeVisible(attackTimeSlider);
+	addAndMakeVisible(attackDeleyTimeSlider);
+
+	// 切り替えSwitchのカスタマイズ
+	{
+		attackDeleySwitch.button.setButtonText("Attack / Deley");
+	}
 }
 
 void VibratoParametersComponent::paint(Graphics& g)
@@ -294,20 +301,35 @@ void VibratoParametersComponent::resized()
 		float alpha = isEditable() ? 1.0f : 0.4f;
 		amountSlider.setAlpha(alpha);
 		speedSlider.setAlpha(alpha);
-		attackTimeSlider.setAlpha(alpha);
+		attackDeleyTimeSlider.setAlpha(alpha);
 	}
-	enableButton.setBounds(bounds.removeFromTop(compHeight));
+	{
+		auto b = bounds.removeFromTop(compHeight);
+		enableSwitch.setBounds(b.removeFromLeft(b.getWidth() * 0.3f));
+		attackDeleySwitch.setBounds(b);
+	}
 	amountSlider.setBounds(bounds.removeFromTop(compHeight));
 	speedSlider.setBounds(bounds.removeFromTop(compHeight));
-	attackTimeSlider.setBounds(bounds.removeFromTop(compHeight));
+	attackDeleyTimeSlider.setBounds(bounds.removeFromTop(compHeight));
+
+	//切り替えスイッチ処理
+	if (_vibratoParamsPtr->VibratoAttackDeleySwitch->get() == true)
+	{
+		attackDeleyTimeSlider.label.setText("Attack", dontSendNotification);
+	}
+	else
+	{
+		attackDeleyTimeSlider.label.setText("Deley", dontSendNotification);
+	}
 }
 
 void VibratoParametersComponent::timerCallback()
 {
-	enableButton.setToggleState(_vibratoParamsPtr->VibratoEnable->get());
+	enableSwitch.setToggleState(_vibratoParamsPtr->VibratoEnable->get());
+	attackDeleySwitch.setToggleState(_vibratoParamsPtr->VibratoAttackDeleySwitch->get());
 	amountSlider.setValue(_vibratoParamsPtr->VibratoAmount->get());
 	speedSlider.setValue(_vibratoParamsPtr->VibratoSpeed->get());
-	attackTimeSlider.setValue(_vibratoParamsPtr->VibratoAttackTime->get());
+	attackDeleyTimeSlider.setValue(_vibratoParamsPtr->VibratoAttackTime->get());
 }
 
 void VibratoParametersComponent::sliderValueChanged(Slider* slider)
@@ -320,17 +342,21 @@ void VibratoParametersComponent::sliderValueChanged(Slider* slider)
 	{
 		*_vibratoParamsPtr->VibratoSpeed = (float)speedSlider.getValue();
 	}
-	else if (slider == &attackTimeSlider.slider)
+	else if (slider == &attackDeleyTimeSlider.slider)
 	{
-		*_vibratoParamsPtr->VibratoAttackTime = (float)attackTimeSlider.getValue();
+		*_vibratoParamsPtr->VibratoAttackTime = (float)attackDeleyTimeSlider.getValue();
 	}
 }
 
 void VibratoParametersComponent::buttonClicked(Button* button)
 {
-	if (button == &enableButton.button)
+	if (button == &enableSwitch.button)
 	{
-		*_vibratoParamsPtr->VibratoEnable = enableButton.getToggleState();
+		*_vibratoParamsPtr->VibratoEnable = enableSwitch.getToggleState();
+	}
+	else if (button == &attackDeleySwitch.button)
+	{
+		*_vibratoParamsPtr->VibratoAttackDeleySwitch = attackDeleySwitch.getToggleState();
 	}
 	resized();
 }

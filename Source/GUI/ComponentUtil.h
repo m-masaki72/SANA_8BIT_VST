@@ -154,9 +154,9 @@ class SwitchButton : public Component
 public:
 	const float PANEL_NAME_FONT_SIZE = 24.0f;
 	const float PARAM_LABEL_FONT_SIZE = 18.0f;
-	const int PANEL_NAME_HEIGHT = 32;
-	const int LOCAL_MARGIN = 2;
-	const int LABEL_WIDTH = 80;
+	const std::int32_t PANEL_NAME_HEIGHT = 32;
+	const std::int32_t LOCAL_MARGIN = 2;
+	const std::int32_t LABEL_WIDTH = 80;
 	const Font panelNameFont() { return Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic"); };
 	const Font paramLabelFont() { return Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular"); };
 
@@ -164,17 +164,16 @@ public:
 
 	SwitchButton(std::string label, AudioParameterBool *param, ToggleButton::Listener *listener)
 	{
-		button.setButtonText("ON / OFF");
+		button.setButtonText("ON");
 		button.setToggleState(param->get(), dontSendNotification);
 		button.addListener(listener);
 		addAndMakeVisible(button);
-
 	};
 
 	virtual void resized() override
 	{
 		Rectangle<int> bounds = getLocalBounds();
-		bounds.removeFromLeft(LABEL_WIDTH / 2);
+		bounds.removeFromLeft(LABEL_WIDTH * 0.2);
 		button.setBounds(bounds.reduced(LOCAL_MARGIN));
 	};
 
@@ -192,8 +191,6 @@ public:
 	{
 		button.addListener(listener);
 	};
-
-
 
 private:
 	SwitchButton();

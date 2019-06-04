@@ -78,12 +78,14 @@ class VibratoParameters : public SynthParametersBase
 {
 public:
 	AudioParameterBool* VibratoEnable;
+	AudioParameterBool* VibratoAttackDeleySwitch;
 	AudioParameterFloat*  VibratoAmount;
 	AudioParameterFloat*  VibratoSpeed;
 	AudioParameterFloat*  VibratoAttackTime;
 
 	VibratoParameters(
 		AudioParameterBool* vibratoEnable,
+		AudioParameterBool* attackDeleySwitch,
 		AudioParameterFloat*  vibratoAmount,
 		AudioParameterFloat*  vibratoSpeed,
 		AudioParameterFloat*  vibratoAttackTime

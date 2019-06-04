@@ -54,6 +54,7 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 }
 , vibratoParameters{
 	new AudioParameterBool("VIBRATO_ENABLE", "Vibrato-Enable", true),
+	new AudioParameterBool("VIBRATO_ATTACK-DELEY-SWITCH", "Vibrato-Attack-Deley-Switch", true),
 	new AudioParameterFloat("VIBRATO_DEPTH", "Vibrato-Depth",  0.0f, 24.0f, 0.0f),
 	new AudioParameterFloat("VIBRATO_SPEED", "Vibrato-Speed",  0.0f, 20.0f, 0.1000f),
 	new AudioParameterFloat("VIBRATO_ATTACKTIME", "Vibrato-AttackTime",  0.0f, 15.0f, 0.0f)

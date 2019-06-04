@@ -224,19 +224,19 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 
 				//ピッチ処理
 				//モジュレーションとピッチベンド，ピッチスイープにより変化
-				if (_vibratoParamsPtr->VibratoEnable->get())
+				if (_vibratoParamsPtr->VibratoAttackDeleySwitch->get() == false && vibratoEnv.getState() == AmpEnvelope::AMPENV_STATE::ATTACK)
 				{
-					currentAngle += angleDelta
-						* pow(2.0f, pitchBend / 13.0f * _optionsParamsPtr->PitchBendRange->get())
-						* pow(2.0f, pitchSweep)
-						* pow(2.0f, modulationFactor / 13.0f);
+					modulationFactor = 0.0f;
 				}
-				else
+				else if (_vibratoParamsPtr->VibratoEnable->get() == false)
 				{
-					currentAngle += angleDelta
-						* pow(2.0f, pitchBend / 13.0f * _optionsParamsPtr->PitchBendRange->get())
-						* pow(2.0f, pitchSweep);
+					modulationFactor = 0.0f;
 				}
+				currentAngle += angleDelta
+					* pow(2.0f, pitchBend / 13.0f * _optionsParamsPtr->PitchBendRange->get())
+					* pow(2.0f, pitchSweep)
+					* pow(2.0f, modulationFactor / 13.0f);
+
 
 				// ポルタメント処理
 				//カレントアングルにエンベロープ処理を施す
