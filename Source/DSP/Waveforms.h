@@ -29,9 +29,9 @@ public:
 	float square25(float angle);
 	float square125(float angle);
     float triangle(float angle);
-    float longNoise(float angleDelta);
-	float shortNoise(float angleDelta);
-	float lobitNoise(float angleDelta);
+    float longNoise(const float angleDelta);
+	float shortNoise(const float angleDelta);
+	float lobitNoise(const float angleDelta);
 	float waveformMemory(float angleDelta, WaveformMemoryParameters* _waveformMemoryParamsPtr);
 
 private:

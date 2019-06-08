@@ -119,7 +119,7 @@ float Waveforms::triangle(float angle)
 }
 
 //NESの長周期ノイズの再現
-float Waveforms::longNoise(float angleDelta)
+float Waveforms::longNoise(const float angleDelta)
 {
 	if (++freqCounter > 1 / TWO_PI / angleDelta * (2 >> 0)) 
 	{
@@ -133,7 +133,7 @@ float Waveforms::longNoise(float angleDelta)
 }
 
 //NESの短周期ノイズの再現
-float Waveforms::shortNoise(float angleDelta)
+float Waveforms::shortNoise(const float angleDelta)
 {
 	if (++freqCounter > TWO_PI / angleDelta / (2 << 4)) 
 	{
@@ -147,7 +147,7 @@ float Waveforms::shortNoise(float angleDelta)
 }
 
 //乱数を時間軸と振幅軸側でクオンタイズしたもの
-float Waveforms::lobitNoise(float angleDelta)
+float Waveforms::lobitNoise(const float angleDelta)
 {
 	if (++freqCounter > 1 / angleDelta / TWO_PI / (2 >> 1))
 	{

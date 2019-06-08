@@ -568,13 +568,11 @@ RangeSlider::RangeSlider(WaveformMemoryParameters* waveformMemoryParams)
 
 void RangeSlider::paint(Graphics& g)
 {
-	paintHeader(g, getLocalBounds(), "WAVEFORM MEMORY");
-
 	//update slider Params
 	for (auto* trail : trails)
 	{
 		float compWidth = (float)(getWidth()) - 12.0f; // 微調整値
-		auto compHeight = getHeight() - PANEL_NAME_HEIGHT - BUTTON_HEIGHT;
+		auto compHeight = getHeight();
 
 		std::int32_t index = (std::int32_t)(trail->currentPosition.x * (float)WAVESAMPLE_LENGTH / compWidth);
 		if (index < 0)
@@ -585,7 +583,7 @@ void RangeSlider::paint(Graphics& g)
 		{
 			index = 31;
 		}
-		float point = trail->currentPosition.y - PANEL_NAME_HEIGHT;
+		float point = trail->currentPosition.y;// -PANEL_NAME_HEIGHT;
 		std::int32_t value = 15 - (std::int32_t)(point * 16.0 / compHeight);
 		waveSampleSlider[index].setValue(value, dontSendNotification);
 		updateValue();
@@ -598,13 +596,11 @@ void RangeSlider::paint(Graphics& g)
 		std::int32_t compWidth = std::int32_t((getWidth()) * divide);
 
 		Rectangle<int> bounds = getLocalBounds();
-		bounds.removeFromTop(PANEL_NAME_HEIGHT);
-		bounds.removeFromBottom(BUTTON_HEIGHT);
 
 		//Draw Scale Line
 		for (auto i = 1; i < 4; ++i)
 		{
-			float p_y = PANEL_NAME_HEIGHT + bounds.getHeight() * 0.25f * i;
+			float p_y = bounds.getHeight() * 0.25f * i;
 			Line<float> line(0.0f, p_y, (float)(bounds.getWidth()), p_y);
 			g.setColour(Colours::darkslateblue);
 			g.drawLine(line, 1.0f);
@@ -612,7 +608,7 @@ void RangeSlider::paint(Graphics& g)
 		for (auto i = 1; i < 8; ++i)
 		{
 			float p_x = compWidth * i * 4.0f;
-			Line<float> line(p_x, (float)PANEL_NAME_HEIGHT, p_x, (float)(bounds.getHeight() + PANEL_NAME_HEIGHT));
+			Line<float> line(p_x, 0.0f, p_x, (float)(bounds.getHeight()));
 			g.setColour(Colours::darkslateblue);
 			g.drawLine(line, 1.4f);
 		}
@@ -623,7 +619,6 @@ void RangeSlider::paint(Graphics& g)
 			Rectangle<int> area = bounds.removeFromLeft(compWidth);
 			std::int32_t barHeight = std::int32_t(bounds.getHeight() / rowSize * (waveSampleSlider[i].getMaximum() - waveSampleSlider[i].getValue()));
 			area.removeFromTop(barHeight);
-			//area.removeFromBottom(BUTTON_HEIGHT);
 			g.setColour(Colours::lime);
 			g.fillRect(area.reduced(1));
 		}
@@ -713,22 +708,21 @@ WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(WaveformMem
 
 void WaveformMemoryParametersComponent::paint(Graphics& g)
 {
-	waveRangeSlider.paint(g);
+	paintHeader(g, getLocalBounds(), "WAVEFORM MEMORY");
 }
 
 void WaveformMemoryParametersComponent::resized()
 {
 	Rectangle<int> bounds = getLocalBounds();
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
-	
-	waveRangeSlider.setBounds(getLocalBounds());
 
 	{
 		Rectangle<int> area = bounds.removeFromBottom(BUTTON_HEIGHT);
 		saveButton.setBounds(area.removeFromLeft(area.getWidth() / 2).reduced(LOCAL_MARGIN));
 		loadButton.setBounds(area.reduced(LOCAL_MARGIN));
 	}
-}	
+	waveRangeSlider.setBounds(bounds);
+}		
 
 void WaveformMemoryParametersComponent::buttonClicked(Button* button)
 {
@@ -740,8 +734,7 @@ void WaveformMemoryParametersComponent::buttonClicked(Button* button)
 	{
 		loadWaveFile(_waveformMemoryParamsPtr);
 	}
-	//timerCallback();
-	//repaint();
+	repaint();
 }
 
 bool WaveformMemoryParametersComponent::isInterestedInFileDrag(const StringArray & files)
@@ -772,8 +765,7 @@ void WaveformMemoryParametersComponent::filesDropped(const StringArray &files, i
 			++count;
 		}
 	}
-	//timerCallback();
-	//repaint();
+	repaint();
 }
 
 //----------------------------------------------------------------------------------------------------
