@@ -220,7 +220,8 @@ float Waveforms::waveformMemory(float angle, WaveformMemoryParameters* _waveform
 	checkAngleRanage(angle);
 
 	//valの範囲を変換 0~15 -> -1.0~1.0
-	std::int32_t val = _waveformMemoryParamsPtr->WaveSamplesArray[(std::int32_t)(angle * WAVESAMPLE_LENGTH / TWO_PI)]->get();
+	auto index = (std::int32_t)(angle * WAVESAMPLE_LENGTH / TWO_PI);
+	std::int32_t val = _waveformMemoryParamsPtr->_waveSampleArray[index];
 	return val / 8.0f - 1.0f;
 }
 

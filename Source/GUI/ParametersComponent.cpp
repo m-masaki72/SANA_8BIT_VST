@@ -583,10 +583,10 @@ void RangeSlider::paint(Graphics& g)
 		{
 			index = 31;
 		}
-		float point = trail->currentPosition.y;// -PANEL_NAME_HEIGHT;
+		float point = trail->currentPosition.y;
 		std::int32_t value = 15 - (std::int32_t)(point * 16.0 / compHeight);
 		waveSampleSlider[index].setValue(value, dontSendNotification);
-		updateValue();
+		updateValue(index);
 	}
 	//repaint Sliders
 	{
@@ -638,7 +638,14 @@ void RangeSlider::updateValue()
 	for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i)
 	{
 		*_waveformMemoryParamsPtr->WaveSamplesArray[i] = (std::int32_t)waveSampleSlider[i].getValue();
+		_waveformMemoryParamsPtr->_waveSampleArray[i] = (std::int32_t)waveSampleSlider[i].getValue();
 	}
+}
+
+void RangeSlider::updateValue(std::int32_t index)
+{
+	*_waveformMemoryParamsPtr->WaveSamplesArray[index] = (std::int32_t)waveSampleSlider[index].getValue();
+	_waveformMemoryParamsPtr->_waveSampleArray[index] = (std::int32_t)waveSampleSlider[index].getValue();
 }
 
 void RangeSlider::mouseDown(const MouseEvent& e)

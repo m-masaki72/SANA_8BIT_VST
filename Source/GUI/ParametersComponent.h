@@ -176,7 +176,8 @@ public:
 
 private:
 	virtual void timerCallback() override;
-	virtual void updateValue();
+	void updateValue();
+	void updateValue(std::int32_t index);
 	virtual void mouseDrag(const MouseEvent& e) override;
 	virtual void mouseDown(const MouseEvent& e) override;
 	virtual void mouseUp(const MouseEvent& e) override;
