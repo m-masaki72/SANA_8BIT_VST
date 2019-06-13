@@ -111,27 +111,27 @@ void VibratoParameters::loadParameters(XmlElement& xml)
 
 //-----------------------------------------------------------------------------------------
 
-VoicingParameters::VoicingParameters(AudioParameterChoice* voicingSwitch,	AudioParameterFloat* portaTime)
+VoicingParameters::VoicingParameters(AudioParameterChoice* voicingSwitch,	AudioParameterFloat* stepTime)
 	: VoicingSwitch(voicingSwitch)
-	, PortaTime(portaTime)
+	, StepTime(stepTime)
 {}
 
 void VoicingParameters::addAllParameters(AudioProcessor& processor)
 {
 	processor.addParameter(VoicingSwitch);
-	processor.addParameter(PortaTime);
+	processor.addParameter(StepTime);
 }
 
 void VoicingParameters::saveParameters(XmlElement& xml)
 {
 	xml.setAttribute(VoicingSwitch->paramID, VoicingSwitch->getIndex());
-	xml.setAttribute(PortaTime->paramID, PortaTime->get());
+	xml.setAttribute(StepTime->paramID, StepTime->get());
 }
 
 void VoicingParameters::loadParameters(XmlElement& xml)
 {
 	*VoicingSwitch = xml.getIntAttribute(VoicingSwitch->paramID, 0);
-	*PortaTime = (float)xml.getDoubleAttribute(PortaTime->paramID, 1.0);
+	*StepTime = (float)xml.getDoubleAttribute(StepTime->paramID, 1.0);
 }
 
 //-----------------------------------------------------------------------------------------

@@ -17,21 +17,23 @@
 #include "AmpEnvelope.h"
 #include "MIDIEcho.h"
 #include "Waveforms.h"
+#include "Timer.h"
 
 class SimpleVoice : public SynthesiserVoice
 {
 public:
 	SimpleVoice(
-		ChipOscillatorParameters* chipOscParams, 
-		SweepParameters* sweepParams, 
+		ChipOscillatorParameters* chipOscParams,
+		SweepParameters* sweepParams,
 		VibratoParameters* vibratoParams,
 		VoicingParameters* voicingParams,
 		OptionsParameters* optionsParams,
 		MidiEchoParameters* midiEchoParams,
-		WaveformMemoryParameters* waveformMemoryParams
+		WaveformMemoryParameters* waveformMemoryParams,
+		std::set<int>* midiList
 	);
 
-	virtual ~SimpleVoice();
+	virtual ~SimpleVoice() = default;
 
 	// 基底クラスで宣言された純粋仮想関数をオーバーライド宣言する。
 	virtual bool canPlaySound(SynthesiserSound* sound) override;
@@ -43,6 +45,9 @@ public:
 
 private:
 	float calcModulationFactor(float angle);
+	float angle2wave(float currentAngle);
+	bool isArpMode();
+	bool canStartNote();
 
 	float currentAngle, vibratoAngle, angleDelta, portaAngleDelta;
 	float level;
@@ -64,4 +69,5 @@ private:
 	OptionsParameters* _optionsParamsPtr;
 	MidiEchoParameters* _midiEchoParamsPtr;
 	WaveformMemoryParameters* _waveformMemoryParamsPtr;
+	std::set<int>* _midiList;
 };

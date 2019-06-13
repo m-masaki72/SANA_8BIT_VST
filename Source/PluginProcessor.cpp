@@ -14,7 +14,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-
+#include <set>    
 #include "DSP/SimpleSound.h"
 #include "DSP/SimpleVoice.h"
 
@@ -60,8 +60,8 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 	new AudioParameterFloat("VIBRATO_ATTACKTIME", "Vibrato-AttackTime",  0.0f, 15.0f, 0.0f)
 }
 , voicingParameters{
-	new AudioParameterChoice("VOICING_TYPE", "Voicing-Type", {"POLY", "MONO", "PORTAMENTO"}, 0),
-	new AudioParameterFloat("PORTAMENTO_TIME", "Portamento-Time",  0.0f, 3.0f, 0.0f)
+	new AudioParameterChoice("VOICING_TYPE", "Voicing-Type", VOICING_SWITCH, 0),
+	new AudioParameterFloat("STEP_TIME", "Step-Time",  0.0f, 3.0f, 0.0f)
 }
 , optionsParameters{
 	new AudioParameterInt("PITCH_BEND_RANGE", "Pitch-Bend-Range", 1, 13, 2),
@@ -295,11 +295,10 @@ void SimpleSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 	canPlayChannels.setRange(1, 2, true);
 	synth.addSound(new SimpleSound(canPlayNotes, canPlayChannels));
 
-	auto numVoices = (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? VOICE_MAX : 1;
 
-	for (auto i = 0; i < numVoices; ++i)
+	for (auto i = 0; i < getNumVoices(); ++i)
 	{
-		synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters, &vibratoParameters, &voicingParameters, &optionsParameters, &midiEchoParameters, &waveformMemoryParameters));
+		addVoice();
 	}
 
 	spec.sampleRate = sampleRate;
@@ -360,7 +359,48 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	//   GUIのキーボードコンポーネントで生成されたMIDIデータをのMIDIバッファに追加する処理を行う。
 	keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
 
-	if ((voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? VOICE_MAX : 1 != synth.getNumVoices())
+	// procMidiMessage
+	{
+		auto midibuffer = midiMessages;
+		auto startSample = 0;
+		auto numSamples = buffer.getNumSamples();
+
+		MidiBuffer::Iterator i(midibuffer);
+		MidiMessage message;
+		int time;
+
+		while (i.getNextEvent(message, time))
+		{
+			if (message.isNoteOn())
+			{
+				midiList.insert(message.getNoteNumber());
+			}
+			else if (message.isNoteOff())
+			{
+				midiList.erase(message.getNoteNumber());
+			}
+			else if (message.isAllNotesOff())
+			{
+				midiList.clear();
+			}
+		}
+
+		{
+			MidiBuffer::Iterator i2(eventsToAdd);
+			const int firstEventToAdd = eventsToAdd.getFirstEventTime();
+			const double scaleFactor = numSamples / (double)(eventsToAdd.getLastEventTime() + 1 - firstEventToAdd);
+
+			while (i2.getNextEvent(message, time))
+			{
+				const int pos = jlimit(0, numSamples - 1, roundToInt((time - firstEventToAdd) * scaleFactor));
+				midibuffer.addEvent(message, startSample + pos);
+			}
+		}
+
+		eventsToAdd.clear();
+	}
+
+	if (getNumVoices() != synth.getNumVoices())
 	{
 		changeVoiceSize();
 	}
@@ -369,17 +409,8 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-	{
-		buffer.clear(i, 0, buffer.getNumSamples());
-	}
-
-    for (auto channel = 0; channel < totalNumInputChannels; ++channel)
+    for (auto channel = 0; channel < totalNumInputChannels + totalNumInputChannels; ++channel)
     {
-        //auto* channelData = buffer.getWritePointer (channel);
-        // ..do something to the data...
-
-		// シンセサイザーでバッファに対して加算処理を行う前にゼロクリアをしておく。
 		buffer.clear(channel, 0, buffer.getNumSamples());
     }
 
@@ -389,10 +420,10 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	{
 		upSampleBuffer.clear(i, 0, upSampleBuffer.getNumSamples());
 	}
-
+	
 	synth.renderNextBlock(upSampleBuffer, midiMessages, 0, upSampleBuffer.getNumSamples());
 
-	//================================ アンチエイリアス     ====================================
+	//================================ アンチエイリアス      ====================================
 	
 	antiAliasFilter.process(buffer, upSampleBuffer, totalNumInputChannels, totalNumOutputChannels);
 	
@@ -485,9 +516,18 @@ void SimpleSynthAudioProcessor::setStateInformation (const void* data, int sizeI
 	}
 }
 
+//==============================================================================
+// This creates new instances of the plugin..
+AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+{
+    return new SimpleSynthAudioProcessor();
+}
+
+//==============================================================================
+// class functions
 void SimpleSynthAudioProcessor::changeVoiceSize()
 {
-	auto voiceNum = (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") ? VOICE_MAX : 1;
+	const auto voiceNum = getNumVoices();
 
 	while (synth.getNumVoices() != voiceNum)
 	{
@@ -497,7 +537,7 @@ void SimpleSynthAudioProcessor::changeVoiceSize()
 		}
 		else
 		{
-			synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters, &vibratoParameters, &voicingParameters, &optionsParameters, &midiEchoParameters, &waveformMemoryParameters));
+			addVoice();
 		}
 	}
 }
@@ -505,7 +545,7 @@ void SimpleSynthAudioProcessor::changeVoiceSize()
 float SimpleSynthAudioProcessor::clippingFunction(float inputValue)
 {
 	// 双曲線正接...1の時に0.8の値を, -1の時に-0.8の値を取る
-	float threshold = tanhf(inputValue);
+	const float threshold = tanhf(inputValue);
 	float outputValue = inputValue;
 
 	//inputValueが正の値ならthresholdも正の値，inputValueが負の値ならthresholdも負の値を取るので，絶対値で比較する
@@ -514,9 +554,30 @@ float SimpleSynthAudioProcessor::clippingFunction(float inputValue)
 	return outputValue;
 }
 
-//==============================================================================
-// This creates new instances of the plugin..
-AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+std::int32_t SimpleSynthAudioProcessor::getNumVoices()
 {
-    return new SimpleSynthAudioProcessor();
+	if (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY")
+	{
+		return VOICE_MAX;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
+void SimpleSynthAudioProcessor::addVoice()
+{
+	synth.addVoice(
+		new SimpleVoice(
+			&chipOscParameters,
+			&sweepParameters,
+			&vibratoParameters,
+			&voicingParameters,
+			&optionsParameters,
+			&midiEchoParameters,
+			&waveformMemoryParameters,
+			&midiList
+		)
+	);
 }

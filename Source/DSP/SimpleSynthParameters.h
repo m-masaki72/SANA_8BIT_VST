@@ -103,11 +103,11 @@ class VoicingParameters : public SynthParametersBase
 {
 public:
 	AudioParameterChoice* VoicingSwitch;
-	AudioParameterFloat* PortaTime;
+	AudioParameterFloat* StepTime;
 
 	VoicingParameters(
 		AudioParameterChoice* sweepSwitch,
-		AudioParameterFloat* portaTime
+		AudioParameterFloat* stepTime
 	);
 
 	virtual void addAllParameters(AudioProcessor& processor) override;

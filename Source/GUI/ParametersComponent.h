@@ -120,7 +120,7 @@ private:
 	VoicingParameters* _voicingParamsPtr;
 
 	TextSelector voicingTypeSelector;
-	TextSlider portaTimeSlider;
+	TextSlider stepTimeSlider;
 };
 
 class OptionsParametersComponent : public BaseComponent, Slider::Listener

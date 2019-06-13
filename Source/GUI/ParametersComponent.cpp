@@ -371,10 +371,10 @@ bool VibratoParametersComponent::isEditable()
 VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicingParams)
 	: _voicingParamsPtr(voicingParams)
 	, voicingTypeSelector("Type", _voicingParamsPtr->VoicingSwitch, this)
-	, portaTimeSlider("PortaTime", "sec", _voicingParamsPtr->PortaTime, this, 0.01f, 0.5f)
+	, stepTimeSlider("StepTime", "sec", _voicingParamsPtr->StepTime, this, 0.01f, 0.5f)
 {
 	addAndMakeVisible(voicingTypeSelector);
-	addAndMakeVisible(portaTimeSlider);
+	addAndMakeVisible(stepTimeSlider);
 }
 
 void VoicingParametersComponent::paint(Graphics& g)
@@ -392,24 +392,33 @@ void VoicingParametersComponent::resized()
 	bounds.removeFromTop(PANEL_NAME_HEIGHT);
 
 	{
-		float alpha = _voicingParamsPtr->VoicingSwitch->getCurrentChoiceName() == "PORTAMENTO" ? 1.0f : 0.4f;
-		portaTimeSlider.setAlpha(alpha);
+		auto alpha = 0.0f;
+		if (_voicingParamsPtr->VoicingSwitch->getCurrentChoiceName() == "PORTAMENTO" ||
+			_voicingParamsPtr->VoicingSwitch->getCurrentChoiceName() == "ARPEGGIO")
+		{
+			alpha = 1.0f;
+		}
+		else
+		{
+			alpha = 0.4f;
+		}
+		stepTimeSlider.setAlpha(alpha);
 	}
 	voicingTypeSelector.setBounds(bounds.removeFromTop(compHeight));
-	portaTimeSlider.setBounds(bounds.removeFromTop(compHeight));
+	stepTimeSlider.setBounds(bounds.removeFromTop(compHeight));
 }
 
 void VoicingParametersComponent::timerCallback()
 {
 	voicingTypeSelector.setSelectedItemIndex(_voicingParamsPtr->VoicingSwitch->getIndex());
-	portaTimeSlider.setValue(_voicingParamsPtr->PortaTime->get());
+	stepTimeSlider.setValue(_voicingParamsPtr->StepTime->get());
 }
 
 void VoicingParametersComponent::sliderValueChanged(Slider* slider)
 {
-	if (slider == &portaTimeSlider.slider)
+	if (slider == &stepTimeSlider.slider)
 	{
-		*_voicingParamsPtr->PortaTime = (float)portaTimeSlider.getValue();
+		*_voicingParamsPtr->StepTime = (float)stepTimeSlider.getValue();
 	}
 }
 

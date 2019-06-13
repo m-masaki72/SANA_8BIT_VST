@@ -69,7 +69,8 @@ public:
 	void changeVoiceSize();
 
 	//Parameterの用意[1]
-	const StringArray OSC_WAVE_TYPES{
+	const StringArray OSC_WAVE_TYPES
+	{
 		"NES_Square50%",
 		"NES_Square25%",
 		"NES_Square12.5%",
@@ -85,10 +86,18 @@ public:
 		"Pure_Lo-bitNoise",
 		"Waveform Memory",
 	};
-	const StringArray SWEEP_SWITCH{
+	const StringArray SWEEP_SWITCH
+	{
 		"OFF",
 		"Positive",
 		"Negative"
+	};
+	const StringArray VOICING_SWITCH
+	{
+		"POLY",
+		"MONO",
+		"PORTAMENTO",
+		"ARPEGGIO"
 	};
 
 	PresetsParameters presetsParameters;
@@ -112,9 +121,6 @@ private:
 	//preset index
 	std::int32_t currentProgIndex;
 
-	//歪み用の関数[2]
-	static float clippingFunction(float inputValue);
-
 	//[3]のオブジェクトの初期化に必要な情報を保持する構造体[4]
 	dsp::ProcessSpec spec;
 
@@ -136,6 +142,28 @@ private:
 	// スコープパネルに波形を表示するためのデータバッファ
 	AudioBufferQueue<float> scopeDataQueue;
 	ScopeDataCollector<float> scopeDataCollector;
+
+	std::set<int> midiList;
+	MidiBuffer eventsToAdd;
+
+
+	// 関数
+	static float clippingFunction(float inputValue);
+	std::int32_t getNumVoices();
+	void addVoice();
+
+	//midiKeyのコピペ
+	template <typename Type>
+	Type jlimit(Type lowerLimit,
+		Type upperLimit,
+		Type valueToConstrain) noexcept
+	{
+		jassert(lowerLimit <= upperLimit); // if these are in the wrong order, results are unpredictable..
+
+		return valueToConstrain < lowerLimit ? lowerLimit
+			: (upperLimit < valueToConstrain ? upperLimit
+				: valueToConstrain);
+	}
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSynthAudioProcessor)
