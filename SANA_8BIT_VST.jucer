@@ -5,7 +5,7 @@
               buildVST="1" buildVST3="0" buildAU="0" buildAUv3="0" buildRTAS="0"
               buildAAX="0" enableIAA="0" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
               id="j6lCat" reportAppUsage="0" bundleIdentifier="com.MasakiMori.SANA"
-              pluginManufacturer="MasakiMori" version="1.37" pluginVSTCategory="kPlugCategSynth"
+              pluginManufacturer="MasakiMori" version="1.50" pluginVSTCategory="kPlugCategSynth"
               splashScreenColour="Light">
   <MAINGROUP id="IZtsAI" name="SANA_8bit_VST">
     <GROUP id="{0FF198AF-00FB-C9FF-2361-004F9332861C}" name="Source">

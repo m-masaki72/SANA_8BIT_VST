@@ -125,7 +125,7 @@ void SimpleSynthAudioProcessorEditor::paint (Graphics& g)
 	g.setColour(Colours::white);
 	g.setFont(32.0f);
 	//g.drawFittedText("BPM: " + std::to_string(processor.currentPositionInfo.bpm), getLocalBounds(), Justification::topRight, 1);
-	g.drawFittedText("Version 1.41", AudioProcessorEditor::getLocalBounds(), Justification::topRight, 1);
+	g.drawFittedText("Version 1.50", AudioProcessorEditor::getLocalBounds(), Justification::topRight, 1);
 }
 
 void SimpleSynthAudioProcessorEditor::resized()

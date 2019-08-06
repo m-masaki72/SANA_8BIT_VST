@@ -20,7 +20,7 @@ class BaseComponent : public Component, private Timer
 public:
 	BaseComponent() 
 	{
-		startTimerHz(30);
+		startTimerHz(10);
 	};
 	virtual void paint(Graphics& g) = 0;
 	virtual void resized() = 0;

@@ -296,7 +296,7 @@ void SimpleSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 	synth.addSound(new SimpleSound(canPlayNotes, canPlayChannels));
 
 
-	for (auto i = 0; i < getNumVoices(); ++i)
+	for (auto i = 0, voiceNum = getNumVoices(); i < voiceNum; ++i)
 	{
 		addVoice();
 	}
@@ -387,8 +387,8 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 
 		{
 			MidiBuffer::Iterator i2(eventsToAdd);
-			const int firstEventToAdd = eventsToAdd.getFirstEventTime();
-			const double scaleFactor = numSamples / (double)(eventsToAdd.getLastEventTime() + 1 - firstEventToAdd);
+			const auto firstEventToAdd = eventsToAdd.getFirstEventTime();
+			const auto scaleFactor = numSamples / (float)(eventsToAdd.getLastEventTime() + 1 - firstEventToAdd);
 
 			while (i2.getNextEvent(message, time))
 			{
@@ -409,7 +409,7 @@ void SimpleSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    for (auto channel = 0; channel < totalNumInputChannels + totalNumInputChannels; ++channel)
+    for (auto channel = 0, totalChannel = totalNumInputChannels + totalNumInputChannels; channel < totalChannel; ++channel)
     {
 		buffer.clear(channel, 0, buffer.getNumSamples());
     }

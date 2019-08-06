@@ -22,6 +22,8 @@ private:
 	float out1, out2;
 	float in1, in2;
 
+	static const int32_t MAX_SIZE = 960;
+
 public:
 	inline CMyFilter();
 
@@ -99,10 +101,10 @@ void CMyFilter::LowPass(float fc, float q, float fs)
 	b2 = (1.0f - cos(omega)) / 2.0f;
 	*/
 
-	double pi = 3.14159265;
-	double p1, p2; //計算用
-	double wc;  //カットオフ角周波数
-	double fc_a; //アナログLPFカットオフ周波数
+	float pi = 3.14159265;
+	float p1, p2; //計算用
+	float wc;  //カットオフ角周波数
+	float fc_a; //アナログLPFカットオフ周波数
 
 	fc_a = tan(pi * fc / fs) / (2 * pi);
 	wc = 2 * pi * fc_a;
@@ -250,19 +252,20 @@ public:
 	void process(AudioBuffer<float> &buffer, AudioBuffer<float> &upSampleBuffer, std::int32_t totalNumInputChannels, std::int32_t totalNumOutputChannels)
 	{
 		auto size = buffer.getNumSamples();
-		float* input = new float[size * upSamplingFactor];
-		float* output = new float[size * upSamplingFactor];
+		auto upSize = buffer.getNumSamples() * upSamplingFactor;
+		std::vector<float> input(upSize);
+		std::vector<float> output(upSize);
 
 		for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 		{
-			for (auto j = 0; j < size * upSamplingFactor; ++j)
+			for (auto j = 0; j < upSize; ++j)
 			{
 				input[j] = upSampleBuffer.getSample(i, j);
 			}
 		}
 
 		// apply LPF for anti aliasing
-		for (auto i = 0; i < size * upSamplingFactor; ++i)
+		for (auto i = 0; i < upSize; ++i)
 		{
 			output[i] = simpleFilter.Process(input[i]);
 		}
@@ -275,9 +278,6 @@ public:
 				buffer.setSample(i, j, output[upSamplingFactor * j]);
 			}
 		}
-
-		delete[] input;
-		delete[] output;
 	}
 
 private:

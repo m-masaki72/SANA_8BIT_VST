@@ -182,7 +182,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSam
 
 					for (auto channelNum = outputBuffer.getNumChannels(); --channelNum >= 0;)
 					{
-						for (auto i = 0; i < _midiEchoParamsPtr->EchoRepeat->get(); ++i)
+						for (auto i = 0, repeatNum = _midiEchoParamsPtr->EchoRepeat->get(); i < repeatNum; ++i)
 						{
 							outputBuffer.addSample(channelNum, startSample, eb.getSample(i));
 						}
@@ -333,7 +333,7 @@ float SimpleVoice::angle2wave(float angle)
 		value += waveForms.lobitNoise(angle);
 	}
 	else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() == "Waveform Memory") {
-		value += waveForms.waveformMemory(currentAngle, _waveformMemoryParamsPtr);
+		value += waveForms.waveformMemory(angle, _waveformMemoryParamsPtr);
 	}
 	return value;
 }
