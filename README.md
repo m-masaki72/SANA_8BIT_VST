@@ -4,7 +4,7 @@ SANA 8BIT VST
 Overview  
 This is Simple VSTi Synthesizer for chiptune.
 
-![screenshot](./ScreenShot/SANA_Screen_Shot.png)
+![screenshot](./ScreenShot/SANA_Screen_Shot.jpg)
 
 ## Description
 This is VSTi project made by JUCE 5.3.1 Library.
@@ -27,6 +27,7 @@ If you want to uninstall, delete its dll files.
 
 ## Environment
 Windows 32bit/64bit
+MacOS VST/AU
 
 I tested following DAW.
 * Studio One 2, 3, 4
