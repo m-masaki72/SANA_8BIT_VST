@@ -61,7 +61,7 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
 }
 , voicingParameters{
 	new AudioParameterChoice("VOICING_TYPE", "Voicing-Type", VOICING_SWITCH, 0),
-	new AudioParameterFloat("STEP_TIME", "Step-Time",  0.0f, 3.0f, 0.0f)
+	new AudioParameterFloat("STEP_TIME", "Step-Time",  0.00f, 3.0f, 0.0f)
 }
 , optionsParameters{
 	new AudioParameterInt("PITCH_BEND_RANGE", "Pitch-Bend-Range", 1, 13, 2),

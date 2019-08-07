@@ -371,7 +371,7 @@ bool VibratoParametersComponent::isEditable()
 VoicingParametersComponent::VoicingParametersComponent(VoicingParameters* voicingParams)
 	: _voicingParamsPtr(voicingParams)
 	, voicingTypeSelector("Type", _voicingParamsPtr->VoicingSwitch, this)
-	, stepTimeSlider("StepTime", "sec", _voicingParamsPtr->StepTime, this, 0.01f, 0.5f)
+	, stepTimeSlider("StepTime", "sec", _voicingParamsPtr->StepTime, this, 0.001f, 0.5f)
 {
 	addAndMakeVisible(voicingTypeSelector);
 	addAndMakeVisible(stepTimeSlider);

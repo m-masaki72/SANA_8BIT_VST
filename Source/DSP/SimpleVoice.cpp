@@ -128,31 +128,30 @@ void SimpleVoice::controllerMoved(int /*controllerNumber*/, int /*newControllerV
 
 }
 
-int timer = 0;
+float timer = 0.0f;
+std::int32_t count = 0;
 
 void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
-	timer++;
-	if (timer > 10) timer = 0;
-
 	if (isArpMode())
 	{
-		// angleDeltaの特殊制御	
-		if (_midiList->size() >= 2)
+		timer += 1.0f / (float)getSampleRate() * numSamples;
+		if (timer > _voicingParamsPtr->StepTime->get())
 		{
-			if (timer > 5) {
-				float cyclesPerSecond = (float)MidiMessage::getMidiNoteInHertz(*_midiList->begin(), _optionsParamsPtr->PitchStandard->get());
-				float cyclesPerSample = (float)cyclesPerSecond / (float)getSampleRate();
-				angleDelta = cyclesPerSample * TWO_PI;
-			}
-			else
-			{
-				auto itr = _midiList->begin();
-				++itr;
-				float cyclesPerSecond = (float)MidiMessage::getMidiNoteInHertz(*itr, _optionsParamsPtr->PitchStandard->get());
-				float cyclesPerSample = (float)cyclesPerSecond / (float)getSampleRate();
-				angleDelta = cyclesPerSample * TWO_PI;
-			}
+			timer = 0;
+			count++;
+		}
+
+		// angleDeltaの特殊制御	
+		if (_midiList->size() >= 1)
+		{
+			if (count >= _midiList->size()) count = 0;
+
+			auto itr = _midiList->begin();
+			for (auto i = 0; i < count; ++i) ++itr;
+			float cyclesPerSecond = (float)MidiMessage::getMidiNoteInHertz(*itr, _optionsParamsPtr->PitchStandard->get());
+			float cyclesPerSample = (float)cyclesPerSecond / (float)getSampleRate();
+			angleDelta = cyclesPerSample * TWO_PI;
 		}
 	}
 
@@ -361,17 +360,15 @@ bool SimpleVoice::canStartNote()
 	{
 		return true;
 	}
-	else
+	if (_midiList->size() <= 0)
 	{
-		if (_midiList->size() <= 0)
-		{
-			return true;
-		}
-		if (ampEnv.isReleasing() || ampEnv.isReleaseEnded() || ampEnv.isEchoEnded())
-		{
-			return true;
-		}
-
-		return false;
+		return true;
 	}
+	if (ampEnv.isReleasing() || ampEnv.isReleaseEnded() || ampEnv.isEchoEnded())
+	{
+		return true;
+	}
+
+	return false;
+	
 }
