@@ -40,7 +40,7 @@ public:
 		: TextSlider(labelName, unit, param->get(), param->range.start, param->range.end, listener, degree, pivot)
 	{};
 	TextSlider(std::string labelName, std::string unit, AudioParameterInt *param, Slider::Listener *listener)
-		: TextSlider(labelName, unit, param->get(), param->getRange().getEnd(), param->getRange().getEnd(), listener, 1.0f)
+		: TextSlider(labelName, unit, param->get(), param->getRange().getStart(), param->getRange().getEnd(), listener, 1.0f)
 	{};
 
 	virtual void setAlpha(float alpha)
