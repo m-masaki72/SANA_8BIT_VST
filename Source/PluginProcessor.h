@@ -19,6 +19,8 @@
 #include "GUI/ScopeComponent.h"
 #include "DSP/DspUtils.h"
 
+#include <set>
+
 //==============================================================================
 class SimpleSynthAudioProcessor  : public AudioProcessor
 {

@@ -19,6 +19,8 @@
 #include "Waveforms.h"
 #include "Timer.h"
 
+#include <set>
+
 class SimpleVoice : public SynthesiserVoice
 {
 public:
