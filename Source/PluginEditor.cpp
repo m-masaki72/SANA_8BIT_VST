@@ -14,6 +14,8 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+#include "AppConfig.h"
+
 namespace 
 {
 	const std::int32_t KEY_HEIGHT = 80;
@@ -125,7 +127,9 @@ void SimpleSynthAudioProcessorEditor::paint (Graphics& g)
 	g.setColour(Colours::white);
 	g.setFont(32.0f);
 	//g.drawFittedText("BPM: " + std::to_string(processor.currentPositionInfo.bpm), getLocalBounds(), Justification::topRight, 1);
-	g.drawFittedText("Version 1.50", AudioProcessorEditor::getLocalBounds(), Justification::topRight, 1);
+	std::string VersionName = "Version ";
+	VersionName += JucePlugin_VersionString;
+	g.drawFittedText(VersionName, AudioProcessorEditor::getLocalBounds(), Justification::topRight, 1);
 }
 
 void SimpleSynthAudioProcessorEditor::resized()
