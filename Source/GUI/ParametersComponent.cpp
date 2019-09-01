@@ -571,8 +571,7 @@ RangeSlider::RangeSlider(WaveformMemoryParameters* waveformMemoryParams)
 		waveSampleSlider[i].setRange(0, 15, 1.0);
 		waveSampleSlider[i].setValue(7, dontSendNotification);
 	}
-
-	timerCallback();
+	startTimerHz(10);
 }
 
 void RangeSlider::paint(Graphics& g)
@@ -639,7 +638,9 @@ void RangeSlider::timerCallback()
 	for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i)
 	{
 		waveSampleSlider[i].setValue(_waveformMemoryParamsPtr->WaveSamplesArray[i]->get(), dontSendNotification);
+		_waveformMemoryParamsPtr->_waveSampleArray[i] = waveSampleSlider[i].getValue();
 	}
+	repaint();
 }
 
 void RangeSlider::updateValue()
@@ -705,7 +706,6 @@ void RangeSlider::mouseDrag(const MouseEvent& e)
 //----------------------------------------------------------------------------------------------------
 WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams)
 	: _waveformMemoryParamsPtr(waveformMemoryParams)
-	//, waveSampleSlider{}
 	, waveRangeSlider(waveformMemoryParams)
 	, saveButton()
 	, loadButton()
@@ -750,7 +750,6 @@ void WaveformMemoryParametersComponent::buttonClicked(Button* button)
 	{
 		loadWaveFile(_waveformMemoryParamsPtr);
 	}
-	repaint();
 }
 
 bool WaveformMemoryParametersComponent::isInterestedInFileDrag(const StringArray & files)
@@ -781,7 +780,6 @@ void WaveformMemoryParametersComponent::filesDropped(const StringArray &files, i
 			++count;
 		}
 	}
-	repaint();
 }
 
 //----------------------------------------------------------------------------------------------------

@@ -173,11 +173,11 @@ class RangeSlider : public Component, private Timer
 public:
 	RangeSlider(WaveformMemoryParameters* waveformMemoryParams);
 	virtual void paint(Graphics& g) override;
+	void updateValue();
+	void updateValue(std::int32_t index);
 
 private:
 	virtual void timerCallback() override;
-	void updateValue();
-	void updateValue(std::int32_t index);
 	virtual void mouseDrag(const MouseEvent& e) override;
 	virtual void mouseDown(const MouseEvent& e) override;
 	virtual void mouseUp(const MouseEvent& e) override;
