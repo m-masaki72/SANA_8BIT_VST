@@ -3,294 +3,289 @@
 
     ParametersComponent.cpp
     Created: 16 May 2018 1:55:55am
-	Modified: 11 September 2018
-	Author:  MasakiMori, COx2
+        Modified: 11 September 2018
+        Author:  MasakiMori, COx2
 
   ==============================================================================
 */
 
 #pragma once
 
-#include "JuceHeader.h"
 #include "../DSP/SimpleSynthParameters.h"
 #include "ComponentUtil.h"
+#include "JuceHeader.h"
 
-class BaseComponent : public Component, private Timer
-{
-public:
-	BaseComponent() 
-	{
-		startTimerHz(10);
-	};
-	virtual void paint(Graphics& g) = 0;
-	virtual void resized() = 0;
+class BaseComponent : public Component, private Timer {
+ public:
+  BaseComponent() { startTimerHz(10); };
+  virtual void paint(Graphics& g) = 0;
+  virtual void resized() = 0;
 
-private:
-	virtual void timerCallback() = 0;
+ private:
+  virtual void timerCallback() = 0;
 };
 
-class ChipOscillatorComponent : public BaseComponent, ComboBox::Listener, Slider::Listener
-{
-public:
-	ChipOscillatorComponent(ChipOscillatorParameters* oscParams);
+class ChipOscillatorComponent : public BaseComponent,
+                                ComboBox::Listener,
+                                Slider::Listener {
+ public:
+  ChipOscillatorComponent(ChipOscillatorParameters* oscParams);
 
-	virtual void paint(Graphics& g) override;
-	virtual void resized() override;
+  virtual void paint(Graphics& g) override;
+  virtual void resized() override;
 
-private:
-	ChipOscillatorComponent();
+ private:
+  ChipOscillatorComponent();
 
-	virtual void timerCallback() override;
-	virtual void sliderValueChanged(Slider* slider) override;
-	virtual void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
+  virtual void timerCallback() override;
+  virtual void sliderValueChanged(Slider* slider) override;
+  virtual void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
 
-	ChipOscillatorParameters* _oscParamsPtr;
+  ChipOscillatorParameters* _oscParamsPtr;
 
-	TextSelector waveTypeSelector;
-	TextSlider volumeLevelSlider;
-	TextSlider attackSlider;
-	TextSlider decaySlider;
-	TextSlider sustainSlider;
-	TextSlider releaseSlider;
+  TextSelector waveTypeSelector;
+  TextSlider volumeLevelSlider;
+  TextSlider attackSlider;
+  TextSlider decaySlider;
+  TextSlider sustainSlider;
+  TextSlider releaseSlider;
 };
 
-class SweepParametersComponent : public BaseComponent, Slider::Listener, ComboBox::Listener
-{
-public:
-	SweepParametersComponent(SweepParameters* sweepParams);
+class SweepParametersComponent : public BaseComponent,
+                                 Slider::Listener,
+                                 ComboBox::Listener {
+ public:
+  SweepParametersComponent(SweepParameters* sweepParams);
 
-	virtual void paint(Graphics& g) override;
-	virtual void resized() override;
+  virtual void paint(Graphics& g) override;
+  virtual void resized() override;
 
-private:
-	SweepParametersComponent();
+ private:
+  SweepParametersComponent();
 
-	virtual void timerCallback() override;
-	virtual void sliderValueChanged(Slider* slider) override;
-	virtual void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
-	bool isEditable();
+  virtual void timerCallback() override;
+  virtual void sliderValueChanged(Slider* slider) override;
+  virtual void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
+  bool isEditable();
 
-	SweepParameters* _sweepParamsPtr;
+  SweepParameters* _sweepParamsPtr;
 
-	TextSelector sweepSwitchSelector;
-	TextSlider timeSlider;
+  TextSelector sweepSwitchSelector;
+  TextSlider timeSlider;
 };
 
-class VibratoParametersComponent : public BaseComponent, Button::Listener, Slider::Listener
-{
-public:
-	VibratoParametersComponent(VibratoParameters* vibratoParams);
+class VibratoParametersComponent : public BaseComponent,
+                                   Button::Listener,
+                                   Slider::Listener {
+ public:
+  VibratoParametersComponent(VibratoParameters* vibratoParams);
 
-	virtual void paint(Graphics& g) override;
-	virtual void resized() override;
+  virtual void paint(Graphics& g) override;
+  virtual void resized() override;
 
-private:
-	VibratoParametersComponent();
+ private:
+  VibratoParametersComponent();
 
-	virtual void timerCallback() override;
-	virtual void sliderValueChanged(Slider* slider) override;
-	virtual void buttonClicked(Button* button) override;
-	bool isEditable();
+  virtual void timerCallback() override;
+  virtual void sliderValueChanged(Slider* slider) override;
+  virtual void buttonClicked(Button* button) override;
+  bool isEditable();
 
-	VibratoParameters* _vibratoParamsPtr;
+  VibratoParameters* _vibratoParamsPtr;
 
-	SwitchButton enableSwitch;
-	SwitchButton attackDeleySwitch;
-	TextSlider amountSlider;
-	TextSlider speedSlider;
-	TextSlider attackDeleyTimeSlider;
-
+  SwitchButton enableSwitch;
+  SwitchButton attackDeleySwitch;
+  TextSlider amountSlider;
+  TextSlider speedSlider;
+  TextSlider attackDeleyTimeSlider;
 };
 
-class VoicingParametersComponent : public BaseComponent, ComboBox::Listener, Slider::Listener
-{
-public:
-	VoicingParametersComponent(VoicingParameters* voicingParams);
+class VoicingParametersComponent : public BaseComponent,
+                                   ComboBox::Listener,
+                                   Slider::Listener {
+ public:
+  VoicingParametersComponent(VoicingParameters* voicingParams);
 
-	virtual void paint(Graphics& g) override;
-	virtual void resized() override;
+  virtual void paint(Graphics& g) override;
+  virtual void resized() override;
 
-private:
-	VoicingParametersComponent();
+ private:
+  VoicingParametersComponent();
 
-	virtual void timerCallback() override;
-	virtual void sliderValueChanged(Slider* slider) override;
-	virtual void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
+  virtual void timerCallback() override;
+  virtual void sliderValueChanged(Slider* slider) override;
+  virtual void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
 
-	VoicingParameters* _voicingParamsPtr;
+  VoicingParameters* _voicingParamsPtr;
 
-	TextSelector voicingTypeSelector;
-	TextSlider stepTimeSlider;
+  TextSelector voicingTypeSelector;
+  TextSlider stepTimeSlider;
 };
 
-class OptionsParametersComponent : public BaseComponent, Slider::Listener
-{
-public:
-	OptionsParametersComponent(OptionsParameters* optionsParams);
+class OptionsParametersComponent : public BaseComponent, Slider::Listener {
+ public:
+  OptionsParametersComponent(OptionsParameters* optionsParams);
 
-	virtual void paint(Graphics& g) override;
-	virtual void resized() override;
+  virtual void paint(Graphics& g) override;
+  virtual void resized() override;
 
-private:
-	OptionsParametersComponent();
+ private:
+  OptionsParametersComponent();
 
-	virtual void timerCallback() override;
-	virtual void sliderValueChanged(Slider* slider) override;
-	
-	OptionsParameters* _optionsParamsPtr;
+  virtual void timerCallback() override;
+  virtual void sliderValueChanged(Slider* slider) override;
 
-	TextSliderIncDec pitchStandardSlider;
-	TextSliderIncDec pitchBendRangeSlider;
+  OptionsParameters* _optionsParamsPtr;
 
+  TextSliderIncDec pitchStandardSlider;
+  TextSliderIncDec pitchBendRangeSlider;
 };
 
-class MidiEchoParametersComponent : public BaseComponent, Button::Listener, Slider::Listener
-{
-public:
-	MidiEchoParametersComponent(MidiEchoParameters* midiEchoParams);
+class MidiEchoParametersComponent : public BaseComponent,
+                                    Button::Listener,
+                                    Slider::Listener {
+ public:
+  MidiEchoParametersComponent(MidiEchoParameters* midiEchoParams);
 
-	virtual void paint(Graphics& g) override;
-	virtual void resized() override;
+  virtual void paint(Graphics& g) override;
+  virtual void resized() override;
 
-private:
-	MidiEchoParametersComponent();
+ private:
+  MidiEchoParametersComponent();
 
-	virtual void timerCallback() override;
-	virtual void sliderValueChanged(Slider* slider) override;
-	virtual void buttonClicked(Button* button) override;
-	bool isEditable();
+  virtual void timerCallback() override;
+  virtual void sliderValueChanged(Slider* slider) override;
+  virtual void buttonClicked(Button* button) override;
+  bool isEditable();
 
-	MidiEchoParameters* _midiEchoParamsPtr;
+  MidiEchoParameters* _midiEchoParamsPtr;
 
-	SwitchButton enableButton;
-	TextSlider durationSlider;
-	TextSlider repeatSlider;
-	TextSlider volumeOffsetSlider;
+  SwitchButton enableButton;
+  TextSlider durationSlider;
+  TextSlider repeatSlider;
+  TextSlider volumeOffsetSlider;
 };
 
-class RangeSlider : public Component, private Timer
-{
-public:
-	RangeSlider(WaveformMemoryParameters* waveformMemoryParams);
-	virtual void paint(Graphics& g) override;
-	void updateValue();
-	void updateValue(std::int32_t index);
+class RangeSlider : public Component, private Timer {
+ public:
+  RangeSlider(WaveformMemoryParameters* waveformMemoryParams);
+  virtual void paint(Graphics& g) override;
+  void updateValue();
+  void updateValue(std::int32_t index);
 
-private:
-	virtual void timerCallback() override;
-	virtual void mouseDrag(const MouseEvent& e) override;
-	virtual void mouseDown(const MouseEvent& e) override;
-	virtual void mouseUp(const MouseEvent& e) override;
+ private:
+  virtual void timerCallback() override;
+  virtual void mouseDrag(const MouseEvent& e) override;
+  virtual void mouseDown(const MouseEvent& e) override;
+  virtual void mouseUp(const MouseEvent& e) override;
 
-	Slider waveSampleSlider[32];
-	const int BUTTON_HEIGHT = 32;
+  Slider waveSampleSlider[32];
+  const int BUTTON_HEIGHT = 32;
 
-	WaveformMemoryParameters* _waveformMemoryParamsPtr;
+  WaveformMemoryParameters* _waveformMemoryParamsPtr;
 
-	//=====================================================================================
-	
-	struct Trail
-	{
-		Trail(const MouseInputSource& ms)
-			: source(ms)
-		{}
+  //=====================================================================================
 
-		void pushPoint(Point<float> newPoint, ModifierKeys newMods, float pressure)
-		{
-			currentPosition = newPoint;
-			modifierKeys = newMods;
+  struct Trail {
+    Trail(const MouseInputSource& ms) : source(ms) {}
 
-			if (lastPoint.getDistanceFrom(newPoint) > 5.0f)
-			{
-				if (lastPoint != Point<float>())
-				{
-					Path newSegment;
-					newSegment.startNewSubPath(lastPoint);
-					newSegment.lineTo(newPoint);
+    void pushPoint(Point<float> newPoint, ModifierKeys newMods,
+                   float pressure) {
+      currentPosition = newPoint;
+      modifierKeys = newMods;
 
-					auto diameter = 20.0f * (pressure > 0 && pressure < 1.0f ? pressure : 1.0f);
+      if (lastPoint.getDistanceFrom(newPoint) > 5.0f) {
+        if (lastPoint != Point<float>()) {
+          Path newSegment;
+          newSegment.startNewSubPath(lastPoint);
+          newSegment.lineTo(newPoint);
 
-					PathStrokeType(diameter, PathStrokeType::curved, PathStrokeType::rounded).createStrokedPath(newSegment, newSegment);
-					path.addPath(newSegment);
-				}
+          auto diameter =
+              20.0f * (pressure > 0 && pressure < 1.0f ? pressure : 1.0f);
 
-				lastPoint = newPoint;
-			}
-		}
+          PathStrokeType(diameter, PathStrokeType::curved,
+                         PathStrokeType::rounded)
+              .createStrokedPath(newSegment, newSegment);
+          path.addPath(newSegment);
+        }
 
-		MouseInputSource source;
-		Path path;
-		Colour colour{ Colours::rebeccapurple.withAlpha(0.6f) };
-		Point<float> lastPoint, currentPosition;
-		ModifierKeys modifierKeys;
+        lastPoint = newPoint;
+      }
+    }
 
-		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Trail)
-	};
+    MouseInputSource source;
+    Path path;
+    Colour colour{Colours::rebeccapurple.withAlpha(0.6f)};
+    Point<float> lastPoint, currentPosition;
+    ModifierKeys modifierKeys;
 
-	OwnedArray<Trail> trails;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Trail)
+  };
 
-	Trail* getTrail(const MouseInputSource& source)
-	{
-		for (auto* trail : trails)
-		{
-			if (trail->source == source)
-				return trail;
-		}
+  OwnedArray<Trail> trails;
 
-		return nullptr;
-	}
-	//=====================================================================================
+  Trail* getTrail(const MouseInputSource& source) {
+    for (auto* trail : trails) {
+      if (trail->source == source) return trail;
+    }
+
+    return nullptr;
+  }
+  //=====================================================================================
 };
 
-class WaveformMemoryParametersComponent : public Component, Button::Listener, public FileDragAndDropTarget
-{
-public:
-	WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams);
+class WaveformMemoryParametersComponent : public Component,
+                                          Button::Listener,
+                                          public FileDragAndDropTarget {
+ public:
+  WaveformMemoryParametersComponent(
+      WaveformMemoryParameters* waveformMemoryParams);
 
-	virtual void paint(Graphics& g) override;
-	virtual void resized() override;
+  virtual void paint(Graphics& g) override;
+  virtual void resized() override;
 
-private:
-	WaveformMemoryParametersComponent();
+ private:
+  WaveformMemoryParametersComponent();
 
-	virtual void buttonClicked(Button* button) override;
-	virtual bool isInterestedInFileDrag(const StringArray & files) override;
-	virtual void fileDragEnter(const StringArray &files, int x, int y) override;
-	virtual void fileDragMove(const StringArray &files, int x, int y)override;
-	virtual void fileDragExit(const StringArray &files)override;
-	virtual void filesDropped(const StringArray &files, int x, int y) override;
+  virtual void buttonClicked(Button* button) override;
+  virtual bool isInterestedInFileDrag(const StringArray& files) override;
+  virtual void fileDragEnter(const StringArray& files, int x, int y) override;
+  virtual void fileDragMove(const StringArray& files, int x, int y) override;
+  virtual void fileDragExit(const StringArray& files) override;
+  virtual void filesDropped(const StringArray& files, int x, int y) override;
 
-	WaveformMemoryParameters* _waveformMemoryParamsPtr;
+  WaveformMemoryParameters* _waveformMemoryParamsPtr;
 
-	//Slider waveSampleSlider[32];
-	RangeSlider waveRangeSlider;
+  // Slider waveSampleSlider[32];
+  RangeSlider waveRangeSlider;
 
-	TextButton saveButton;
-	TextButton loadButton;
-	//File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
-	const int BUTTON_HEIGHT = 32;
+  TextButton saveButton;
+  TextButton loadButton;
+  // File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
+  const int BUTTON_HEIGHT = 32;
 };
 
-class FilterParametersComponent : public BaseComponent, Button::Listener, Slider::Listener
-{
-public:
-	FilterParametersComponent(FilterParameters* filterParams);
+class FilterParametersComponent : public BaseComponent,
+                                  Button::Listener,
+                                  Slider::Listener {
+ public:
+  FilterParametersComponent(FilterParameters* filterParams);
 
-	virtual void paint(Graphics& g) override;
-	virtual void resized() override;
+  virtual void paint(Graphics& g) override;
+  virtual void resized() override;
 
-private:
-	FilterParametersComponent();
+ private:
+  FilterParametersComponent();
 
-	virtual void timerCallback() override;
-	virtual void sliderValueChanged(Slider* slider) override;
-	virtual void buttonClicked(Button* button) override;
+  virtual void timerCallback() override;
+  virtual void sliderValueChanged(Slider* slider) override;
+  virtual void buttonClicked(Button* button) override;
 
-	FilterParameters* _filterParamsPtr;
+  FilterParameters* _filterParamsPtr;
 
-	SwitchButton hiCutSwitch;
-	SwitchButton lowCutSwitch;
+  SwitchButton hiCutSwitch;
+  SwitchButton lowCutSwitch;
 
-	TextSlider hicutFreqSlider;
-	TextSlider lowcutFreqSlider;
+  TextSlider hicutFreqSlider;
+  TextSlider lowcutFreqSlider;
 };
