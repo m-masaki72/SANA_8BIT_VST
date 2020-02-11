@@ -14,20 +14,22 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 // ②クラス宣言。SynthesiserSoundクラスを継承する。
-class SimpleSound : public SynthesiserSound {
- public:
-  // ③引数付きコンストラクタ
-  SimpleSound(const BigInteger& notes, const BigInteger& channels);
+class SimpleSound : public SynthesiserSound
+{
+public:
+	// ③引数付きコンストラクタ
+	SimpleSound(const BigInteger& notes, const BigInteger& channels);
 
-  // デストラクタ
-  virtual ~SimpleSound();
+	// デストラクタ
+	virtual ~SimpleSound();
 
-  // ④純粋仮想関数をオーバーライド宣言する。
-  virtual bool appliesToNote(int midiNoteNumber) override;
-  virtual bool appliesToChannel(int midiChannel) override;
+	// ④純粋仮想関数をオーバーライド宣言する。
+	virtual bool appliesToNote(int midiNoteNumber) override;
+	virtual bool appliesToChannel(int midiChannel) override;
 
- private:
-  // ⑤トリガー可能なMIDIノート番号の一覧とMIDIチャンネル番号の一覧を表現するビットフラグを保持する変数を宣言する。
-  BigInteger midiNotes;
-  BigInteger midiChannels;
+private:
+	// ⑤トリガー可能なMIDIノート番号の一覧とMIDIチャンネル番号の一覧を表現するビットフラグを保持する変数を宣言する。
+	BigInteger midiNotes;
+	BigInteger midiChannels;
+
 };

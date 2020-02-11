@@ -3,8 +3,8 @@
 
     SimpleSynthParameters.h
     Created: 10 May 2018 12:28:18am
-        Modified: 11 September 2018
-        Author:  MasakiMori, COx2
+	Modified: 11 September 2018
+	Author:  MasakiMori, COx2
 
   ==============================================================================
 */
@@ -13,177 +13,205 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-namespace {
-const std::int32_t WAVESAMPLE_LENGTH = 32;
+namespace
+{
+	const std::int32_t WAVESAMPLE_LENGTH = 32;
 }
 
-class SynthParametersBase {
- public:
-  virtual ~SynthParametersBase(){};
+class SynthParametersBase
+{
+public:
+	virtual ~SynthParametersBase() {};
 
-  virtual void addAllParameters(AudioProcessor& processor) = 0;
-  virtual void saveParameters(XmlElement& xml) = 0;
-  virtual void loadParameters(XmlElement& xml) = 0;
+	virtual void addAllParameters(AudioProcessor& processor) = 0;
+	virtual void saveParameters(XmlElement& xml) = 0; 
+	virtual void loadParameters(XmlElement& xml) = 0;
 };
 
-class ChipOscillatorParameters : public SynthParametersBase {
- public:
-  AudioParameterChoice* OscWaveType;
-  AudioParameterFloat* VolumeLevel;
-  AudioParameterFloat* Attack;
-  AudioParameterFloat* Decay;
-  AudioParameterFloat* Sustain;
-  AudioParameterFloat* Release;
+class ChipOscillatorParameters : public SynthParametersBase
+{
+public:
+	AudioParameterChoice* OscWaveType;
+	AudioParameterFloat* VolumeLevel;
+	AudioParameterFloat* Attack;
+	AudioParameterFloat* Decay;
+	AudioParameterFloat* Sustain;
+	AudioParameterFloat* Release;
 
-  ChipOscillatorParameters(AudioParameterChoice* OscWaveType,
-                           AudioParameterFloat* volumeLevel,
-                           AudioParameterFloat* attack,
-                           AudioParameterFloat* decay,
-                           AudioParameterFloat* sustain,
-                           AudioParameterFloat* release);
+	ChipOscillatorParameters(
+		AudioParameterChoice* OscWaveType ,
+		AudioParameterFloat* volumeLevel,
+		AudioParameterFloat* attack,
+		AudioParameterFloat* decay,
+		AudioParameterFloat* sustain,
+		AudioParameterFloat* release
+	);
 
-  virtual void addAllParameters(AudioProcessor& processor) override;
-  virtual void saveParameters(XmlElement& xml) override;
-  virtual void loadParameters(XmlElement& xml) override;
+	virtual void addAllParameters(AudioProcessor& processor) override;
+	virtual void saveParameters(XmlElement& xml) override;
+	virtual void loadParameters(XmlElement& xml) override;
 
- private:
-  ChipOscillatorParameters(){};
+private:
+	ChipOscillatorParameters() {};
 };
 
-class SweepParameters : public SynthParametersBase {
- public:
-  AudioParameterChoice* SweepSwitch;
-  AudioParameterFloat* SweepTime;
+class SweepParameters : public SynthParametersBase
+{
+public:
+	AudioParameterChoice* SweepSwitch;
+	AudioParameterFloat*  SweepTime;
 
-  SweepParameters(AudioParameterChoice* SweepSwitch,
-                  AudioParameterFloat* SweepTime);
+	SweepParameters(
+		AudioParameterChoice* SweepSwitch,
+		AudioParameterFloat*  SweepTime
+	);
 
-  virtual void addAllParameters(AudioProcessor& processor) override;
-  virtual void saveParameters(XmlElement& xml) override;
-  virtual void loadParameters(XmlElement& xml) override;
+	virtual void addAllParameters(AudioProcessor& processor) override;
+	virtual void saveParameters(XmlElement& xml) override;
+	virtual void loadParameters(XmlElement& xml) override;
 
- private:
-  SweepParameters(){};
+private:
+	SweepParameters() {};
 };
 
-class VibratoParameters : public SynthParametersBase {
- public:
-  AudioParameterBool* VibratoEnable;
-  AudioParameterBool* VibratoAttackDeleySwitch;
-  AudioParameterFloat* VibratoAmount;
-  AudioParameterFloat* VibratoSpeed;
-  AudioParameterFloat* VibratoAttackTime;
+class VibratoParameters : public SynthParametersBase
+{
+public:
+	AudioParameterBool* VibratoEnable;
+	AudioParameterBool* VibratoAttackDeleySwitch;
+	AudioParameterFloat*  VibratoAmount;
+	AudioParameterFloat*  VibratoSpeed;
+	AudioParameterFloat*  VibratoAttackTime;
 
-  VibratoParameters(AudioParameterBool* vibratoEnable,
-                    AudioParameterBool* attackDeleySwitch,
-                    AudioParameterFloat* vibratoAmount,
-                    AudioParameterFloat* vibratoSpeed,
-                    AudioParameterFloat* vibratoAttackTime);
+	VibratoParameters(
+		AudioParameterBool* vibratoEnable,
+		AudioParameterBool* attackDeleySwitch,
+		AudioParameterFloat*  vibratoAmount,
+		AudioParameterFloat*  vibratoSpeed,
+		AudioParameterFloat*  vibratoAttackTime
+	);
 
-  virtual void addAllParameters(AudioProcessor& processor) override;
-  virtual void saveParameters(XmlElement& xml) override;
-  virtual void loadParameters(XmlElement& xml) override;
+	virtual void addAllParameters(AudioProcessor& processor) override;
+	virtual void saveParameters(XmlElement& xml) override;
+	virtual void loadParameters(XmlElement& xml) override;
 
- private:
-  VibratoParameters(){};
+private:
+	VibratoParameters() {};
 };
 
-class VoicingParameters : public SynthParametersBase {
- public:
-  AudioParameterChoice* VoicingSwitch;
-  AudioParameterFloat* StepTime;
+class VoicingParameters : public SynthParametersBase
+{
+public:
+	AudioParameterChoice* VoicingSwitch;
+	AudioParameterFloat* StepTime;
 
-  VoicingParameters(AudioParameterChoice* sweepSwitch,
-                    AudioParameterFloat* stepTime);
+	VoicingParameters(
+		AudioParameterChoice* sweepSwitch,
+		AudioParameterFloat* stepTime
+	);
 
-  virtual void addAllParameters(AudioProcessor& processor) override;
-  virtual void saveParameters(XmlElement& xml) override;
-  virtual void loadParameters(XmlElement& xml) override;
+	virtual void addAllParameters(AudioProcessor& processor) override;
+	virtual void saveParameters(XmlElement& xml) override;
+	virtual void loadParameters(XmlElement& xml) override;
 
- private:
-  VoicingParameters(){};
+private:
+	VoicingParameters() {};
 };
 
-class OptionsParameters : public SynthParametersBase {
- public:
-  AudioParameterInt* PitchBendRange;
-  AudioParameterInt* PitchStandard;
-  float currentBPM;
+class OptionsParameters : public SynthParametersBase
+{
+public:
+	AudioParameterInt*	PitchBendRange;
+	AudioParameterInt*	PitchStandard;
+	float currentBPM;
 
-  OptionsParameters(AudioParameterInt* pitchBendRange,
-                    AudioParameterInt* pitchStandard);
+	OptionsParameters(
+		AudioParameterInt* pitchBendRange,
+		AudioParameterInt*	pitchStandard
+	);
 
-  virtual void addAllParameters(AudioProcessor& processor) override;
-  virtual void saveParameters(XmlElement& xml) override;
-  virtual void loadParameters(XmlElement& xml) override;
+	virtual void addAllParameters(AudioProcessor& processor) override;
+	virtual void saveParameters(XmlElement& xml) override;
+	virtual void loadParameters(XmlElement& xml) override;
 
- private:
-  OptionsParameters(){};
+private:
+	OptionsParameters() {};
 };
 
-class WaveformMemoryParameters : public SynthParametersBase {
- public:
-  AudioParameterInt* WaveSamplesArray[WAVESAMPLE_LENGTH];
-  std::atomic_int32_t _waveSampleArray[WAVESAMPLE_LENGTH];
+class WaveformMemoryParameters : public SynthParametersBase
+{
+public:
+	AudioParameterInt* WaveSamplesArray[WAVESAMPLE_LENGTH];
+	std::atomic_int32_t _waveSampleArray[WAVESAMPLE_LENGTH];
 
-  WaveformMemoryParameters();
+	WaveformMemoryParameters();
 
-  virtual void addAllParameters(AudioProcessor& processor) override;
-  virtual void saveParameters(XmlElement& xml) override;
-  virtual void loadParameters(XmlElement& xml) override;
+	virtual void addAllParameters(AudioProcessor& processor) override;
+	virtual void saveParameters(XmlElement& xml) override;
+	virtual void loadParameters(XmlElement& xml) override;
 
- private:
+private:
 };
 
-class MidiEchoParameters : public SynthParametersBase {
- public:
-  AudioParameterBool* IsEchoEnable;
-  AudioParameterFloat* EchoDuration;
-  AudioParameterInt* EchoRepeat;
-  AudioParameterFloat* VolumeOffset;
+class MidiEchoParameters : public SynthParametersBase
+{
+public:
+	AudioParameterBool*	IsEchoEnable;
+	AudioParameterFloat* EchoDuration;
+	AudioParameterInt* EchoRepeat;
+	AudioParameterFloat* VolumeOffset;
 
-  MidiEchoParameters(AudioParameterBool* isEchoEnable,
-                     AudioParameterFloat* echoDuration,
-                     AudioParameterInt* echoRepeat,
-                     AudioParameterFloat* volumeOffset);
+	MidiEchoParameters(
+		AudioParameterBool* isEchoEnable,
+		AudioParameterFloat* echoDuration,
+		AudioParameterInt* echoRepeat,
+		AudioParameterFloat* volumeOffset
+	);
 
-  virtual void addAllParameters(AudioProcessor& processor) override;
-  virtual void saveParameters(XmlElement& xml) override;
-  virtual void loadParameters(XmlElement& xml) override;
+	virtual void addAllParameters(AudioProcessor& processor) override;
+	virtual void saveParameters(XmlElement& xml) override;
+	virtual void loadParameters(XmlElement& xml) override;
 
- private:
-  MidiEchoParameters(){};
+private:
+	MidiEchoParameters() {};
 };
 
-class FilterParameters : public SynthParametersBase {
- public:
-  AudioParameterBool* HicutEnable;
-  AudioParameterBool* LowcutEnable;
-  AudioParameterFloat* HicutFreq;
-  AudioParameterFloat* LowcutFreq;
+class FilterParameters : public SynthParametersBase
+{
+public:
+	AudioParameterBool* HicutEnable;
+	AudioParameterBool* LowcutEnable;
+	AudioParameterFloat* HicutFreq;
+	AudioParameterFloat* LowcutFreq;
 
-  FilterParameters(AudioParameterBool* hicutEnable,
-                   AudioParameterBool* lowcutEnable,
-                   AudioParameterFloat* hicutFreq,
-                   AudioParameterFloat* lowcutFreq);
+	FilterParameters(
+		AudioParameterBool* hicutEnable,
+		AudioParameterBool* lowcutEnable,
+		AudioParameterFloat* hicutFreq,
+		AudioParameterFloat*lowcutFreq
+	);
 
-  virtual void addAllParameters(AudioProcessor& processor) override;
-  virtual void saveParameters(XmlElement& xml) override;
-  virtual void loadParameters(XmlElement& xml) override;
+	virtual void addAllParameters(AudioProcessor& processor) override;
+	virtual void saveParameters(XmlElement& xml) override;
+	virtual void loadParameters(XmlElement& xml) override;
 
- private:
-  FilterParameters(){};
+private:
+	FilterParameters() {};
 };
 
-class PresetsParameters : public SynthParametersBase {
- public:
-  AudioParameterInt* ProgramIndex;
-  PresetsParameters(AudioParameterInt* programIndex);
+class PresetsParameters : public SynthParametersBase
+{
+public:
+	AudioParameterInt* ProgramIndex;
+	PresetsParameters(
+		AudioParameterInt* programIndex
+	);
 
-  virtual void addAllParameters(AudioProcessor& processor) override;
-  virtual void saveParameters(XmlElement& xml) override;
-  virtual void loadParameters(XmlElement& xml) override;
+	virtual void addAllParameters(AudioProcessor& processor) override;
+	virtual void saveParameters(XmlElement& xml) override;
+	virtual void loadParameters(XmlElement& xml) override;
 
- private:
-  PresetsParameters(){};
+private:
+	PresetsParameters() {};
 };
+
