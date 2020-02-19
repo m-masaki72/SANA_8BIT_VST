@@ -1,12 +1,12 @@
 /*
 ==============================================================================
 
-	PluginEditor.h
-	Created: 16 May 2018 1:55:55am
-	Modified: 11 September 2018
-	Author:  MasakiMori, COx2
-	ChangeLog:
-	Modified some components
+        PluginEditor.h
+        Created: 16 May 2018 1:55:55am
+        Modified: 11 September 2018
+        Author:  MasakiMori, COx2
+        ChangeLog:
+        Modified some components
 
 ==============================================================================
 */
@@ -17,40 +17,38 @@
 #include "PluginProcessor.h"
 
 #include "GUI/ParametersComponent.h"
-#include "GUI/ScopeComponent.h"
+#include "GUI/ScopeComponent.hpp"
 
-class SimpleSynthAudioProcessorEditor : public AudioProcessorEditor, public Button::Listener
-{
-public:
-	SimpleSynthAudioProcessorEditor(SimpleSynthAudioProcessor& p);
-    ~SimpleSynthAudioProcessorEditor();
-    void paint (Graphics& g) override;
-    void resized() override;
-	void buttonClicked(Button* button) override;
+class SimpleSynthAudioProcessorEditor : public AudioProcessorEditor,
+                                        public Button::Listener {
+ public:
+  SimpleSynthAudioProcessorEditor(SimpleSynthAudioProcessor& p);
+  ~SimpleSynthAudioProcessorEditor();
+  void paint(Graphics& g) override;
+  void resized() override;
+  void buttonClicked(Button* button) override;
 
-private:
-	SimpleSynthAudioProcessor& processor;
+ private:
+  SimpleSynthAudioProcessor& processor;
 
-	MidiKeyboardComponent keyboardComponent;
+  MidiKeyboardComponent keyboardComponent;
 
-	PageButton OscButton;
-	PageButton EffectButton;
+  PageButton OscButton;
+  PageButton EffectButton;
 
-	//Oscillator Page Component
-	ScopeComponent<float> scopeComponent;
-	ChipOscillatorComponent chipOscComponent;
-	SweepParametersComponent sweepParamsComponent;
-	VibratoParametersComponent vibratoParamsComponent;
-	VoicingParametersComponent voicingParamsComponent;
-	OptionsParametersComponent optionsParamsComponent;
-	WaveformMemoryParametersComponent waveformMemoryParamsComponent;
-	//Effects Page Component
-	MidiEchoParametersComponent midiEchoParamsComponent;
-	FilterParametersComponent filterParamsComponent;
+  // Oscillator Page Component
+  ScopeComponent<float> scopeComponent;
+  ChipOscillatorComponent chipOscComponent;
+  SweepParametersComponent sweepParamsComponent;
+  VibratoParametersComponent vibratoParamsComponent;
+  VoicingParametersComponent voicingParamsComponent;
+  OptionsParametersComponent optionsParamsComponent;
+  WaveformMemoryParametersComponent waveformMemoryParamsComponent;
+  // Effects Page Component
+  MidiEchoParametersComponent midiEchoParamsComponent;
+  FilterParametersComponent filterParamsComponent;
 
-	LookAndFeel* customLookAndFeel;
+  LookAndFeel* customLookAndFeel;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleSynthAudioProcessorEditor)
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleSynthAudioProcessorEditor)
 };
-
-

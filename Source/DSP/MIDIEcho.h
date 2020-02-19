@@ -1,105 +1,87 @@
 #include <vector>
 
-//ƒGƒR[ƒGƒtƒFƒNƒg—p‚ÌƒTƒ“ƒvƒŠƒ“ƒOƒoƒbƒtƒ@
-class EchoBuffer
-{
-public:
-	EchoBuffer(int freq, float sec, int count)
-	{
-		sampleRate = freq;
-		echoTime = sec;
-		echoCount = count;
-		init();
-	};
+//ï¿½Gï¿½Rï¿½[ï¿½Gï¿½tï¿½Fï¿½Nï¿½gï¿½pï¿½ÌƒTï¿½ï¿½ï¿½vï¿½ï¿½ï¿½ï¿½ï¿½Oï¿½oï¿½bï¿½tï¿½@
+class EchoBuffer {
+ public:
+  EchoBuffer(int freq, float sec, int count) {
+    sampleRate = freq;
+    echoTime = sec;
+    echoCount = count;
+    init();
+  };
 
-	~EchoBuffer()
-	{};
+  ~EchoBuffer(){};
 
-	void init() {
+  void init() {
+    index = 0;
+    bufSize = (int)(sampleRate * echoTime);
 
-		index = 0;
-		bufSize = (int)(sampleRate * echoTime);
+    if (bufSize <= 0) {
+      bufSize = 0;
+    }
 
-		if (bufSize <= 0)
-		{
-			bufSize = 0;
-		}
+    buf.resize(echoCount);
 
-		buf.resize(echoCount);
+    for (int i = 0; i < echoCount; ++i) {
+      buf[i].resize(bufSize);
+    }
 
-		for (int i = 0; i < echoCount; ++i)
-		{
-			buf[i].resize(bufSize);
-		}
+    for (int i = 0; i < echoCount; ++i) {
+      for (int j = 0; j < bufSize; ++j) {
+        buf[i][j] = 0.0f;
+      }
+    }
+  }
 
-		for (int i = 0; i < echoCount; ++i)
-		{
-			for (int j = 0; j < bufSize; ++j)
-			{
-				buf[i][j] = 0.0f;
-			}
-		}
-	}
+  void addSample(float val, float amp) {
+    if (index >= bufSize) {
+      init();
+    }
+    //ï¿½ï¿½Â‚ï¿½ï¿½Â‘Oï¿½Ìƒoï¿½bï¿½tï¿½@ï¿½ÌƒTï¿½ï¿½ï¿½vï¿½ï¿½ï¿½ï¿½âŠ®ï¿½C1ï¿½Tï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Oï¿½Ìƒoï¿½bï¿½tï¿½@ï¿½ï¿½âŠ®ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½
+    for (int i = echoCount - 1; i > 0; --i) {
+      buf[i][index] = buf[i - 1][index] * amp;
+    }
+    //ï¿½ï¿½ï¿½İ‚ÌƒTï¿½ï¿½ï¿½vï¿½ï¿½ï¿½ï¿½âŠ®
+    buf[0][index] = val * amp;
+  };
 
-	void addSample(float val, float amp)
-	{
-		if (index >= bufSize)
-		{
-			init();
-		}
-		//ˆê‚Â‚¸‚Â‘O‚Ìƒoƒbƒtƒ@‚ÌƒTƒ“ƒvƒ‹‚ğ•âŠ®C1ƒTƒ“ƒvƒ‹‘O‚Ìƒoƒbƒtƒ@‚ğ•âŠ®‚µ‚Ä‚¢‚­
-		for (int i = echoCount - 1; i > 0; --i)
-		{
-			buf[i][index] = buf[i - 1][index] * amp;
-		}
-		//Œ»İ‚ÌƒTƒ“ƒvƒ‹‚ğ•âŠ®
-		buf[0][index] = val * amp;
-	};
+  // ï¿½oï¿½bï¿½tï¿½@ï¿½ÌÅŒï¿½ï¿½ï¿½ÌƒTï¿½ï¿½ï¿½vï¿½ï¿½ï¿½ï¿½Ô‚ï¿½ï¿½D
+  // ï¿½ÅŒï¿½ï¿½ï¿½ï¿½buffSizeï¿½ï¿½ï¿½ï¿½ï¿½xï¿½ê‚½ï¿½Tï¿½ï¿½ï¿½vï¿½ï¿½ï¿½É‚È‚ï¿½Ì‚ï¿½Delayï¿½ï¿½ï¿½ï¿½ï¿½
+  float getSample(int repeatCount) {
+    if (repeatCount >= echoCount) {
+      init();
+      return 0.0f;
+    }
 
-	// ƒoƒbƒtƒ@‚ÌÅŒã”ö‚ÌƒTƒ“ƒvƒ‹‚ğ•Ô‚·D
-	// ÅŒã”ö‚ÍbuffSize‚¾‚¯’x‚ê‚½ƒTƒ“ƒvƒ‹‚É‚È‚é‚Ì‚ÅDelay‚³‚ê‚é
-	float getSample(int repeatCount)
-	{
-		if (repeatCount >= echoCount)
-		{
-			init();
-			return 0.0f;
-		}
+    if (index >= bufSize) {
+      init();
+      return 0.0f;
+    }
 
-		if (index >= bufSize)
-		{
-			init();
-			return 0.0f;
-		}
+    return buf[repeatCount][index];
+  };
 
-		return buf[repeatCount][index];
-	};
+  void updateParam(float sec, int count) {
+    if (echoTime != sec || echoCount != count) {
+      echoTime = sec;
+      echoCount = count;
+      init();
+    }
+  }
 
-	void updateParam(float sec, int count)
-	{
-		if (echoTime != sec || echoCount != count)
-		{
-			echoTime = sec;
-			echoCount = count;
-			init();
-		}
-	}
+  void cycle() {
+    index += 1;
+    if (index >= bufSize) {
+      index = 0;
+    }
+  }
 
-	void cycle()
-	{
-		index += 1;
-		if (index >= bufSize)
-		{
-			index = 0;
-		}
-	}
+ private:
+  std::vector<std::vector<float>> buf;
+  int sampleRate;
+  int echoCount;
+  float echoTime;
 
-private:
-	std::vector<std::vector<float>> buf;
-	int sampleRate;
-	int echoCount;
-	float echoTime;
-
-	int bufSize;
-	int index;
+  int bufSize;
+  int index;
 };

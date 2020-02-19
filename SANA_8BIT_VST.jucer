@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT name="SANA_8bit_VST" projectType="audioplug" buildStandalone="1"
-              jucerVersion="5.4.1" pluginFormats="buildAU,buildStandalone,buildVST"
+              jucerVersion="5.4.5" pluginFormats="buildAU,buildStandalone,buildVST"
               buildVST="1" buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0"
               buildAAX="0" enableIAA="0" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
               id="j6lCat" reportAppUsage="0" bundleIdentifier="com.MasakiMori.SANA"
@@ -15,10 +15,8 @@
               file="Source/GUI/ParametersComponent.cpp"/>
         <FILE id="MJVnVM" name="ParametersComponent.h" compile="0" resource="0"
               file="Source/GUI/ParametersComponent.h"/>
-        <FILE id="OiKiyy" name="ScopeComponent.cpp" compile="1" resource="0"
-              file="Source/GUI/ScopeComponent.cpp"/>
-        <FILE id="wPapQE" name="ScopeComponent.h" compile="0" resource="0"
-              file="Source/GUI/ScopeComponent.h"/>
+        <FILE id="MxSTgq" name="ScopeComponent.hpp" compile="1" resource="0"
+              file="Source/GUI/ScopeComponent.hpp" xcodeResource="0"/>
       </GROUP>
       <GROUP id="{97C69670-A71D-517E-1589-B4DF8AAE0D93}" name="DSP">
         <FILE id="LQAmtS" name="AmpEnvelope.cpp" compile="1" resource="0" file="Source/DSP/AmpEnvelope.cpp"/>
