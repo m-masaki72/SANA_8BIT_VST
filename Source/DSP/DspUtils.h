@@ -1,4 +1,3 @@
-
 #include <math.h>
 #include "../JuceLibraryCode/JuceHeader.h"
 
@@ -7,17 +6,10 @@
 CMyFilter
 http://vstcpp.wpblog.jp/?page_id=523
 --------------------------------------------------------------------------------
-example
-// ���ꂼ��̕ϐ��͉��L�̂Ƃ���Ƃ���
-// �@float input[]  �c44100Hz�ŃT���v�����O���ꂽ���͐M���̊i�[���ꂽ�o�b�t�@�B
-// �@float output[] �c�t�B���^���������l�������o���o�͐M���̃o�b�t�@�B
-// �@int   size     �c���͐M���E�o�͐M���̃o�b�t�@�̃T�C�Y�B
 */
 class CMyFilter {
  private:
-  // �t�B���^�̌W��
   float a0, a1, a2, b0, b1, b2;
-  // �o�b�t�@
   float out1, out2;
   float in1, in2;
 
@@ -26,10 +18,8 @@ class CMyFilter {
  public:
   inline CMyFilter();
 
-  // ���͐M���Ƀt�B���^��K�p����֐�
   inline float Process(float in);
 
-  // �t�B���^�W�����v�Z���郁���o�[�֐�
   inline void LowPass(float freq, float q, float samplerate = 44100.0f);
   inline void HighPass(float freq, float q, float samplerate = 44100.0f);
   inline void BandPass(float freq, float bw, float samplerate = 44100.0f);
@@ -43,12 +33,8 @@ class CMyFilter {
   inline void AllPass(float freq, float q, float samplerate = 44100.0f);
 };
 
-// --------------------------------------------------------------------------------
-// �R���X�g���N�^
-// --------------------------------------------------------------------------------
 CMyFilter::CMyFilter() {
-  // �����o�[�ϐ���������
-  a0 = 1.0f;  // 0�ȊO�ɂ��Ă����Ȃ��Ə��Z�ŃG���[�ɂȂ�
+  a0 = 1.0f;
   a1 = 0.0f;
   a2 = 0.0f;
   b0 = 1.0f;
@@ -62,53 +48,27 @@ CMyFilter::CMyFilter() {
   out2 = 0.0f;
 };
 
-// --------------------------------------------------------------------------------
-// ���͐M���Ƀt�B���^��K�p����֐�
-// --------------------------------------------------------------------------------
 float CMyFilter::Process(float in) {
-  // ���͐M���Ƀt�B���^��K�p���A�o�͐M���ϐ��ɕۑ��B
-  // float out = b0 / a0 * in + b1 / a0 * in1 + b2 / a0 * in2
-  //	- a1 / a0 * out1 - a2 / a0 * out2;
-
   float out = a0 * in + a1 * in1 + a2 * in2 + b1 * out1 + b2 * out2;
 
-  in2 = in1;  // 2�O�̓��͐M�����X�V
-  in1 = in;   // 1�O�̓��͐M�����X�V
+  in2 = in1;
+  in1 = in;
 
-  out2 = out1;  // 2�O�̏o�͐M�����X�V
-  out1 = out;   // 1�O�̏o�͐M�����X�V
+  out2 = out1;
+  out1 = out;
 
-  // �o�͐M����Ԃ�
   return out;
 }
 
-// --------------------------------------------------------------------------------
-// �t�B���^�W�����v�Z���郁���o�[�֐�
-// --------------------------------------------------------------------------------
 void CMyFilter::LowPass(float fc, float q, float fs) {
-  /*
-  // �t�B���^�W���v�Z�Ŏg�p���钆�Ԓl�����߂�B
-  float omega = 2.0f * 3.14159265f *  freq / samplerate;
-  float alpha = sin(omega) / (2.0f * q);
-
-  // �t�B���^�W�������߂�B
-  a0 = 1.0f + alpha;
-  a1 = -2.0f * cos(omega);
-  a2 = 1.0f - alpha;
-  b0 = (1.0f - cos(omega)) / 2.0f;
-  b1 = 1.0f - cos(omega);
-  b2 = (1.0f - cos(omega)) / 2.0f;
-  */
-
-  float pi = 3.14159265;
-  float p1, p2;  //�v�Z�p
-  float wc;      //�J�b�g�I�t�p���g��
-  float fc_a;    //�A�i���OLPF�J�b�g�I�t���g��
+  float pi = 3.14159265f;
+  float p1, p2;
+  float wc;
+  float fc_a;
 
   fc_a = tan(pi * fc / fs) / (2 * pi);
   wc = 2 * pi * fc_a;
 
-  //�W���v�Z
   p1 = 1 + wc / q + wc * wc;
   p2 = 1 - wc / q + wc * wc;
   a0 = (wc * wc) / p1;
@@ -120,11 +80,9 @@ void CMyFilter::LowPass(float fc, float q, float fs) {
 }
 
 void CMyFilter::HighPass(float freq, float q, float samplerate) {
-  // �t�B���^�W���v�Z�Ŏg�p���钆�Ԓl�����߂�B
   float omega = 2.0f * 3.14159265f * freq / samplerate;
   float alpha = sin(omega) / (2.0f * q);
 
-  // �t�B���^�W�������߂�B
   a0 = 1.0f + alpha;
   a1 = -2.0f * cos(omega);
   a2 = 1.0f - alpha;
@@ -134,11 +92,9 @@ void CMyFilter::HighPass(float freq, float q, float samplerate) {
 }
 
 void CMyFilter::BandPass(float freq, float bw, float samplerate) {
-  // �t�B���^�W���v�Z�Ŏg�p���钆�Ԓl�����߂�B
   float omega = 2.0f * 3.14159265f * freq / samplerate;
-  float alpha = sin(omega) * sinh(log(2.0f) / 2.0 * bw * omega / sin(omega));
+  float alpha = sin(omega) * sinh(log(2.0f) / 2.0f * bw * omega / sin(omega));
 
-  // �t�B���^�W�������߂�B
   a0 = 1.0f + alpha;
   a1 = -2.0f * cos(omega);
   a2 = 1.0f - alpha;
@@ -148,11 +104,9 @@ void CMyFilter::BandPass(float freq, float bw, float samplerate) {
 }
 
 void CMyFilter::Notch(float freq, float bw, float samplerate) {
-  // �t�B���^�W���v�Z�Ŏg�p���钆�Ԓl�����߂�B
   float omega = 2.0f * 3.14159265f * freq / samplerate;
-  float alpha = sin(omega) * sinh(log(2.0f) / 2.0 * bw * omega / sin(omega));
+  float alpha = sin(omega) * sinh(log(2.0f) / 2.0f * bw * omega / sin(omega));
 
-  // �t�B���^�W�������߂�B
   a0 = 1.0f + alpha;
   a1 = -2.0f * cos(omega);
   a2 = 1.0f - alpha;
@@ -162,13 +116,11 @@ void CMyFilter::Notch(float freq, float bw, float samplerate) {
 }
 
 void CMyFilter::LowShelf(float freq, float q, float gain, float samplerate) {
-  // �t�B���^�W���v�Z�Ŏg�p���钆�Ԓl�����߂�B
   float omega = 2.0f * 3.14159265f * freq / samplerate;
   float alpha = sin(omega) / (2.0f * q);
   float A = pow(10.0f, (gain / 40.0f));
   float beta = sqrt(A) / q;
 
-  // �t�B���^�W�������߂�B
   a0 = (A + 1.0f) + (A - 1.0f) * cos(omega) + beta * sin(omega);
   a1 = -2.0f * ((A - 1.0f) + (A + 1.0f) * cos(omega));
   a2 = (A + 1.0f) + (A - 1.0f) * cos(omega) - beta * sin(omega);
@@ -178,13 +130,11 @@ void CMyFilter::LowShelf(float freq, float q, float gain, float samplerate) {
 }
 
 void CMyFilter::HighShelf(float freq, float q, float gain, float samplerate) {
-  // �t�B���^�W���v�Z�Ŏg�p���钆�Ԓl�����߂�B
   float omega = 2.0f * 3.14159265f * freq / samplerate;
   float alpha = sin(omega) / (2.0f * q);
   float A = pow(10.0f, (gain / 40.0f));
   float beta = sqrt(A) / q;
 
-  // �t�B���^�W�������߂�B
   a0 = (A + 1.0f) - (A - 1.0f) * cos(omega) + beta * sin(omega);
   a1 = 2.0f * ((A - 1.0f) - (A + 1.0f) * cos(omega));
   a2 = (A + 1.0f) - (A - 1.0f) * cos(omega) - beta * sin(omega);
@@ -194,12 +144,10 @@ void CMyFilter::HighShelf(float freq, float q, float gain, float samplerate) {
 }
 
 void CMyFilter::Peaking(float freq, float bw, float gain, float samplerate) {
-  // �t�B���^�W���v�Z�Ŏg�p���钆�Ԓl�����߂�B
   float omega = 2.0f * 3.14159265f * freq / samplerate;
-  float alpha = sin(omega) * sinh(log(2.0f) / 2.0 * bw * omega / sin(omega));
+  float alpha = sin(omega) * sinh(log(2.0f) / 2.0f * bw * omega / sin(omega));
   float A = pow(10.0f, (gain / 40.0f));
 
-  // �t�B���^�W�������߂�B
   a0 = 1.0f + alpha / A;
   a1 = -2.0f * cos(omega);
   a2 = 1.0f - alpha / A;
@@ -209,11 +157,9 @@ void CMyFilter::Peaking(float freq, float bw, float gain, float samplerate) {
 }
 
 void CMyFilter::AllPass(float freq, float q, float samplerate) {
-  // �t�B���^�W���v�Z�Ŏg�p���钆�Ԓl�����߂�B
   float omega = 2.0f * 3.14159265f * freq / samplerate;
   float alpha = sin(omega) / (2.0f * q);
 
-  // �t�B���^�W�������߂�B
   a0 = 1.0f + alpha;
   a1 = -2.0f * cos(omega);
   a2 = 1.0f - alpha;
@@ -234,8 +180,7 @@ class antiAliasFilter {
     sampleRate = _sampleRate;
     upSamplingFactor = _upsamplingFactor;
 
-    // �J�b�g�I�t���g�� 1000Hz�AQ�l 1/��2�̃��[�p�X�t�B���^�ɐݒ�
-    simpleFilter.LowPass(20000.0, 1 / 4.0, sampleRate * upSamplingFactor);
+    simpleFilter.LowPass(20000.0f, 1 / 4.0f, float(sampleRate * upSamplingFactor));
   };
 
   void process(AudioBuffer<float> &buffer, AudioBuffer<float> &upSampleBuffer,

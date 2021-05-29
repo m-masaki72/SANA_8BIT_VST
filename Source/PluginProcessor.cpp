@@ -1,41 +1,22 @@
-/*
-==============================================================================
-
-        PluginProcessor.cpp
-        Created: 16 May 2018 1:55:55am
-        Modified: 11 September 2018
-        Author:  MasakiMori, COx2
-        ChangeLog:
-        Modified some parameters
-        Modified some components
-
-==============================================================================
-*/
-
 #include "PluginProcessor.h"
-#include <set>
+
 #include "DSP/SimpleSound.h"
 #include "DSP/SimpleVoice.h"
-#include "PluginEditor.h"
+#include "EditorGUI.h"
 
 namespace {
 const std::int32_t NUM_OF_PRESETS = 12;
 const std::int32_t VOICE_MAX = 8;
+const std::int32_t UP_SAMPLING_FACTOR = 2;
 }  // namespace
 
-//==============================================================================
-SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
-#ifndef JucePlugin_PreferredChannelConfigurations
-    : AudioProcessor(BusesProperties()
-#if !JucePlugin_IsMidiEffect
-#if !JucePlugin_IsSynth
-                         .withInput("Input", AudioChannelSet::stereo(), true)
-#endif
-                         .withOutput("Output", AudioChannelSet::stereo(), true)
-#endif
-                         )
-#endif
-      ,
+// This creates new instances of the plugin..
+AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
+  return new PluginProcessor();
+}
+
+PluginProcessor ::PluginProcessor ()
+    : BaseAudioProcessor(),
       presetsParameters{new AudioParameterInt("PROGRAM_INDEX", "Program-Index",
                                               0, NUM_OF_PRESETS, 0)},
       chipOscParameters{
@@ -102,48 +83,16 @@ SimpleSynthAudioProcessor::SimpleSynthAudioProcessor()
   filterParameters.addAllParameters(*this);
 }
 
-SimpleSynthAudioProcessor::~SimpleSynthAudioProcessor() {}
+PluginProcessor ::~PluginProcessor () {}
 
-//==============================================================================
+int PluginProcessor::getNumPrograms() { return NUM_OF_PRESETS; }
 
-const String SimpleSynthAudioProcessor::getName() const {
-  return JucePlugin_Name;
-}
-
-bool SimpleSynthAudioProcessor::acceptsMidi() const {
-#if JucePlugin_WantsMidiInput
-  return true;
-#else
-  return false;
-#endif
-}
-
-bool SimpleSynthAudioProcessor::producesMidi() const {
-#if JucePlugin_ProducesMidiOutput
-  return true;
-#else
-  return false;
-#endif
-}
-
-bool SimpleSynthAudioProcessor::isMidiEffect() const {
-#if JucePlugin_IsMidiEffect
-  return true;
-#else
-  return false;
-#endif
-}
-
-double SimpleSynthAudioProcessor::getTailLengthSeconds() const { return 0.0; }
-
-int SimpleSynthAudioProcessor::getNumPrograms() { return NUM_OF_PRESETS; }
-
-int SimpleSynthAudioProcessor::getCurrentProgram() {
+int PluginProcessor::getCurrentProgram() {
   currentProgIndex = presetsParameters.ProgramIndex->get();
   return presetsParameters.ProgramIndex->get();
 }
 
-void SimpleSynthAudioProcessor::setCurrentProgram(int index) {
+void PluginProcessor::setCurrentProgram(int index) {
   if (currentProgIndex != index) {
     initProgram();
 
@@ -215,7 +164,7 @@ void SimpleSynthAudioProcessor::setCurrentProgram(int index) {
   }
 }
 
-const String SimpleSynthAudioProcessor::getProgramName(int index) {
+const String PluginProcessor::getProgramName(int index) {
   switch (index) {
     case 0:
       return ("Initial Program");
@@ -246,36 +195,10 @@ const String SimpleSynthAudioProcessor::getProgramName(int index) {
   }
 }
 
-void SimpleSynthAudioProcessor::changeProgramName(int index,
-                                                  const String& newName) {}
-
-void SimpleSynthAudioProcessor::initProgram() {
-  *chipOscParameters.OscWaveType = 0;
-  *chipOscParameters.VolumeLevel = -20.0f;
-  *chipOscParameters.Attack = 0.000f;
-  *chipOscParameters.Decay = 0.000f;
-  *chipOscParameters.Sustain = 1.0f;
-  *chipOscParameters.Release = 0.000f;
-
-  *sweepParameters.SweepSwitch = 0;
-  *sweepParameters.SweepTime = 1.0f;
-
-  *vibratoParameters.VibratoEnable = true;
-  *vibratoParameters.VibratoAmount = 0.0f;
-  *vibratoParameters.VibratoSpeed = 0.1000f;
-  *vibratoParameters.VibratoAttackTime = 0.0f;
-}
-
-//==============================================================================
-void SimpleSynthAudioProcessor::prepareToPlay(double sampleRate,
-                                              int samplesPerBlock) {
-  // Use this method as the place to do any pre-playback
-  // initialisation that you need..
-
+void PluginProcessor::prepareToPlay(double sampleRate, int32_t samplesPerBlock) {
   synth.clearSounds();
   synth.clearVoices();
-
-  synth.setCurrentPlaybackSampleRate(sampleRate * upSamplingFactor);
+  synth.setCurrentPlaybackSampleRate(sampleRate * UP_SAMPLING_FACTOR);
 
   // サウンド再生可能なノート番号の範囲を定義する。関数"setRange"
   // にて0～127の値をtrueに設定する。
@@ -291,135 +214,36 @@ void SimpleSynthAudioProcessor::prepareToPlay(double sampleRate,
     addVoice();
   }
 
+  dsp::ProcessSpec spec = dsp::ProcessSpec();
   spec.sampleRate = sampleRate;
   spec.numChannels = getTotalNumOutputChannels();
   spec.maximumBlockSize = samplesPerBlock;
+  initEffecters(spec);
 
-  antiAliasFilter.prepare(sampleRate, upSamplingFactor);
-
-  drive.prepare(spec);
-
-  clipper.prepare(spec);
-  clipper.functionToUse = clippingFunction;
-
-  hicutFilter.prepare(spec);
-  lowcutFilter.prepare(spec);
+  antiAliasFilter.prepare((int32_t)sampleRate, UP_SAMPLING_FACTOR);
 }
 
-void SimpleSynthAudioProcessor::releaseResources() {
-  // When playback stops, you can use this as an opportunity to free up any
-  // spare memory, etc.
-}
+void PluginProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages) {
+  // 高サンプルのバッファを用意しておく  
+  AudioBuffer<float> upSampleBuffer(buffer.getNumChannels(), buffer.getNumSamples() * UP_SAMPLING_FACTOR);
+  clearBuffers(buffer, upSampleBuffer);
 
-#ifndef JucePlugin_PreferredChannelConfigurations
-bool SimpleSynthAudioProcessor::isBusesLayoutSupported(
-    const BusesLayout& layouts) const {
-#if JucePlugin_IsMidiEffect
-  ignoreUnused(layouts);
-  return true;
-#else
-  // This is the place where you check if the layout is supported.
-  // In this template code we only support mono or stereo.
-  if (layouts.getMainOutputChannelSet() != AudioChannelSet::mono() &&
-      layouts.getMainOutputChannelSet() != AudioChannelSet::stereo())
-    return false;
-
-    // This checks if the input layout matches the output layout
-#if !JucePlugin_IsSynth
-  if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
-    return false;
-#endif
-
-  return true;
-#endif
-}
-#endif
-
-void SimpleSynthAudioProcessor::processBlock(AudioBuffer<float>& buffer,
-                                             MidiBuffer& midiMessages) {
-  // playHead = getPlayHead();
-  // if (playHead)
-  //{
-  //	playHead->getCurrentPosition(currentPositionInfo);
-  //}
-  // optionsParameters.currentBPM = (float)currentPositionInfo.bpm;
-
-  // ⑦MidiKeyboardStateクラスのオブジェクトにMIDIデバイスから入力されたMIDIバッファを渡すとともに、
-  //   GUIのキーボードコンポーネントで生成されたMIDIデータをのMIDIバッファに追加する処理を行う。
-  keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(),
-                                      true);
-
-  // procMidiMessage
-  {
-    auto midibuffer = midiMessages;
-    auto startSample = 0;
-    auto numSamples = buffer.getNumSamples();
-
-    MidiBuffer::Iterator i(midibuffer);
-    MidiMessage message;
-    int time;
-
-    while (i.getNextEvent(message, time)) {
-      if (message.isNoteOn()) {
-        midiList.insert(message.getNoteNumber());
-      } else if (message.isNoteOff()) {
-        midiList.erase(message.getNoteNumber());
-      } else if (message.isAllNotesOff()) {
-        midiList.clear();
-      }
-    }
-
-    {
-      MidiBuffer::Iterator i2(eventsToAdd);
-      const auto firstEventToAdd = eventsToAdd.getFirstEventTime();
-      const auto scaleFactor =
-          numSamples /
-          (float)(eventsToAdd.getLastEventTime() + 1 - firstEventToAdd);
-
-      while (i2.getNextEvent(message, time)) {
-        const int pos =
-            jlimit(0, numSamples - 1,
-                   roundToInt((time - firstEventToAdd) * scaleFactor));
-        midibuffer.addEvent(message, startSample + pos);
-      }
-    }
-
-    eventsToAdd.clear();
-  }
+  // MIDIキーボードUI情報の更新
+  keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(),true);
 
   if (getNumVoices() != synth.getNumVoices()) {
     changeVoiceSize();
   }
 
-  ScopedNoDenormals noDenormals;
-  auto totalNumInputChannels = getTotalNumInputChannels();
-  auto totalNumOutputChannels = getTotalNumOutputChannels();
+  procMidiMessages(buffer, midiMessages);
 
-  for (auto channel = 0,
-            totalChannel = totalNumInputChannels + totalNumInputChannels;
-       channel < totalChannel; ++channel) {
-    buffer.clear(channel, 0, buffer.getNumSamples());
-  }
+  // 波形生成
+  synth.renderNextBlock(upSampleBuffer, midiMessages, 0, upSampleBuffer.getNumSamples());
 
-  AudioBuffer<float> upSampleBuffer(buffer.getNumChannels(),
-                                    buffer.getNumSamples() * upSamplingFactor);
+  // アンチエイリアス
+  antiAliasFilter.process(buffer, upSampleBuffer, getTotalNumInputChannels(), getTotalNumOutputChannels());
 
-  for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i) {
-    upSampleBuffer.clear(i, 0, upSampleBuffer.getNumSamples());
-  }
-
-  synth.renderNextBlock(upSampleBuffer, midiMessages, 0,
-                        upSampleBuffer.getNumSamples());
-
-  //================================ アンチエイリアス
-  //====================================
-
-  antiAliasFilter.process(buffer, upSampleBuffer, totalNumInputChannels,
-                          totalNumOutputChannels);
-
-  //================================ エフェクトセクション
-  //====================================
-
+  // エフェクトセクション
   dsp::AudioBlock<float> audioBlock(buffer);
   dsp::ProcessContextReplacing<float> context(audioBlock);
 
@@ -448,17 +272,12 @@ void SimpleSynthAudioProcessor::processBlock(AudioBuffer<float>& buffer,
                              (size_t)buffer.getNumSamples());
 }
 
-//==============================================================================
-bool SimpleSynthAudioProcessor::hasEditor() const {
-  return true;  // (change this to false if you choose to not supply an editor)
+AudioProcessorEditor* PluginProcessor::createEditor() {
+  return new EditorGUI(*this);
 }
 
-AudioProcessorEditor* SimpleSynthAudioProcessor::createEditor() {
-  return new SimpleSynthAudioProcessorEditor(*this);
-}
 
-//==============================================================================
-void SimpleSynthAudioProcessor::getStateInformation(MemoryBlock& destData) {
+void PluginProcessor::getStateInformation(MemoryBlock& destData) {
   // You should use this method to store your parameters in the memory block.
   // You could do that either as raw data, or use the XML or ValueTree classes
   // as intermediaries to make it easy to save and load complex data.
@@ -478,7 +297,7 @@ void SimpleSynthAudioProcessor::getStateInformation(MemoryBlock& destData) {
   copyXmlToBinary(*xml, destData);
 }
 
-void SimpleSynthAudioProcessor::setStateInformation(const void* data,
+void PluginProcessor::setStateInformation(const void* data,
                                                     int sizeInBytes) {
   // You should use this method to restore your parameters from this memory
   // block, whose contents will have been created by the getStateInformation()
@@ -504,15 +323,39 @@ void SimpleSynthAudioProcessor::setStateInformation(const void* data,
   }
 }
 
-//==============================================================================
-// This creates new instances of the plugin..
-AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
-  return new SimpleSynthAudioProcessor();
+void PluginProcessor::initProgram() {
+  *chipOscParameters.OscWaveType = 0;
+  *chipOscParameters.VolumeLevel = -20.0f;
+  *chipOscParameters.Attack = 0.000f;
+  *chipOscParameters.Decay = 0.000f;
+  *chipOscParameters.Sustain = 1.0f;
+  *chipOscParameters.Release = 0.000f;
+
+  *sweepParameters.SweepSwitch = 0;
+  *sweepParameters.SweepTime = 1.0f;
+
+  *vibratoParameters.VibratoEnable = true;
+  *vibratoParameters.VibratoAmount = 0.0f;
+  *vibratoParameters.VibratoSpeed = 0.1000f;
+  *vibratoParameters.VibratoAttackTime = 0.0f;
 }
 
-//==============================================================================
-// class functions
-void SimpleSynthAudioProcessor::changeVoiceSize() {
+std::int32_t PluginProcessor::getNumVoices() {
+  if (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") {
+    return VOICE_MAX;
+  } else {
+    return 1;
+  }
+}
+
+void PluginProcessor::addVoice() {
+  synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters,
+                                 &vibratoParameters, &voicingParameters,
+                                 &optionsParameters, &midiEchoParameters,
+                                 &waveformMemoryParameters, &midiList));
+}
+
+void PluginProcessor::changeVoiceSize() {
   const auto voiceNum = getNumVoices();
 
   while (synth.getNumVoices() != voiceNum) {
@@ -524,7 +367,20 @@ void SimpleSynthAudioProcessor::changeVoiceSize() {
   }
 }
 
-float SimpleSynthAudioProcessor::clippingFunction(float inputValue) {
+void PluginProcessor::clearBuffers(AudioBuffer<float>& buffer, AudioBuffer<float>& upSampleBuffer) {
+  const auto totalNumInputChannels = getTotalNumInputChannels();
+  const auto totalNumOutputChannels = getTotalNumOutputChannels();
+  const auto totalChannel = totalNumInputChannels + totalNumInputChannels;
+  for (auto channel = 0; channel < totalChannel; ++channel) {
+    buffer.clear(channel, 0, buffer.getNumSamples());
+  }
+
+  for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i) {
+    upSampleBuffer.clear(i, 0, upSampleBuffer.getNumSamples());
+  }
+}
+
+float PluginProcessor::clippingFunction(float inputValue) {
   // 双曲線正接...1の時に0.8の値を, -1の時に-0.8の値を取る
   const float threshold = tanhf(inputValue);
   float outputValue = inputValue;
@@ -535,17 +391,49 @@ float SimpleSynthAudioProcessor::clippingFunction(float inputValue) {
   return outputValue;
 }
 
-std::int32_t SimpleSynthAudioProcessor::getNumVoices() {
-  if (voicingParameters.VoicingSwitch->getCurrentChoiceName() == "POLY") {
-    return VOICE_MAX;
-  } else {
-    return 1;
-  }
+void PluginProcessor::initEffecters(dsp::ProcessSpec& spec) {
+  drive.prepare(spec);
+
+  clipper.prepare(spec);
+  clipper.functionToUse = clippingFunction;
+
+  hicutFilter.prepare(spec);
+  lowcutFilter.prepare(spec);
 }
 
-void SimpleSynthAudioProcessor::addVoice() {
-  synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters,
-                                 &vibratoParameters, &voicingParameters,
-                                 &optionsParameters, &midiEchoParameters,
-                                 &waveformMemoryParameters, &midiList));
+void PluginProcessor::procMidiMessages(const AudioBuffer<float>& buffer, const MidiBuffer& midiMessages) {
+  auto midibuffer = midiMessages;
+  auto startSample = 0;
+  auto numSamples = buffer.getNumSamples();
+
+  MidiBuffer::Iterator i(midibuffer);
+  MidiMessage message;
+  int time;
+
+  while (i.getNextEvent(message, time)) {
+    if (message.isNoteOn()) {
+      midiList.insert(message.getNoteNumber());
+    } else if (message.isNoteOff()) {
+      midiList.erase(message.getNoteNumber());
+    } else if (message.isAllNotesOff()) {
+      midiList.clear();
+    }
+  }
+
+  {
+    MidiBuffer::Iterator i2(eventsToAdd);
+    const auto firstEventToAdd = eventsToAdd.getFirstEventTime();
+    const auto scaleFactor =
+        numSamples /
+        (float)(eventsToAdd.getLastEventTime() + 1 - firstEventToAdd);
+
+    while (i2.getNextEvent(message, time)) {
+      const int pos =
+          jlimit(0, numSamples - 1,
+                  roundToInt((time - firstEventToAdd) * scaleFactor));
+      midibuffer.addEvent(message, startSample + pos);
+    }
+  }
+
+  eventsToAdd.clear();
 }

@@ -1,6 +1,5 @@
 #include <vector>
 
-//�G�R�[�G�t�F�N�g�p�̃T���v�����O�o�b�t�@
 class EchoBuffer {
  public:
   EchoBuffer(int freq, float sec, int count) {
@@ -37,16 +36,12 @@ class EchoBuffer {
     if (index >= bufSize) {
       init();
     }
-    //����O�̃o�b�t�@�̃T���v����⊮�C1�T���v���O�̃o�b�t�@��⊮���Ă���
     for (int i = echoCount - 1; i > 0; --i) {
       buf[i][index] = buf[i - 1][index] * amp;
     }
-    //���݂̃T���v����⊮
     buf[0][index] = val * amp;
   };
 
-  // �o�b�t�@�̍Ō���̃T���v����Ԃ��D
-  // �Ō����buffSize�����x�ꂽ�T���v���ɂȂ�̂�Delay�����
   float getSample(int repeatCount) {
     if (repeatCount >= echoCount) {
       init();

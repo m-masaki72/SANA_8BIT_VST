@@ -1,16 +1,3 @@
-/*
-==============================================================================
-
-        PluginEditor.h
-        Created: 16 May 2018 1:55:55am
-        Modified: 11 September 2018
-        Author:  MasakiMori, COx2
-        ChangeLog:
-        Modified some components
-
-==============================================================================
-*/
-
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -19,17 +6,17 @@
 #include "GUI/ParametersComponent.h"
 #include "GUI/ScopeComponent.hpp"
 
-class SimpleSynthAudioProcessorEditor : public AudioProcessorEditor,
+class EditorGUI : public AudioProcessorEditor,
                                         public Button::Listener {
  public:
-  SimpleSynthAudioProcessorEditor(SimpleSynthAudioProcessor& p);
-  ~SimpleSynthAudioProcessorEditor();
+  EditorGUI(PluginProcessor & p);
+  ~EditorGUI();
   void paint(Graphics& g) override;
   void resized() override;
   void buttonClicked(Button* button) override;
 
  private:
-  SimpleSynthAudioProcessor& processor;
+  PluginProcessor & processor;
 
   MidiKeyboardComponent keyboardComponent;
 
@@ -50,5 +37,5 @@ class SimpleSynthAudioProcessorEditor : public AudioProcessorEditor,
 
   LookAndFeel* customLookAndFeel;
 
-  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleSynthAudioProcessorEditor)
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EditorGUI)
 };

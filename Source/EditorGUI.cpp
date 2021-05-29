@@ -1,17 +1,4 @@
-﻿/*
-==============================================================================
-
-        PluginEditor.cpp
-        Created: 16 May 2018 1:55:55am
-        Modified: 11 September 2018
-        Author:  MasakiMori, COx2
-        ChangeLog:
-        Modified some components
-
-==============================================================================
-*/
-
-#include "PluginEditor.h"
+#include "EditorGUI.h"
 #include "PluginProcessor.h"
 
 #include "AppConfig.h"
@@ -29,8 +16,7 @@ const Colour BACKGROUND_COLOUR() {
 const Colour TAB_BACKGROUND_COLOUR() { return Colours::rebeccapurple.darker(); }
 }  // namespace
 
-SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(
-    SimpleSynthAudioProcessor& p)
+EditorGUI::EditorGUI(PluginProcessor &p)
     : AudioProcessorEditor(&p),
       processor(p),
       keyboardComponent(p.getKeyboardState(),
@@ -122,7 +108,7 @@ SimpleSynthAudioProcessorEditor::SimpleSynthAudioProcessorEditor(
   }
 }
 
-SimpleSynthAudioProcessorEditor::~SimpleSynthAudioProcessorEditor() {
+EditorGUI::~EditorGUI() {
   for (Component* child : getChildren()) {
     child->setLookAndFeel(nullptr);
   }
@@ -130,7 +116,7 @@ SimpleSynthAudioProcessorEditor::~SimpleSynthAudioProcessorEditor() {
   delete customLookAndFeel;
 }
 
-void SimpleSynthAudioProcessorEditor::paint(Graphics& g) {
+void EditorGUI::paint(Graphics& g) {
   g.fillAll(TAB_BACKGROUND_COLOUR());
 
   g.setColour(Colours::white);
@@ -144,7 +130,7 @@ void SimpleSynthAudioProcessorEditor::paint(Graphics& g) {
                    Justification::topRight, 1);
 }
 
-void SimpleSynthAudioProcessorEditor::resized() {
+void EditorGUI::resized() {
   Rectangle<int> bounds = getLocalBounds();
 
   keyboardComponent.setBounds(bounds.removeFromBottom(KEY_HEIGHT));
@@ -206,7 +192,7 @@ void SimpleSynthAudioProcessorEditor::resized() {
   }
 }
 
-void SimpleSynthAudioProcessorEditor::buttonClicked(Button* button) {
+void EditorGUI::buttonClicked(Button* button) {
   {
     chipOscComponent.setVisible(false);
     sweepParamsComponent.setVisible(false);

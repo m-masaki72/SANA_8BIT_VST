@@ -1,75 +1,34 @@
-/*
-==============================================================================
-
-        PluginProcessor.h
-        Created: 16 May 2018 1:55:55am
-        Modified: 11 September 2018
-        Author:  MasakiMori, COx2
-        ChangeLog:
-                Modified some parameters
-                Modified some components
-
-==============================================================================
-*/
-
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "BaseAudioProcessor.h"
 #include "DSP/DspUtils.h"
 #include "DSP/SimpleSynthParameters.h"
 #include "GUI/ScopeComponent.hpp"
-
 #include <set>
 
-//==============================================================================
-class SimpleSynthAudioProcessor : public AudioProcessor {
+class PluginProcessor : public BaseAudioProcessor {
  public:
-  //==============================================================================
-  SimpleSynthAudioProcessor();
-  ~SimpleSynthAudioProcessor();
-
-  //==============================================================================
-  void prepareToPlay(double sampleRate, std::int32_t samplesPerBlock) override;
-  void releaseResources() override;
-
-#ifndef JucePlugin_PreferredChannelConfigurations
-  bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
-#endif
-
-  void processBlock(AudioBuffer<float>&, MidiBuffer&) override;
-
-  //==============================================================================
+  PluginProcessor ();
+  ~PluginProcessor ();
+  
   AudioProcessorEditor* createEditor() override;
-  bool hasEditor() const override;
 
-  //==============================================================================
-  const String getName() const override;
-
-  bool acceptsMidi() const override;
-  bool producesMidi() const override;
-  bool isMidiEffect() const override;
-  double getTailLengthSeconds() const override;
-
-  //==============================================================================
+  // プリセット用関数
   int getNumPrograms() override;
   int getCurrentProgram() override;
   void setCurrentProgram(int index) override;
   const String getProgramName(int index) override;
-  void changeProgramName(int index, const String& newName) override;
-  void initProgram();
 
-  //==============================================================================
+  void prepareToPlay(double sampleRate, std::int32_t samplesPerBlock) override;
+  void processBlock(AudioBuffer<float>&, MidiBuffer&) override;
+  
   void getStateInformation(MemoryBlock& destData) override;
   void setStateInformation(const void* data, int sizeInBytes) override;
-
-  //==============================================================================
+  
   MidiKeyboardState& getKeyboardState() { return keyboardState; }
-
   AudioBufferQueue<float>& getAudioBufferQueue() { return scopeDataQueue; }
 
-  void changeVoiceSize();
-
-  // Parameterの用意[1]
   const StringArray OSC_WAVE_TYPES{
       "NES_Square50%",    "NES_Square25%",   "NES_Square12.5%",
       "NES_Triangle",     "Pure_Square50%",  "Pure_Square25%",
@@ -90,23 +49,23 @@ class SimpleSynthAudioProcessor : public AudioProcessor {
   MidiEchoParameters midiEchoParameters;
   FilterParameters filterParameters;
 
-  // HOST先APPの情報を保持する
-  AudioPlayHead* playHead;
-  AudioPlayHead::CurrentPositionInfo currentPositionInfo;
-
  private:
+  void initProgram();
+  std::int32_t getNumVoices();
+  void addVoice();
+  void changeVoiceSize();
+  void clearBuffers(AudioBuffer<float>& buffer, AudioBuffer<float>& upSampleBuffer);
+  static float clippingFunction(float inputValue);
+  void initEffecters(dsp::ProcessSpec& spec);
+  void procMidiMessages(const AudioBuffer<float>& buffer, const MidiBuffer& midiMessages);
+
   Synthesiser synth;
 
   // preset index
   std::int32_t currentProgIndex;
 
-  //[3]のオブジェクトの初期化に必要な情報を保持する構造体[4]
-  dsp::ProcessSpec spec;
-
   //アンチエイリアスフィルタ用
   antiAliasFilter antiAliasFilter;
-
-  const std::int32_t upSamplingFactor = 2;
 
   // DSPエフェクト，クリッパー，ドライブ，フィルタ
   dsp::WaveShaper<float> clipper;
@@ -128,25 +87,6 @@ class SimpleSynthAudioProcessor : public AudioProcessor {
 
   std::set<int> midiList;
   MidiBuffer eventsToAdd;
-
-  // 関数
-  static float clippingFunction(float inputValue);
-  std::int32_t getNumVoices();
-  void addVoice();
-
-  // midiKeyのコピペ
-  template <typename Type>
-  Type jlimit(Type lowerLimit, Type upperLimit,
-              Type valueToConstrain) noexcept {
-    jassert(lowerLimit <= upperLimit);  // if these are in the wrong order,
-                                        // results are unpredictable..
-
-    return valueToConstrain < lowerLimit
-               ? lowerLimit
-               : (upperLimit < valueToConstrain ? upperLimit
-                                                : valueToConstrain);
-  }
-
-  //==============================================================================
-  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleSynthAudioProcessor)
+  
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor )
 };
