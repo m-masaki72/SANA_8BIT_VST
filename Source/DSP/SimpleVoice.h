@@ -1,24 +1,10 @@
-﻿/*
-  ==============================================================================
-
-    SimpleVoice.h
-    Created: 20 Apr 2018 2:08:09am
-        Modified: 11 September 2018
-        Author:  MasakiMori, COx2
-
-  ==============================================================================
-*/
-
-#pragma once
+﻿#pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "AmpEnvelope.h"
 #include "MIDIEcho.h"
 #include "SimpleSound.h"
-#include "SimpleSynthParameters.h"
-#include "Timer.h"
 #include "Waveforms.h"
-
 #include <set>
 
 class SimpleVoice : public SynthesiserVoice {
@@ -33,7 +19,6 @@ class SimpleVoice : public SynthesiserVoice {
 
   virtual ~SimpleVoice() = default;
 
-  // 基底クラスで宣言された純粋仮想関数をオーバーライド宣言する。
   virtual bool canPlaySound(SynthesiserSound* sound) override;
   virtual void startNote(int midiNoteNumber, float velocity,
                          SynthesiserSound* sound,

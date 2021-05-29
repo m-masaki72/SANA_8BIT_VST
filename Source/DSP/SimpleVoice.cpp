@@ -1,14 +1,4 @@
-﻿/*
-  ==============================================================================
-
-    SimpleVoice.cpp
-    Created: 20 Apr 2018 2:08:09am
-        Modified: 12 September 2018
-        Author:  MasakiMori, COx2
-
-  ==============================================================================
-*/
-#include "SimpleVoice.h"
+﻿#include "SimpleVoice.h"
 
 namespace {
 const float HALF_PI = MathConstants<float>::halfPi;
@@ -291,48 +281,35 @@ float SimpleVoice::calcModulationFactor(float angle) {
 
 float SimpleVoice::angle2wave(float angle) {
   auto value = 0.0f;
+  auto waveName = _chipOscParamsPtr->OscWaveType->getCurrentChoiceName();
 
-  if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() ==
-      "NES_Square50%") {
+  if (waveName == "NES_Square50%") {
     value += waveForms.nesSquare(angle);
-  } else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() ==
-             "NES_Square25%") {
+  } else if (waveName == "NES_Square25%") {
     value += waveForms.nesSquare25(angle);
-  } else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() ==
-             "NES_Square12.5%") {
+  } else if (waveName == "NES_Square12.5%") {
     value += waveForms.nesSquare125(angle);
-  } else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() ==
-             "NES_Triangle") {
+  } else if (waveName == "NES_Triangle") {
     value += waveForms.nesTriangle(angle);
-  } else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() ==
-             "NES_LongNoise") {
+  } else if (waveName == "NES_LongNoise") {
     value += waveForms.longNoise(angle);
-  } else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() ==
-             "NES_ShortNoise") {
+  } else if (waveName == "NES_ShortNoise") {
     value += waveForms.shortNoise(angle);
-  } else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() ==
-             "Pure_Sine") {
+  } else if (waveName == "Pure_Sine") {
     value += waveForms.sine(angle);
-  } else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() ==
-             "Pure_Saw") {
+  } else if (waveName == "Pure_Saw") {
     value += waveForms.saw(angle);
-  } else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() ==
-             "Pure_Triangle") {
+  } else if (waveName == "Pure_Triangle") {
     value += waveForms.triangle(angle);
-  } else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() ==
-             "Pure_Square50%") {
+  } else if (waveName == "Pure_Square50%") {
     value += waveForms.square(angle);
-  } else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() ==
-             "Pure_Square25%") {
+  } else if (waveName == "Pure_Square25%") {
     value += waveForms.square25(angle);
-  } else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() ==
-             "Pure_Square12.5%") {
+  } else if (waveName == "Pure_Square12.5%") {
     value += waveForms.square125(angle);
-  } else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() ==
-             "Pure_Lo-bitNoise") {
+  } else if (waveName == "Pure_Lo-bitNoise") {
     value += waveForms.lobitNoise(angle);
-  } else if (_chipOscParamsPtr->OscWaveType->getCurrentChoiceName() ==
-             "Waveform Memory") {
+  } else if (waveName == "Waveform Memory") {
     value += waveForms.waveformMemory(angle, _waveformMemoryParamsPtr);
   }
   return value;
