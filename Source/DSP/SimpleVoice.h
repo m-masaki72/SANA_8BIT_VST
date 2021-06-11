@@ -5,7 +5,6 @@
 #include "MIDIEcho.h"
 #include "SimpleSound.h"
 #include "Waveforms.h"
-#include <set>
 
 class SimpleVoice : public SynthesiserVoice {
  public:
@@ -14,8 +13,7 @@ class SimpleVoice : public SynthesiserVoice {
               VoicingParameters* voicingParams,
               OptionsParameters* optionsParams,
               MidiEchoParameters* midiEchoParams,
-              WaveformMemoryParameters* waveformMemoryParams,
-              std::set<int>* midiList);
+              WaveformMemoryParameters* waveformMemoryParams);
 
   virtual ~SimpleVoice() = default;
 
@@ -31,10 +29,11 @@ class SimpleVoice : public SynthesiserVoice {
                                int startSample, int numSamples) override;
 
  private:
+  void clear();
   float calcModulationFactor(float angle);
-  float angle2wave(float currentAngle);
-  bool isArpMode();
+  float angle2wave(float angle, float angleDelta, const juce::String& waveName);
   bool canStartNote();
+  void updateEnvParams(AmpEnvelope& ampEnv, AmpEnvelope& vibratoEnv, AmpEnvelope& portaEnv);
 
   float currentAngle, vibratoAngle, angleDelta, portaAngleDelta;
   float level;
@@ -56,5 +55,7 @@ class SimpleVoice : public SynthesiserVoice {
   OptionsParameters* _optionsParamsPtr;
   MidiEchoParameters* _midiEchoParamsPtr;
   WaveformMemoryParameters* _waveformMemoryParamsPtr;
-  std::set<int>* _midiList;
+
+  // 波形の名前
+  juce::String _waveName = "";
 };

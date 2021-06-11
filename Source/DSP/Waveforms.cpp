@@ -1,28 +1,18 @@
-﻿/*
-  ==============================================================================
-
-    Waveforms.cpp
-    Created: 22 Aug 2018 10:13:35pm
-        Modified: 11 September 2018
-        Author:  MasakiMori, COx2
-
-  ==============================================================================
-*/
-
-#include "Waveforms.h"
+﻿#include "Waveforms.h"
 
 namespace {
 const float HALF_PI = MathConstants<float>::halfPi;
 const float ONE_PI = MathConstants<float>::pi;
 const float TWO_PI = MathConstants<float>::twoPi;
+const float PITCH_SHIFT = (2 << 3);
 }  // namespace
 
 Waveforms::Waveforms() { init(); }
 
 void Waveforms::init() {
-  rand = Random(0);
-  noiseVal = 0.0f;
-  freqCounter = 0;
+  _rand = Random(0);
+  _noiseVal = 0.0f;
+  _freqCounter = 0;
 }
 
 float Waveforms::sine(float angle) {
@@ -90,46 +80,46 @@ float Waveforms::triangle(float angle) {
 
 // NESの長周期ノイズの再現
 float Waveforms::longNoise(const float angleDelta) {
-  if (++freqCounter > 1 / TWO_PI / angleDelta * (2 >> 0)) {
-    freqCounter = 0;
+  if (++_freqCounter > TWO_PI / angleDelta / PITCH_SHIFT) {
+    _freqCounter = 0;
     std::uint16_t result =
-        ((longNoizeReg & (0x0002)) >> 1) ^ ((longNoizeReg & (0x0004)) >> 2);
+        ((_longNoizeReg & (0x0002)) >> 1) ^ ((_longNoizeReg & (0x0004)) >> 2);
     result = result << 15;
-    longNoizeReg = (longNoizeReg >> 1) | result;
-    noiseVal = (longNoizeReg & 0x0001) * 2.0f - 1.0f;
+    _longNoizeReg = (_longNoizeReg >> 1) | result;
+    _noiseVal = (_longNoizeReg & 0x0001) * 2.0f - 1.0f;
   }
-  return noiseVal;
+  return _noiseVal;
 }
 
 // NESの短周期ノイズの再現
 float Waveforms::shortNoise(const float angleDelta) {
-  if (++freqCounter > TWO_PI / angleDelta / (2 << 4)) {
-    freqCounter = 0;
+  if (++_freqCounter > TWO_PI / angleDelta / PITCH_SHIFT) {
+    _freqCounter = 0;
     std::uint16_t result =
-        ((shortNoizeReg & (0x0002)) >> 1) ^ ((shortNoizeReg & (0x00B0)) >> 7);
+        ((_shortNoizeReg & (0x0002)) >> 1) ^ ((_shortNoizeReg & (0x00B0)) >> 7);
     result = result << 15;
-    shortNoizeReg = (shortNoizeReg >> 1) | result;
-    noiseVal = (shortNoizeReg & 0x0001) * 2.0f - 1.0f;
+    _shortNoizeReg = (_shortNoizeReg >> 1) | result;
+    _noiseVal = (_shortNoizeReg & 0x0001) * 2.0f - 1.0f;
   }
-  return noiseVal;
+  return _noiseVal;
 }
 
 //乱数を時間軸と振幅軸側でクオンタイズしたもの
 float Waveforms::lobitNoise(const float angleDelta) {
-  if (++freqCounter > 1 / angleDelta / TWO_PI / (2 >> 1)) {
-    freqCounter = 0;
-    noiseVal = rand.nextFloat() * 2.0f - 1.0f;
+  if (++_freqCounter > TWO_PI / angleDelta / PITCH_SHIFT) {
+    _freqCounter = 0;
+    _noiseVal = _rand.nextFloat() * 2.0f - 1.0f;
   }
-  return quantize(noiseVal);
+  return quantize(_noiseVal);
 }
 
 float Waveforms::nesSquare(float angle) {
   checkAngleRanage(angle);
 
   if (angle <= ONE_PI) {
-    return 1.0f / pow(1.4f, angle);
+    return high_pass(1.0f);
   } else {
-    return -1.0f / pow(1.4f, angle - ONE_PI);
+    return high_pass(-1.0f);
   }
 }
 
@@ -137,9 +127,9 @@ float Waveforms::nesSquare25(float angle) {
   checkAngleRanage(angle);
 
   if (angle <= HALF_PI) {
-    return 1.0f / pow(1.4f, angle);
+        return high_pass(1.0f);
   } else {
-    return -1.0f / pow(1.4f, angle - HALF_PI);
+    return high_pass(-1.0f);
   }
 }
 
@@ -147,9 +137,9 @@ float Waveforms::nesSquare125(float angle) {
   checkAngleRanage(angle);
 
   if (angle <= HALF_PI / 2) {
-    return 1.0f / pow(1.4f, angle);
+    return high_pass(1.0f);
   } else {
-    return -1.0f / pow(1.4f, angle - HALF_PI / 2);
+    return high_pass(-1.0f);
   }
 }
 
@@ -188,4 +178,10 @@ float Waveforms::checkAngleRanage(float angle) {
   }
 
   return angle;
+}
+
+float Waveforms::high_pass(float in) {
+  auto out = in - _capacitor;
+  _capacitor = in - out * 0.996;
+  return out;
 }
