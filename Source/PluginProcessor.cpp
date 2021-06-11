@@ -8,7 +8,7 @@ namespace {
 const std::int32_t NUM_OF_PRESETS = 12;
 const std::int32_t VOICE_MAX = 8;
 const std::int32_t UP_SAMPLING_FACTOR = 2;
-}  // namespace
+} // namespace
 
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
@@ -352,7 +352,7 @@ void PluginProcessor::addVoice() {
   synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters,
                                  &vibratoParameters, &voicingParameters,
                                  &optionsParameters, &midiEchoParameters,
-                                 &waveformMemoryParameters, &midiList));
+                                 &waveformMemoryParameters));
 }
 
 void PluginProcessor::changeVoiceSize() {
@@ -409,16 +409,6 @@ void PluginProcessor::procMidiMessages(const AudioBuffer<float>& buffer, const M
   MidiBuffer::Iterator i(midibuffer);
   MidiMessage message;
   int time;
-
-  while (i.getNextEvent(message, time)) {
-    if (message.isNoteOn()) {
-      midiList.insert(message.getNoteNumber());
-    } else if (message.isNoteOff()) {
-      midiList.erase(message.getNoteNumber());
-    } else if (message.isAllNotesOff()) {
-      midiList.clear();
-    }
-  }
 
   {
     MidiBuffer::Iterator i2(eventsToAdd);

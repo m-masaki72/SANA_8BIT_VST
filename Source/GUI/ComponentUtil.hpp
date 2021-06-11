@@ -1,3 +1,4 @@
+#pragma once
 #include "JuceHeader.h"
 
 class TextSlider : public Component {

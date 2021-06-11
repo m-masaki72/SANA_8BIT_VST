@@ -1,19 +1,17 @@
 #include "EditorGUI.h"
-#include "PluginProcessor.h"
 
-#include "AppConfig.h"
+#include "PluginProcessor.h"
 
 namespace {
 const std::int32_t KEY_HEIGHT = 80;
 const float KEY_WIDTH = 32.0f;
 const float KEY_SCROLL_WIDTH = 32.0f;
 const std::int32_t PANEL_MARGIN = 3;
-const float TAB_HEIGHT = 40.0f;
 
 const Colour BACKGROUND_COLOUR() {
-  return Colours::rebeccapurple.darker().darker();
+  return Colour(60,14,60);
 }
-const Colour TAB_BACKGROUND_COLOUR() { return Colours::rebeccapurple.darker(); }
+
 }  // namespace
 
 EditorGUI::EditorGUI(PluginProcessor &p)
@@ -66,29 +64,31 @@ EditorGUI::EditorGUI(PluginProcessor &p)
   setSize(960, 540 + KEY_HEIGHT);
 
   {
-    customLookAndFeel =
-        new LookAndFeel_V4(LookAndFeel_V4::getLightColourScheme());
+    customLookAndFeel = new LookAndFeel_V4(LookAndFeel_V4::getLightColourScheme());
 
-    customLookAndFeel->setColour(Slider::ColourIds::trackColourId,
-                                 Colours::lime);
-    customLookAndFeel->setColour(Slider::ColourIds::thumbColourId,
-                                 Colours::darkslategrey);
-    customLookAndFeel->setColour(Slider::ColourIds::backgroundColourId,
-                                 Colours::lightgrey);
+    customLookAndFeel->setColour(TextButton::ColourIds::buttonColourId, Colours::black);
+    customLookAndFeel->setColour(TextButton::ColourIds::buttonOnColourId, Colours::black);
+    customLookAndFeel->setColour(TextButton::ColourIds::textColourOffId, Colours::white);
+    customLookAndFeel->setColour(TextButton::ColourIds::textColourOnId, Colours::white);
 
-    customLookAndFeel->setColour(ToggleButton::ColourIds::textColourId,
-                                 Colours::black);
-    customLookAndFeel->setColour(ToggleButton::ColourIds::tickColourId,
-                                 Colours::black);
-    customLookAndFeel->setColour(ToggleButton::ColourIds::tickDisabledColourId,
-                                 Colours::black);
+    customLookAndFeel->setColour(Slider::ColourIds::trackColourId, Colours::lightgreen);
+    customLookAndFeel->setColour(Slider::ColourIds::thumbColourId, Colours::greenyellow);
+    customLookAndFeel->setColour(Slider::ColourIds::backgroundColourId, Colours::white);
+    customLookAndFeel->setColour(Slider::ColourIds::textBoxBackgroundColourId,Colours::black);
+    customLookAndFeel->setColour(Slider::ColourIds::textBoxTextColourId, Colours::white);
 
-    customLookAndFeel->setColour(Slider::ColourIds::textBoxBackgroundColourId,
-                                 Colours::white);
-    customLookAndFeel->setColour(Slider::ColourIds::textBoxTextColourId,
-                                 Colours::black);
+    customLookAndFeel->setColour(ToggleButton::ColourIds::textColourId, Colours::white);
+    customLookAndFeel->setColour(ToggleButton::ColourIds::tickColourId, Colours::white);
+    customLookAndFeel->setColour(ToggleButton::ColourIds::tickDisabledColourId, Colours::grey);
 
-    customLookAndFeel->setColour(Label::textColourId, Colours::black);
+    customLookAndFeel->setColour(ComboBox::ColourIds::arrowColourId, Colours::white);
+    customLookAndFeel->setColour(ComboBox::ColourIds::backgroundColourId, Colours::black);
+    customLookAndFeel->setColour(ComboBox::ColourIds::buttonColourId, Colours::white);
+    customLookAndFeel->setColour(ComboBox::ColourIds::focusedOutlineColourId, Colours::white);
+    customLookAndFeel->setColour(ComboBox::ColourIds::outlineColourId, Colours::lightgrey);
+    customLookAndFeel->setColour(ComboBox::ColourIds::textColourId, Colours::white);
+    
+    customLookAndFeel->setColour(Label::textColourId, Colours::white);
 
     for (Component* child : AudioProcessorEditor::getChildren()) {
       child->setLookAndFeel(customLookAndFeel);
@@ -117,13 +117,9 @@ EditorGUI::~EditorGUI() {
 }
 
 void EditorGUI::paint(Graphics& g) {
-  g.fillAll(TAB_BACKGROUND_COLOUR());
-
+  g.fillAll(BACKGROUND_COLOUR());
   g.setColour(Colours::white);
-  g.setFont(32.0f);
-  // g.drawFittedText("BPM: " +
-  // std::to_string(processor.currentPositionInfo.bpm), getLocalBounds(),
-  // Justification::topRight, 1);
+  g.setFont(Font(32, Font::bold));
   std::string VersionName = "Version ";
   VersionName += JucePlugin_VersionString;
   g.drawFittedText(VersionName, AudioProcessorEditor::getLocalBounds(),

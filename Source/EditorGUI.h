@@ -1,10 +1,10 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "PluginProcessor.h"
-
 #include "GUI/ParametersComponent.h"
 #include "GUI/ScopeComponent.hpp"
+
+class PluginProcessor;
 
 class EditorGUI : public AudioProcessorEditor,
                                         public Button::Listener {

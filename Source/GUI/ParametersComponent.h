@@ -1,19 +1,6 @@
-/*
-  ==============================================================================
-
-    ParametersComponent.cpp
-    Created: 16 May 2018 1:55:55am
-        Modified: 11 September 2018
-        Author:  MasakiMori, COx2
-
-  ==============================================================================
-*/
-
 #pragma once
-
 #include "../DSP/SimpleSynthParameters.h"
-#include "ComponentUtil.h"
-#include "JuceHeader.h"
+#include "ComponentUtil.hpp"
 
 class BaseComponent : public Component, private juce::Timer {
  public:

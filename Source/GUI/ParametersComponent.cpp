@@ -1,14 +1,3 @@
-/*
-  ==============================================================================
-
-    ParametersComponent.cpp
-    Created: 16 May 2018 1:55:55am
-        Modified: 11 September 2018
-        Author:  MasakiMori, COx2
-
-  ==============================================================================
-*/
-
 #include "ParametersComponent.h"
 
 namespace {
@@ -17,20 +6,14 @@ const Colour HEADER_COLOUR() { return Colours::darkorange; }
 const Colour FONT_COLOUR() { return Colours::black; }
 const Colour TEXT_COLOUR() { return Colours::white; }
 
-const float PANEL_NAME_FONT_SIZE = 24.0f;
-const float PARAM_LABEL_FONT_SIZE = 18.0f;
-const std::int32_t PANEL_NAME_HEIGHT = 32;
+const float HEADER_HEIGHT = 24.0f;
 const std::int32_t LOCAL_MARGIN = 2;
-const std::int32_t LABEL_WIDTH = 80;
-
-const Font panelNameFont() {
-  return Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
-};
-const Font paramLabelFont() {
-  return Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular");
-};
 
 static File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
+
+const Colour BACKGROUND_COLOUR() {
+  return Colour(60,14,60);
+}
 }  // namespace
 
 std::vector<std::string> split(std::string str, char del) {
@@ -55,25 +38,23 @@ std::vector<std::string> split(std::string str, char del) {
 }
 
 void paintHeader(Graphics& g, Rectangle<int> bounds, std::string text) {
-  {
-    float x = 0.0f, y = 0.0f, width = (float)bounds.getWidth(),
-          height = (float)bounds.getHeight();
-    g.setColour(PANEL_COLOUR());
-    g.fillRoundedRectangle(x, y, width, height, 10.0f);
+  { // 枠の描画
+    auto x = 0.0f, y = HEADER_HEIGHT / 2.0f;
+    auto width = (float)bounds.getWidth(), height = (float)bounds.getHeight() - y;
+    auto cornerSize = 8.0f, thickness = 2.0f;
+    g.setColour(Colours::orange);
+    g.drawRoundedRectangle(x, y, width, height, cornerSize, thickness);
   }
-  {
-    float x = 0.0f, y = 0.0f, width = (float)bounds.getWidth(),
-          height = PANEL_NAME_HEIGHT;
-    g.setColour(HEADER_COLOUR());
-    g.fillRoundedRectangle(x, y, width, height, 10.0f);
-  }
-  {
-    Rectangle<int> textArea =
-        bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN);
 
-    g.setColour(TEXT_COLOUR());
-    g.setFont(panelNameFont());
-    g.drawText(text, textArea, Justification::centred, false);
+  { // ヘッダー描画
+    g.setFont(Font(24, Font::bold));
+    auto x = 20.f, y = 0.0f;
+    auto width = (float)g.getCurrentFont().getStringWidth(text), height = HEADER_HEIGHT;
+
+    g.setColour(BACKGROUND_COLOUR());
+    g.fillRect(x,y,width,height);
+    g.setColour(Colours::orange);
+    g.drawText(text, x, y, width, height, Justification::centred, false);
   }
 }
 
@@ -134,10 +115,10 @@ void ChipOscillatorComponent::resized() {
   float rowSize = 6.0f;
   float divide = 1.0f / rowSize;
   std::int32_t compHeight =
-      std::int32_t((getHeight() - PANEL_NAME_HEIGHT) * divide);
+      std::int32_t((getHeight() - HEADER_HEIGHT) * divide);
 
   Rectangle<int> bounds = getLocalBounds();  // コンポーネント基準の値
-  bounds.removeFromTop(PANEL_NAME_HEIGHT);
+  bounds.removeFromTop(HEADER_HEIGHT);
 
   waveTypeSelector.setBounds(bounds.removeFromTop(compHeight));
   volumeLevelSlider.setBounds(bounds.removeFromTop(compHeight));
@@ -196,10 +177,10 @@ void SweepParametersComponent::resized() {
   float rowSize = 2.0f;
   float divide = 1.0f / rowSize;
   std::int32_t compHeight =
-      std::int32_t((getHeight() - PANEL_NAME_HEIGHT) * divide);
+      std::int32_t((getHeight() - HEADER_HEIGHT) * divide);
 
   Rectangle<int> bounds = getLocalBounds();  // コンポーネント基準の値
-  bounds.removeFromTop(PANEL_NAME_HEIGHT);
+  bounds.removeFromTop(HEADER_HEIGHT);
 
   {
     float alpha = isEditable() ? 1.0f : 0.4f;
@@ -266,10 +247,10 @@ void VibratoParametersComponent::resized() {
   float rowSize = 4.0f;
   float divide = 1.0f / rowSize;
   std::int32_t compHeight =
-      std::int32_t((getHeight() - PANEL_NAME_HEIGHT) * divide);
+      std::int32_t((getHeight() - HEADER_HEIGHT) * divide);
 
   Rectangle<int> bounds = getLocalBounds();  // コンポーネント基準の値
-  bounds.removeFromTop(PANEL_NAME_HEIGHT);
+  bounds.removeFromTop(HEADER_HEIGHT);
 
   {
     float alpha = isEditable() ? 1.0f : 0.4f;
@@ -348,10 +329,10 @@ void VoicingParametersComponent::resized() {
   float rowSize = 2.0f;
   float divide = 1.0f / rowSize;
   std::int32_t compHeight =
-      std::int32_t((getHeight() - PANEL_NAME_HEIGHT) * divide);
+      std::int32_t((getHeight() - HEADER_HEIGHT) * divide);
 
   Rectangle<int> bounds = getLocalBounds();  // コンポーネント基準の値
-  bounds.removeFromTop(PANEL_NAME_HEIGHT);
+  bounds.removeFromTop(HEADER_HEIGHT);
 
   {
     auto alpha = 0.0f;
@@ -410,10 +391,10 @@ void OptionsParametersComponent::resized() {
   float columnSize = 2.0f;
   float divide = 1.0f / columnSize;
   std::int32_t compHeight =
-      std::int32_t((getHeight() - PANEL_NAME_HEIGHT) * divide);
+      std::int32_t((getHeight() - HEADER_HEIGHT) * divide);
 
   Rectangle<int> bounds = getLocalBounds();  // コンポーネント基準の値
-  bounds.removeFromTop(PANEL_NAME_HEIGHT);
+  bounds.removeFromTop(HEADER_HEIGHT);
 
   pitchStandardSlider.setBounds(bounds.removeFromTop(compHeight));
   pitchBendRangeSlider.setBounds(bounds.removeFromTop(compHeight));
@@ -459,10 +440,10 @@ void MidiEchoParametersComponent::resized() {
   float rowSize = 4.0f;
   float divide = 1.0f / rowSize;
   std::int32_t compHeight =
-      std::int32_t((getHeight() - PANEL_NAME_HEIGHT) * divide);
+      std::int32_t((getHeight() - HEADER_HEIGHT) * divide);
 
   Rectangle<int> bounds = getLocalBounds();  // コンポーネント基準の値
-  bounds.removeFromTop(PANEL_NAME_HEIGHT);
+  bounds.removeFromTop(HEADER_HEIGHT);
 
   {
     float alpha = isEditable() ? 1.0f : 0.4f;
@@ -547,14 +528,14 @@ void RangeSlider::paint(Graphics& g) {
     for (auto i = 1; i < 4; ++i) {
       float p_y = bounds.getHeight() * 0.25f * i;
       Line<float> line(0.0f, p_y, (float)(bounds.getWidth()), p_y);
-      g.setColour(Colours::darkslateblue);
+      g.setColour(Colours::white);
       g.drawLine(line, 1.0f);
     }
     for (auto i = 1; i < 8; ++i) {
       float p_x = compWidth * i * 4.0f;
       Line<float> line(p_x, 0.0f, p_x, (float)(bounds.getHeight()));
-      g.setColour(Colours::darkslateblue);
-      g.drawLine(line, 1.4f);
+      g.setColour(Colours::white);
+      g.drawLine(line, 1.0f);
     }
 
     // Draw Slider
@@ -659,7 +640,7 @@ void WaveformMemoryParametersComponent::paint(Graphics& g) {
 
 void WaveformMemoryParametersComponent::resized() {
   Rectangle<int> bounds = getLocalBounds();
-  bounds.removeFromTop(PANEL_NAME_HEIGHT);
+  bounds.removeFromTop(HEADER_HEIGHT);
 
   {
     Rectangle<int> area = bounds.removeFromBottom(BUTTON_HEIGHT);
@@ -733,10 +714,10 @@ void FilterParametersComponent::resized() {
   float rowSize = 4.0f;
   float divide = 1.0f / rowSize;
   std::int32_t compHeight =
-      std::int32_t((getHeight() - PANEL_NAME_HEIGHT) * divide);
+      std::int32_t((getHeight() - HEADER_HEIGHT) * divide);
 
   Rectangle<int> bounds = getLocalBounds();  // コンポーネント基準の値
-  bounds.removeFromTop(PANEL_NAME_HEIGHT);
+  bounds.removeFromTop(HEADER_HEIGHT);
 
   {
     float alpha = _filterParamsPtr->HicutEnable->get() ? 1.0f : 0.4f;

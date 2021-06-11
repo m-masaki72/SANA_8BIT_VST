@@ -10,7 +10,8 @@
   <MAINGROUP id="IZtsAI" name="SANA_8bit_VST">
     <GROUP id="{0FF198AF-00FB-C9FF-2361-004F9332861C}" name="Source">
       <GROUP id="{1EF15716-4953-878F-FF46-72E0314DD4F8}" name="GUI">
-        <FILE id="q4RKXG" name="ComponentUtil.h" compile="0" resource="0" file="Source/GUI/ComponentUtil.h"/>
+        <FILE id="q4RKXG" name="ComponentUtil.hpp" compile="0" resource="0"
+              file="Source/GUI/ComponentUtil.hpp"/>
         <FILE id="ZfoH4a" name="ParametersComponent.cpp" compile="1" resource="0"
               file="Source/GUI/ParametersComponent.cpp"/>
         <FILE id="MJVnVM" name="ParametersComponent.h" compile="0" resource="0"

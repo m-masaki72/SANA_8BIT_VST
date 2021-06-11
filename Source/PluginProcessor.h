@@ -5,7 +5,6 @@
 #include "DSP/DspUtils.h"
 #include "DSP/SimpleSynthParameters.h"
 #include "GUI/ScopeComponent.hpp"
-#include <set>
 
 class PluginProcessor : public BaseAudioProcessor {
  public:
@@ -37,7 +36,7 @@ class PluginProcessor : public BaseAudioProcessor {
       "Pure_Lo-bitNoise", "Waveform Memory",
   };
   const StringArray SWEEP_SWITCH{"OFF", "Positive", "Negative"};
-  const StringArray VOICING_SWITCH{"POLY", "MONO", "PORTAMENTO", "ARPEGGIO"};
+  const StringArray VOICING_SWITCH{"POLY", "MONO", "PORTAMENTO"};
 
   PresetsParameters presetsParameters;
   ChipOscillatorParameters chipOscParameters;
@@ -85,7 +84,6 @@ class PluginProcessor : public BaseAudioProcessor {
   AudioBufferQueue<float> scopeDataQueue;
   ScopeDataCollector<float> scopeDataCollector;
 
-  std::set<int> midiList;
   MidiBuffer eventsToAdd;
   
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor )
