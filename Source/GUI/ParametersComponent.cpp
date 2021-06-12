@@ -486,8 +486,6 @@ bool MidiEchoParametersComponent::isEditable() {
   return _midiEchoParamsPtr->IsEchoEnable->get();
 }
 
-//----------------------------------------------------------------------------------------------------
-
 RangeSlider::RangeSlider(WaveformMemoryParameters* waveformMemoryParams)
     : _waveformMemoryParamsPtr(waveformMemoryParams), waveSampleSlider{} {
   for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
@@ -545,7 +543,8 @@ void RangeSlider::paint(Graphics& g) {
           bounds.getHeight() / rowSize *
           (waveSampleSlider[i].getMaximum() - waveSampleSlider[i].getValue()));
       area.removeFromTop(barHeight);
-      g.setColour(Colours::lime);
+      float t = (i + WAVESAMPLE_LENGTH / 2.f) / (WAVESAMPLE_LENGTH + WAVESAMPLE_LENGTH / 2.f);
+      g.setColour(Colours::lime.withSaturation(t));
       g.fillRect(area.reduced(1));
     }
   }
