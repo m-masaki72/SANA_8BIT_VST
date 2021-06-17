@@ -87,18 +87,14 @@ static void loadWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr) {
   }
 }
 
-ChipOscillatorComponent::ChipOscillatorComponent(
-    ChipOscillatorParameters* oscParams)
+ChipOscillatorComponent::ChipOscillatorComponent(ChipOscillatorParameters* oscParams)
     : _oscParamsPtr(oscParams),
       waveTypeSelector("waveForm", _oscParamsPtr->OscWaveType, this),
-      volumeLevelSlider("Volume", "dB", _oscParamsPtr->VolumeLevel, this,
-                        0.01f),
+      volumeLevelSlider("Volume", "dB", _oscParamsPtr->VolumeLevel, this, 0.01f),
       attackSlider("Attack", "sec", _oscParamsPtr->Attack, this, 0.0001f, 1.0f),
       decaySlider("Decay", "sec", _oscParamsPtr->Decay, this, 0.0001f, 1.0f),
       sustainSlider("Sustain", "", _oscParamsPtr->Sustain, this, 0.0001f),
-      releaseSlider("Release", "sec", _oscParamsPtr->Release, this, 0.0001f,
-                    1.0f) {
-
+      releaseSlider("Release", "sec", _oscParamsPtr->Release, this, 0.0001f, 1.0f) {
   addAndMakeVisible(waveTypeSelector);
   addAndMakeVisible(volumeLevelSlider);
   addAndMakeVisible(attackSlider);
@@ -161,8 +157,7 @@ void ChipOscillatorComponent::comboBoxChanged(
 SweepParametersComponent::SweepParametersComponent(SweepParameters* sweepParams)
     : _sweepParamsPtr(sweepParams),
       sweepSwitchSelector("Sweep-Swetch", _sweepParamsPtr->SweepSwitch, this),
-      timeSlider("Speed", "sec", _sweepParamsPtr->SweepTime, this, 0.01f,
-                 1.0f) {
+      timeSlider("Speed", "sec", _sweepParamsPtr->SweepTime, this, 0.01f, 1.0f) {
   addAndMakeVisible(sweepSwitchSelector);
   addAndMakeVisible(timeSlider);
 }
@@ -184,7 +179,7 @@ void SweepParametersComponent::resized() {
     float alpha = isEditable() ? 1.0f : 0.4f;
     timeSlider.setAlpha(alpha);
   }
-  sweepSwitchSelector.setBounds(bounds.removeFromTop(compHeight));
+  sweepSwitchSelector.setBounds(bounds.removeFromTop(compHeight * 0.7f));
   timeSlider.setBounds(bounds.removeFromTop(compHeight));
 }
 
@@ -216,15 +211,10 @@ VibratoParametersComponent::VibratoParametersComponent(
     VibratoParameters* vibratoParams)
     : _vibratoParamsPtr(vibratoParams),
       enableSwitch("Vibrato-Switch", _vibratoParamsPtr->VibratoEnable, this),
-      attackDeleySwitch("Attack-Deley-Switch",
-                        _vibratoParamsPtr->VibratoAttackDeleySwitch, this),
-      amountSlider("Depth", "HarfTone", _vibratoParamsPtr->VibratoAmount, this,
-                   0.01f, 2.0f),
-      speedSlider("Speed", "hz", _vibratoParamsPtr->VibratoSpeed, this, 0.001f,
-                  10.0f),
-      attackDeleyTimeSlider("Attack", "sec",
-                            _vibratoParamsPtr->VibratoAttackTime, this, 0.001f,
-                            2.0f) {
+      attackDeleySwitch("Attack-Deley-Switch", _vibratoParamsPtr->VibratoAttackDeleySwitch, this),
+      amountSlider("Depth", "HarfTone", _vibratoParamsPtr->VibratoAmount, this, 0.01f, 2.0f),
+      speedSlider("Speed", "hz", _vibratoParamsPtr->VibratoSpeed, this, 0.001f, 10.0f),
+      attackDeleyTimeSlider("Attack", "sec", _vibratoParamsPtr->VibratoAttackTime, this, 0.001f, 2.0f) {
   addAndMakeVisible(enableSwitch);
   addAndMakeVisible(attackDeleySwitch);
   addAndMakeVisible(amountSlider);
@@ -369,8 +359,7 @@ OptionsParametersComponent::OptionsParametersComponent(
     OptionsParameters* optionsParams)
     : _optionsParamsPtr(optionsParams),
       pitchStandardSlider("Tunes", "", _optionsParamsPtr->PitchStandard, this),
-      pitchBendRangeSlider("PB Range", "", _optionsParamsPtr->PitchBendRange,
-                           this) {
+      pitchBendRangeSlider("PB Range", "", _optionsParamsPtr->PitchBendRange, this) {
   addAndMakeVisible(pitchStandardSlider);
   addAndMakeVisible(pitchBendRangeSlider);
 }
@@ -411,11 +400,9 @@ MidiEchoParametersComponent::MidiEchoParametersComponent(
     MidiEchoParameters* midiEchoParams)
     : _midiEchoParamsPtr(midiEchoParams),
       enableButton("ON / OFF", _midiEchoParamsPtr->IsEchoEnable, this),
-      durationSlider("Duration", "sec", _midiEchoParamsPtr->EchoDuration, this,
-                     0.01f, 0.5f),
+      durationSlider("Duration", "sec", _midiEchoParamsPtr->EchoDuration, this, 0.01f, 0.5f),
       repeatSlider("Repeat", "", _midiEchoParamsPtr->EchoRepeat, this),
-      volumeOffsetSlider("Vol Offset", "%", _midiEchoParamsPtr->VolumeOffset,
-                         this, 0.1f, 100.0f) {
+      volumeOffsetSlider("Vol Offset", "%", _midiEchoParamsPtr->VolumeOffset, this, 0.1f, 100.0f) {
   addAndMakeVisible(repeatSlider);
   addAndMakeVisible(durationSlider);
   addAndMakeVisible(enableButton);
@@ -575,10 +562,8 @@ FilterParametersComponent::FilterParametersComponent(
       _filterParamsPtr(filterParams),
       hiCutSwitch("HiCut: ON / OFF", _filterParamsPtr->HicutEnable, this),
       lowCutSwitch("LowCut: ON / OFF", _filterParamsPtr->LowcutEnable, this),
-      hicutFreqSlider("hicut", "Hz", _filterParamsPtr->HicutFreq, this, 0.1f,
-                      2000.0f),
-      lowcutFreqSlider("lowcut", "Hz", _filterParamsPtr->LowcutFreq, this, 0.1f,
-                       2000.0f) {
+      hicutFreqSlider("hicut", "Hz", _filterParamsPtr->HicutFreq, this, 0.1f, 2000.0f),
+      lowcutFreqSlider("lowcut", "Hz", _filterParamsPtr->LowcutFreq, this, 0.1f, 2000.0f) {
   addAndMakeVisible(hiCutSwitch);
   addAndMakeVisible(lowCutSwitch);
   addAndMakeVisible(hicutFreqSlider);

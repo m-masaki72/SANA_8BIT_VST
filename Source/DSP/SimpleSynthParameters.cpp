@@ -1,15 +1,4 @@
-﻿/*
-  ==============================================================================
-
-    SimpleSynthParameters.cpp
-    Created: 10 May 2018 12:28:18am
-        Modified: 11 September 2018
-        Author:  MasakiMori, COx2
-
-  ==============================================================================
-*/
-
-#include "SimpleSynthParameters.h"
+﻿#include "SimpleSynthParameters.h"
 
 ChipOscillatorParameters::ChipOscillatorParameters(
     AudioParameterChoice* oscWaveType, AudioParameterFloat* volumeLevel,

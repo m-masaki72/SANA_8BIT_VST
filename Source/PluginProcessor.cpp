@@ -17,59 +17,40 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
 
 PluginProcessor ::PluginProcessor ()
     : BaseAudioProcessor(),
-      presetsParameters{new AudioParameterInt("PROGRAM_INDEX", "Program-Index",
-                                              0, NUM_OF_PRESETS, 0)},
-      chipOscParameters{
-          new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType",
-                                   OSC_WAVE_TYPES, 0),
-          new AudioParameterFloat("VOLUME", "Volume", -32.0f, 8.0f, -20.0f),
-          new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.000f, 10.0f,
-                                  0.000f),
-          new AudioParameterFloat("AMPENV_DECAY", "Decay", 0.000f, 10.0f,
-                                  0.000f),
-          new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f,
-                                  1.0f),
-          new AudioParameterFloat("AMPENV_RELEASE", "Release", 0.000f, 10.0f,
-                                  0.000f)},
-      sweepParameters{
-          new AudioParameterChoice("SWEEP_SWITCH", "Sweep-Switch", SWEEP_SWITCH,
-                                   0),
-          new AudioParameterFloat("SWEEP_TIME", "Sweep-Time", 0.01f, 10.0f,
-                                  1.0f),
-      },
-      vibratoParameters{
-          new AudioParameterBool("VIBRATO_ENABLE", "Vibrato-Enable", true),
-          new AudioParameterBool("VIBRATO_ATTACK-DELEY-SWITCH",
-                                 "Vibrato-Attack-Deley-Switch", true),
-          new AudioParameterFloat("VIBRATO_DEPTH", "Vibrato-Depth", 0.0f, 24.0f,
-                                  0.0f),
-          new AudioParameterFloat("VIBRATO_SPEED", "Vibrato-Speed", 0.0f, 20.0f,
-                                  0.1000f),
-          new AudioParameterFloat("VIBRATO_ATTACKTIME", "Vibrato-AttackTime",
-                                  0.0f, 15.0f, 0.0f)},
-      voicingParameters{
-          new AudioParameterChoice("VOICING_TYPE", "Voicing-Type",
-                                   VOICING_SWITCH, 0),
-          new AudioParameterFloat("STEP_TIME", "Step-Time", 0.00f, 3.0f, 0.0f)},
-      optionsParameters{new AudioParameterInt("PITCH_BEND_RANGE",
-                                              "Pitch-Bend-Range", 1, 13, 2),
-                        new AudioParameterInt("PITCH_STANDARD",
-                                              "Pitch-Standard", 400, 500, 440)},
-      midiEchoParameters{
-          new AudioParameterBool("ECHO_ENABLE", "Echo-Enable", false),
-          new AudioParameterFloat("ECHO_DURATION", "Echo-Duration", 0.01f, 3.0f,
-                                  0.1f),
-          new AudioParameterInt("ECHO_REPEAT", "Echo-Repeat", 1, 5, 1),
-          new AudioParameterFloat("ECHO_VOLUMEOFFSET", "Echo-VolumeOffset",
-                                  0.0f, 200.0f, 50.0f)},
-      filterParameters{
-          new AudioParameterBool("HICUT_ENABLE", "Filter-Hicut-Enable", false),
-          new AudioParameterBool("LOWCUT_ENABLE", "Filter-Lowcut-Enable",
-                                 false),
-          new AudioParameterFloat("FILTER_HICUT-FREQ", "Filter-Hicut-Freq",
-                                  40.0f, 20000.0f, 20000.0f),
-          new AudioParameterFloat("FILTER_LOWCUT-FREQ", "Filter-Lowcut-Freq",
-                                  40.0f, 20000.0f, 40.0f)},
+      presetsParameters(
+        new AudioParameterInt("PROGRAM_INDEX", "Program-Index", 0, NUM_OF_PRESETS, 0)),
+      chipOscParameters(
+        new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 0),
+        new AudioParameterFloat("VOLUME", "Volume", -32.0f, 8.0f, -20.0f),
+        new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.000f, 10.0f, 0.000f),
+        new AudioParameterFloat("AMPENV_DECAY", "Decay", 0.000f, 10.0f, 0.000f),
+        new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 1.0f),
+        new AudioParameterFloat("AMPENV_RELEASE", "Release", 0.000f, 10.0f, 0.000f)),
+      sweepParameters(
+        new AudioParameterChoice("SWEEP_SWITCH", "Sweep-Switch", SWEEP_SWITCH, 0),
+        new AudioParameterFloat("SWEEP_TIME", "Sweep-Time", 0.01f, 10.0f, 1.0f)),
+      vibratoParameters(
+        new AudioParameterBool("VIBRATO_ENABLE", "Vibrato-Enable", true),
+        new AudioParameterBool("VIBRATO_ATTACK-DELEY-SWITCH", "Vibrato-Attack-Deley-Switch", true),
+        new AudioParameterFloat("VIBRATO_DEPTH", "Vibrato-Depth", 0.0f, 24.0f, 0.0f),
+        new AudioParameterFloat("VIBRATO_SPEED", "Vibrato-Speed", 0.0f, 20.0f, 0.1000f),
+        new AudioParameterFloat("VIBRATO_ATTACKTIME", "Vibrato-AttackTime", 0.0f, 15.0f, 0.0f)),
+      voicingParameters(
+        new AudioParameterChoice("VOICING_TYPE", "Voicing-Type", VOICING_SWITCH, 0),
+        new AudioParameterFloat("STEP_TIME", "Step-Time", 0.00f, 3.0f, 0.0f)),
+      optionsParameters(
+        new AudioParameterInt("PITCH_BEND_RANGE", "Pitch-Bend-Range", 1, 13, 2),
+        new AudioParameterInt("PITCH_STANDARD", "Pitch-Standard", 400, 500, 440)),
+      midiEchoParameters(
+        new AudioParameterBool("ECHO_ENABLE", "Echo-Enable", false),
+        new AudioParameterFloat("ECHO_DURATION", "Echo-Duration", 0.01f, 3.0f, 0.1f),
+        new AudioParameterInt("ECHO_REPEAT", "Echo-Repeat", 1, 5, 1),
+        new AudioParameterFloat("ECHO_VOLUMEOFFSET", "Echo-VolumeOffset", 0.0f, 200.0f, 50.0f)),
+      filterParameters(
+        new AudioParameterBool("HICUT_ENABLE", "Filter-Hicut-Enable", false),
+        new AudioParameterBool("LOWCUT_ENABLE", "Filter-Lowcut-Enable", false),
+        new AudioParameterFloat("FILTER_HICUT-FREQ", "Filter-Hicut-Freq", 40.0f, 20000.0f, 20000.0f),
+        new AudioParameterFloat("FILTER_LOWCUT-FREQ", "Filter-Lowcut-Freq", 40.0f, 20000.0f, 40.0f)),
       waveformMemoryParameters(),
       scopeDataCollector(scopeDataQueue) {
   presetsParameters.addAllParameters(*this);
