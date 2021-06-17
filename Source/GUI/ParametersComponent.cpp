@@ -5,17 +5,13 @@ const Colour PANEL_COLOUR() { return Colours::cornsilk; }
 const Colour HEADER_COLOUR() { return Colours::darkorange; }
 const Colour FONT_COLOUR() { return Colours::black; }
 const Colour TEXT_COLOUR() { return Colours::white; }
+const Colour BACKGROUND_COLOUR() { return Colour(60,14,60); }
 
 const float HEADER_HEIGHT = 24.0f;
 const std::int32_t LOCAL_MARGIN = 2;
 
 // static File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
-
 static File preFilePath = File("C:\\Users\\memen\\Desktop\\SANA_8BIT_VST\\PreBuilds\\WAVE_FORM_SAMPLES");
-
-const Colour BACKGROUND_COLOUR() {
-  return Colour(60,14,60);
-}
 }  // namespace
 
 static std::vector<std::string> split(std::string str, char del) {
@@ -162,8 +158,6 @@ void ChipOscillatorComponent::comboBoxChanged(
   }
 }
 
-//----------------------------------------------------------------------------------------------------
-
 SweepParametersComponent::SweepParametersComponent(SweepParameters* sweepParams)
     : _sweepParamsPtr(sweepParams),
       sweepSwitchSelector("Sweep-Swetch", _sweepParamsPtr->SweepSwitch, this),
@@ -217,8 +211,6 @@ void SweepParametersComponent::comboBoxChanged(
 bool SweepParametersComponent::isEditable() {
   return (_sweepParamsPtr->SweepSwitch->getIndex() >= 1) ? true : false;
 }
-
-//----------------------------------------------------------------------------------------------------
 
 VibratoParametersComponent::VibratoParametersComponent(
     VibratoParameters* vibratoParams)
@@ -313,8 +305,6 @@ bool VibratoParametersComponent::isEditable() {
   return _vibratoParamsPtr->VibratoEnable->get();
 }
 
-//----------------------------------------------------------------------------------------------------
-
 VoicingParametersComponent::VoicingParametersComponent(
     VoicingParameters* voicingParams)
     : _voicingParamsPtr(voicingParams),
@@ -375,8 +365,6 @@ void VoicingParametersComponent::comboBoxChanged(
   resized();
 }
 
-//----------------------------------------------------------------------------------------------------
-
 OptionsParametersComponent::OptionsParametersComponent(
     OptionsParameters* optionsParams)
     : _optionsParamsPtr(optionsParams),
@@ -418,8 +406,6 @@ void OptionsParametersComponent::sliderValueChanged(Slider* slider) {
         (std::int32_t)pitchBendRangeSlider.getValue();
   }
 }
-
-//----------------------------------------------------------------------------------------------------
 
 MidiEchoParametersComponent::MidiEchoParametersComponent(
     MidiEchoParameters* midiEchoParams)
@@ -583,8 +569,6 @@ void WaveformMemoryParametersComponent::fileClicked(const File& file, const Mous
   }
 }	
 
-//----------------------------------------------------------------------------------------------------
-
 FilterParametersComponent::FilterParametersComponent(
     FilterParameters* filterParams)
     : BaseComponent(),
@@ -650,5 +634,3 @@ void FilterParametersComponent::buttonClicked(Button* button) {
   }
   resized();
 }
-
-//----------------------------------------------------------------------------------------------------
