@@ -1,4 +1,4 @@
-﻿#include "SimpleSynthParameters.h"
+#include "SynthParameters.h"
 
 ChipOscillatorParameters::ChipOscillatorParameters(
     AudioParameterChoice* oscWaveType, AudioParameterFloat* volumeLevel,

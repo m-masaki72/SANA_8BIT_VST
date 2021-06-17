@@ -156,7 +156,7 @@ void ChipOscillatorComponent::comboBoxChanged(
 
 SweepParametersComponent::SweepParametersComponent(SweepParameters* sweepParams)
     : _sweepParamsPtr(sweepParams),
-      sweepSwitchSelector("Sweep-Swetch", _sweepParamsPtr->SweepSwitch, this),
+      sweepSwitchSelector("SweepType", _sweepParamsPtr->SweepSwitch, this),
       timeSlider("Speed", "sec", _sweepParamsPtr->SweepTime, this, 0.01f, 1.0f) {
   addAndMakeVisible(sweepSwitchSelector);
   addAndMakeVisible(timeSlider);
@@ -179,7 +179,7 @@ void SweepParametersComponent::resized() {
     float alpha = isEditable() ? 1.0f : 0.4f;
     timeSlider.setAlpha(alpha);
   }
-  sweepSwitchSelector.setBounds(bounds.removeFromTop(compHeight * 0.7f));
+  sweepSwitchSelector.setBounds(bounds.removeFromTop(compHeight * 0.6f));
   timeSlider.setBounds(bounds.removeFromTop(compHeight));
 }
 

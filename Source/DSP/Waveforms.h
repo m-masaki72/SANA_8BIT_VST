@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "SimpleSynthParameters.h"
+#include "SynthParameters.h"
 
 class Waveforms {
  public:

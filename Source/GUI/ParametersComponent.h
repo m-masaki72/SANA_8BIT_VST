@@ -1,5 +1,5 @@
 #pragma once
-#include "../DSP/SimpleSynthParameters.h"
+#include "../DSP/SynthParameters.h"
 #include "ComponentUtil.hpp"
 
 class BaseComponent : public Component, private juce::Timer {

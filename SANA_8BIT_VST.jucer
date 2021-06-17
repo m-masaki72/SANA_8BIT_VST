@@ -26,10 +26,10 @@
         <FILE id="i00HSI" name="MIDIEcho.h" compile="0" resource="0" file="Source/DSP/MIDIEcho.h"/>
         <FILE id="fOBoQl" name="SimpleSound.cpp" compile="1" resource="0" file="Source/DSP/SimpleSound.cpp"/>
         <FILE id="NkrG8d" name="SimpleSound.h" compile="0" resource="0" file="Source/DSP/SimpleSound.h"/>
-        <FILE id="IjJsMl" name="SimpleSynthParameters.cpp" compile="1" resource="0"
-              file="Source/DSP/SimpleSynthParameters.cpp"/>
-        <FILE id="zWODSm" name="SimpleSynthParameters.h" compile="0" resource="0"
-              file="Source/DSP/SimpleSynthParameters.h"/>
+        <FILE id="IjJsMl" name="SynthParameters.cpp" compile="1" resource="0"
+              file="Source/DSP/SynthParameters.cpp"/>
+        <FILE id="zWODSm" name="SynthParameters.h" compile="0" resource="0"
+              file="Source/DSP/SynthParameters.h"/>
         <FILE id="En0YXn" name="SimpleVoice.cpp" compile="1" resource="0" file="Source/DSP/SimpleVoice.cpp"/>
         <FILE id="wW4Ofk" name="SimpleVoice.h" compile="0" resource="0" file="Source/DSP/SimpleVoice.h"/>
         <FILE id="tvbvmW" name="Timer.cpp" compile="1" resource="0" file="Source/DSP/Timer.cpp"/>

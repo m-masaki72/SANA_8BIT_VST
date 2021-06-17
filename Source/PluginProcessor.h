@@ -3,7 +3,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "BaseAudioProcessor.h"
 #include "DSP/DspUtils.h"
-#include "DSP/SimpleSynthParameters.h"
+#include "DSP/SynthParameters.h"
 #include "GUI/ScopeComponent.hpp"
 
 class PluginProcessor : public BaseAudioProcessor {
