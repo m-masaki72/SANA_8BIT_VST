@@ -161,7 +161,7 @@ float Waveforms::waveformMemory(
 
   // valの範囲を変換 0~15 -> -1.0~1.0
   auto index = (std::int32_t)(angle * WAVESAMPLE_LENGTH / TWO_PI);
-  std::int32_t val = _waveformMemoryParamsPtr->_waveSampleArray[index];
+  std::int32_t val = *_waveformMemoryParamsPtr->WaveSamplesArray[index];
   return val / 8.0f - 1.0f;
 }
 

@@ -124,7 +124,6 @@ class OptionsParameters : public SynthParametersBase {
 class WaveformMemoryParameters : public SynthParametersBase {
  public:
   AudioParameterInt* WaveSamplesArray[WAVESAMPLE_LENGTH];
-  std::atomic_int32_t _waveSampleArray[WAVESAMPLE_LENGTH];
 
   WaveformMemoryParameters();
 
