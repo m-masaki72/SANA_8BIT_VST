@@ -1,6 +1,42 @@
 #pragma once
 #include "JuceHeader.h"
 
+struct Trail {
+  Trail(const MouseInputSource& ms) : source(ms) {}
+
+  void pushPoint(Point<float> newPoint, ModifierKeys newMods,
+                  float pressure) {
+    currentPosition = newPoint;
+    modifierKeys = newMods;
+
+    if (lastPoint.getDistanceFrom(newPoint) > 5.0f) {
+      if (lastPoint != Point<float>()) {
+        Path newSegment;
+        newSegment.startNewSubPath(lastPoint);
+        newSegment.lineTo(newPoint);
+
+        auto diameter =
+            20.0f * (pressure > 0 && pressure < 1.0f ? pressure : 1.0f);
+
+        PathStrokeType(diameter, PathStrokeType::curved,
+                        PathStrokeType::rounded)
+            .createStrokedPath(newSegment, newSegment);
+        path.addPath(newSegment);
+      }
+
+      lastPoint = newPoint;
+    }
+  }
+
+  MouseInputSource source;
+  Path path;
+  Colour colour{Colours::rebeccapurple.withAlpha(0.6f)};
+  Point<float> lastPoint, currentPosition;
+  ModifierKeys modifierKeys;
+
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Trail)
+};
+
 class TextSlider : public Component {
  public:
   const float PANEL_NAME_FONT_SIZE = 24.0f;
@@ -238,4 +274,131 @@ class PageButton : public Component {
 
  private:
   PageButton();
+};
+
+class RangeSliders : public Component, private juce::Timer {
+ public:
+  RangeSliders::RangeSliders(WaveformMemoryParameters* waveformMemoryParams)
+      : _waveformMemoryParamsPtr(waveformMemoryParams), waveSampleSlider{} {
+    for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
+      waveSampleSlider[i].setRange(0, 15, 1.0);
+      waveSampleSlider[i].setValue(7, dontSendNotification);
+    }
+    startTimerHz(10);
+  }
+  virtual void paint(Graphics& g) override {
+    // update slider Params
+    for (auto* trail : trails) {
+      auto compWidth = getWidth();
+      auto compHeight = getHeight();
+
+      std::int32_t index = (std::int32_t)(trail->currentPosition.x *
+                                          (float)WAVESAMPLE_LENGTH / compWidth);
+      index = std::min(index, 31);
+      index = std::max(index, 0);
+      float point = trail->currentPosition.y;
+      std::int32_t value = 15 - (std::int32_t)(point * 16.0 / compHeight);
+      waveSampleSlider[index].setValue(value, dontSendNotification);
+      updateValue(index);
+    }
+    // repaint Sliders
+    {
+      Rectangle<int> bounds = getLocalBounds();
+      float columnSize = (float)WAVESAMPLE_LENGTH;
+      float rowSize = (float)16;
+      float compWidth = getWidth();
+
+      // Draw Scale Line
+      for (auto i = 0; i <= 4; ++i) {
+        float p_y = getHeight() * 0.25f * i;
+        Line<float> line(0.0f, p_y, (float)getWidth(), p_y);
+        g.setColour(Colours::white);
+        g.drawLine(line, 1.0f);
+      }
+      for (auto i = 0; i <= 8; ++i) {
+        float p_x = getWidth() * 0.125f * i;
+        Line<float> line(p_x, 0.0f, p_x, (float)getHeight());
+        g.setColour(Colours::white);
+        g.drawLine(line, 1.0f);
+      }
+
+      // Draw Slider
+      for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
+        auto barHeight = getHeight() * (waveSampleSlider[i].getValue() + 1.0f) / rowSize;
+        auto barWidth = compWidth / (float)WAVESAMPLE_LENGTH;
+        Rectangle<float> area2 = Rectangle<float>(
+          i * barWidth, getHeight() - barHeight,
+          barWidth, barHeight);
+        float saturateRate = (i + WAVESAMPLE_LENGTH / 2.f) / (WAVESAMPLE_LENGTH + WAVESAMPLE_LENGTH / 2.f);
+        g.setColour(Colours::lime.withSaturation(saturateRate));
+        g.fillRect(area2.reduced(0.5f));
+      }
+    }
+  };
+
+  void updateValue() {
+    for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
+      *_waveformMemoryParamsPtr->WaveSamplesArray[i] =
+        (std::int32_t)waveSampleSlider[i].getValue();
+    }
+  };
+
+  void updateValue(std::int32_t index) {
+    *_waveformMemoryParamsPtr->WaveSamplesArray[index] =
+      (std::int32_t)waveSampleSlider[index].getValue();
+  };
+
+ private:
+  virtual void timerCallback() override {
+    for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
+      waveSampleSlider[i].setValue(
+        _waveformMemoryParamsPtr->WaveSamplesArray[i]->get(),
+        dontSendNotification);
+    }
+    repaint();
+  };
+
+  virtual void mouseDrag(const MouseEvent& e) override {
+    auto* t = getTrail(e.source);
+    if (t == nullptr) {
+      t = new Trail(e.source);
+      t->path.startNewSubPath(e.position);
+      trails.add(t);
+    } else {
+      t->pushPoint(e.position, e.mods, e.pressure);
+    }
+    repaint();
+  };
+
+  virtual void mouseDown(const MouseEvent& e) override {
+    auto* t = getTrail(e.source);
+    if (t == nullptr) {
+      t = new Trail(e.source);
+      t->path.startNewSubPath(e.position);
+      trails.add(t);
+    }
+    t->pushPoint(e.position, e.mods, e.pressure);
+    repaint();
+  };
+
+  virtual void mouseUp(const MouseEvent& e) override {
+    auto* t = getTrail(e.source);
+    if (t != nullptr) {
+      trails.removeObject(t);
+    }
+    repaint();
+  };
+
+  Slider waveSampleSlider[32];
+
+  WaveformMemoryParameters* _waveformMemoryParamsPtr;
+  OwnedArray<Trail> trails;
+
+  Trail* getTrail(const MouseInputSource& source) {
+    for (auto* trail : trails) {
+      if (trail->source == source) return trail;
+    }
+
+    return nullptr;
+  }
 };

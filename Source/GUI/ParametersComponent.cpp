@@ -9,14 +9,16 @@ const Colour TEXT_COLOUR() { return Colours::white; }
 const float HEADER_HEIGHT = 24.0f;
 const std::int32_t LOCAL_MARGIN = 2;
 
-static File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
+// static File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
+
+static File preFilePath = File("C:\\Users\\memen\\Desktop\\SANA_8BIT_VST\\PreBuilds\\WAVE_FORM_SAMPLES");
 
 const Colour BACKGROUND_COLOUR() {
   return Colour(60,14,60);
 }
 }  // namespace
 
-std::vector<std::string> split(std::string str, char del) {
+static std::vector<std::string> split(std::string str, char del) {
   auto first = 0;
   auto last = str.find_first_of(del);
 
@@ -37,7 +39,7 @@ std::vector<std::string> split(std::string str, char del) {
   return result;
 }
 
-void paintHeader(Graphics& g, Rectangle<int> bounds, std::string text) {
+static void paintHeader(Graphics& g, Rectangle<int> bounds, std::string text) {
   { // 枠の描画
     auto x = 0.0f, y = HEADER_HEIGHT / 2.0f;
     auto width = (float)bounds.getWidth(), height = (float)bounds.getHeight() - y;
@@ -58,7 +60,7 @@ void paintHeader(Graphics& g, Rectangle<int> bounds, std::string text) {
   }
 }
 
-void saveWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr) {
+static void saveWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr) {
   FileChooser fileSaver("Save File As", preFilePath, "*.wfm");
 
   if (fileSaver.browseForFileToSave(true)) {
@@ -73,7 +75,8 @@ void saveWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr) {
     preFilePath = fileSaver.getResult();
   }
 }
-void loadWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr) {
+
+static void loadWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr) {
   FileChooser fileLoader("Load File From", preFilePath, "*.wfm");
 
   if (fileLoader.browseForFileToOpen()) {
@@ -99,6 +102,7 @@ ChipOscillatorComponent::ChipOscillatorComponent(
       sustainSlider("Sustain", "", _oscParamsPtr->Sustain, this, 0.0001f),
       releaseSlider("Release", "sec", _oscParamsPtr->Release, this, 0.0001f,
                     1.0f) {
+
   addAndMakeVisible(waveTypeSelector);
   addAndMakeVisible(volumeLevelSlider);
   addAndMakeVisible(attackSlider);
@@ -486,141 +490,22 @@ bool MidiEchoParametersComponent::isEditable() {
   return _midiEchoParamsPtr->IsEchoEnable->get();
 }
 
-RangeSlider::RangeSlider(WaveformMemoryParameters* waveformMemoryParams)
-    : _waveformMemoryParamsPtr(waveformMemoryParams), waveSampleSlider{} {
-  for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
-    waveSampleSlider[i].setRange(0, 15, 1.0);
-    waveSampleSlider[i].setValue(7, dontSendNotification);
-  }
-  startTimerHz(10);
-}
-
-void RangeSlider::paint(Graphics& g) {
-  // update slider Params
-  for (auto* trail : trails) {
-    float compWidth = (float)(getWidth()) - 12.0f;  // 微調整値
-    auto compHeight = getHeight();
-
-    std::int32_t index = (std::int32_t)(trail->currentPosition.x *
-                                        (float)WAVESAMPLE_LENGTH / compWidth);
-    if (index < 0) {
-      index = 0;
-    } else if (index >= 31) {
-      index = 31;
-    }
-    float point = trail->currentPosition.y;
-    std::int32_t value = 15 - (std::int32_t)(point * 16.0 / compHeight);
-    waveSampleSlider[index].setValue(value, dontSendNotification);
-    updateValue(index);
-  }
-  // repaint Sliders
-  {
-    float columnSize = (float)WAVESAMPLE_LENGTH;
-    float rowSize = (float)16;
-    float divide = 1.0f / columnSize;
-    std::int32_t compWidth = std::int32_t((getWidth()) * divide);
-
-    Rectangle<int> bounds = getLocalBounds();
-
-    // Draw Scale Line
-    for (auto i = 1; i < 4; ++i) {
-      float p_y = bounds.getHeight() * 0.25f * i;
-      Line<float> line(0.0f, p_y, (float)(bounds.getWidth()), p_y);
-      g.setColour(Colours::white);
-      g.drawLine(line, 1.0f);
-    }
-    for (auto i = 1; i < 8; ++i) {
-      float p_x = compWidth * i * 4.0f;
-      Line<float> line(p_x, 0.0f, p_x, (float)(bounds.getHeight()));
-      g.setColour(Colours::white);
-      g.drawLine(line, 1.0f);
-    }
-
-    // Draw Slider
-    for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
-      Rectangle<int> area = bounds.removeFromLeft(compWidth);
-      std::int32_t barHeight = std::int32_t(
-          bounds.getHeight() / rowSize *
-          (waveSampleSlider[i].getMaximum() - waveSampleSlider[i].getValue()));
-      area.removeFromTop(barHeight);
-      float t = (i + WAVESAMPLE_LENGTH / 2.f) / (WAVESAMPLE_LENGTH + WAVESAMPLE_LENGTH / 2.f);
-      g.setColour(Colours::lime.withSaturation(t));
-      g.fillRect(area.reduced(1));
-    }
-  }
-}
-
-void RangeSlider::timerCallback() {
-  for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
-    waveSampleSlider[i].setValue(
-        _waveformMemoryParamsPtr->WaveSamplesArray[i]->get(),
-        dontSendNotification);
-    _waveformMemoryParamsPtr->_waveSampleArray[i] =
-        waveSampleSlider[i].getValue();
-  }
-  repaint();
-}
-
-void RangeSlider::updateValue() {
-  for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
-    *_waveformMemoryParamsPtr->WaveSamplesArray[i] =
-        (std::int32_t)waveSampleSlider[i].getValue();
-    _waveformMemoryParamsPtr->_waveSampleArray[i] =
-        (std::int32_t)waveSampleSlider[i].getValue();
-  }
-}
-
-void RangeSlider::updateValue(std::int32_t index) {
-  *_waveformMemoryParamsPtr->WaveSamplesArray[index] =
-      (std::int32_t)waveSampleSlider[index].getValue();
-  _waveformMemoryParamsPtr->_waveSampleArray[index] =
-      (std::int32_t)waveSampleSlider[index].getValue();
-}
-
-void RangeSlider::mouseDown(const MouseEvent& e) {
-  auto* t = getTrail(e.source);
-
-  if (t == nullptr) {
-    t = new Trail(e.source);
-    t->path.startNewSubPath(e.position);
-    trails.add(t);
-  }
-
-  t->pushPoint(e.position, e.mods, e.pressure);
-
-  repaint();
-}
-
-void RangeSlider::mouseUp(const MouseEvent& e) {
-  auto* t = getTrail(e.source);
-
-  if (t != nullptr) {
-    trails.removeObject(t);
-  }
-
-  repaint();
-}
-
-void RangeSlider::mouseDrag(const MouseEvent& e) {
-  auto* t = getTrail(e.source);
-
-  if (t == nullptr) {
-    t = new Trail(e.source);
-    t->path.startNewSubPath(e.position);
-    trails.add(t);
-  } else {
-    t->pushPoint(e.position, e.mods, e.pressure);
-  }
-  repaint();
-}
-
-//----------------------------------------------------------------------------------------------------
 WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(
     WaveformMemoryParameters* waveformMemoryParams)
     : _waveformMemoryParamsPtr(waveformMemoryParams),
       waveRangeSlider(waveformMemoryParams),
       saveButton(),
       loadButton() {
+  auto fileMode = 
+    FileBrowserComponent::FileChooserFlags::openMode + 
+    FileBrowserComponent::FileChooserFlags::canSelectFiles + 
+    FileBrowserComponent::FileChooserFlags::filenameBoxIsReadOnly + 
+    FileBrowserComponent::FileChooserFlags::doNotClearFileNameOnRootChange;
+
+  _fileBrowser = new FileBrowserComponent(fileMode , preFilePath, nullptr, nullptr);
+  _fileBrowser->addListener(this);
+  addAndMakeVisible(_fileBrowser);
+
   saveButton.setButtonText("Save to File");
   saveButton.addListener(this);
   addAndMakeVisible(saveButton);
@@ -631,6 +516,10 @@ WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(
 
   waveRangeSlider.addMouseListener(this, true);
   addAndMakeVisible(waveRangeSlider);
+}
+
+WaveformMemoryParametersComponent::~WaveformMemoryParametersComponent() {
+  delete _fileBrowser;
 }
 
 void WaveformMemoryParametersComponent::paint(Graphics& g) {
@@ -647,6 +536,8 @@ void WaveformMemoryParametersComponent::resized() {
         area.removeFromLeft(area.getWidth() / 2).reduced(LOCAL_MARGIN));
     loadButton.setBounds(area.reduced(LOCAL_MARGIN));
   }
+  _fileBrowser->setBounds(bounds.removeFromLeft(FILE_BROWSER_WIDTH));
+
   waveRangeSlider.setBounds(bounds);
 }
 
@@ -663,15 +554,6 @@ bool WaveformMemoryParametersComponent::isInterestedInFileDrag(
   return true;
 }
 
-void WaveformMemoryParametersComponent::fileDragEnter(const StringArray& files,
-                                                      int x, int y) {}
-
-void WaveformMemoryParametersComponent::fileDragMove(const StringArray& files,
-                                                     int x, int y) {}
-
-void WaveformMemoryParametersComponent::fileDragExit(const StringArray& files) {
-}
-
 void WaveformMemoryParametersComponent::filesDropped(const StringArray& files,
                                                      int x, int y) {
   std::string filePath = files.begin()->toStdString();
@@ -686,6 +568,20 @@ void WaveformMemoryParametersComponent::filesDropped(const StringArray& files,
     }
   }
 }
+
+void WaveformMemoryParametersComponent::fileClicked(const File& file, const MouseEvent& event) {
+  std::string filePath = file.getFullPathName().toStdString();
+  
+  if (filePath.find(".wfm")) {
+    File waveformFile(filePath);
+    std::string data = waveformFile.loadFileAsString().toStdString();
+    std::int32_t count = 0;
+    for (const auto subStr : split(data, ' ')) {
+      *_waveformMemoryParamsPtr->WaveSamplesArray[count] = atoi(subStr.c_str());
+      ++count;
+    }
+  }
+}	
 
 //----------------------------------------------------------------------------------------------------
 

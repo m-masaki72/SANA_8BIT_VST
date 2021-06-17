@@ -153,80 +153,13 @@ class MidiEchoParametersComponent : public BaseComponent,
   TextSlider volumeOffsetSlider;
 };
 
-class RangeSlider : public Component, private juce::Timer {
- public:
-  RangeSlider(WaveformMemoryParameters* waveformMemoryParams);
-  virtual void paint(Graphics& g) override;
-  void updateValue();
-  void updateValue(std::int32_t index);
-
- private:
-  virtual void timerCallback() override;
-  virtual void mouseDrag(const MouseEvent& e) override;
-  virtual void mouseDown(const MouseEvent& e) override;
-  virtual void mouseUp(const MouseEvent& e) override;
-
-  Slider waveSampleSlider[32];
-  const int BUTTON_HEIGHT = 32;
-
-  WaveformMemoryParameters* _waveformMemoryParamsPtr;
-
-  //=====================================================================================
-
-  struct Trail {
-    Trail(const MouseInputSource& ms) : source(ms) {}
-
-    void pushPoint(Point<float> newPoint, ModifierKeys newMods,
-                   float pressure) {
-      currentPosition = newPoint;
-      modifierKeys = newMods;
-
-      if (lastPoint.getDistanceFrom(newPoint) > 5.0f) {
-        if (lastPoint != Point<float>()) {
-          Path newSegment;
-          newSegment.startNewSubPath(lastPoint);
-          newSegment.lineTo(newPoint);
-
-          auto diameter =
-              20.0f * (pressure > 0 && pressure < 1.0f ? pressure : 1.0f);
-
-          PathStrokeType(diameter, PathStrokeType::curved,
-                         PathStrokeType::rounded)
-              .createStrokedPath(newSegment, newSegment);
-          path.addPath(newSegment);
-        }
-
-        lastPoint = newPoint;
-      }
-    }
-
-    MouseInputSource source;
-    Path path;
-    Colour colour{Colours::rebeccapurple.withAlpha(0.6f)};
-    Point<float> lastPoint, currentPosition;
-    ModifierKeys modifierKeys;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Trail)
-  };
-
-  OwnedArray<Trail> trails;
-
-  Trail* getTrail(const MouseInputSource& source) {
-    for (auto* trail : trails) {
-      if (trail->source == source) return trail;
-    }
-
-    return nullptr;
-  }
-  //=====================================================================================
-};
-
 class WaveformMemoryParametersComponent : public Component,
                                           Button::Listener,
-                                          public FileDragAndDropTarget {
+                                          public FileDragAndDropTarget, 
+                                          public FileBrowserListener {
  public:
-  WaveformMemoryParametersComponent(
-      WaveformMemoryParameters* waveformMemoryParams);
+  WaveformMemoryParametersComponent(WaveformMemoryParameters* waveformMemoryParams);
+  ~WaveformMemoryParametersComponent();
 
   virtual void paint(Graphics& g) override;
   virtual void resized() override;
@@ -234,22 +167,31 @@ class WaveformMemoryParametersComponent : public Component,
  private:
   WaveformMemoryParametersComponent();
 
+  // Button::Listener
   virtual void buttonClicked(Button* button) override;
+
+  // FIleDragAndDropTarget
   virtual bool isInterestedInFileDrag(const StringArray& files) override;
-  virtual void fileDragEnter(const StringArray& files, int x, int y) override;
-  virtual void fileDragMove(const StringArray& files, int x, int y) override;
-  virtual void fileDragExit(const StringArray& files) override;
   virtual void filesDropped(const StringArray& files, int x, int y) override;
+  virtual void fileDragEnter(const StringArray& files, int x, int y) override {};
+  virtual void fileDragMove(const StringArray& files, int x, int y) override {};
+  virtual void fileDragExit(const StringArray& files) override {};
+
+  // FileBrowserListener
+  virtual void fileClicked(const File& file, const MouseEvent& event) override;	
+  virtual void selectionChanged() override {};
+  virtual void fileDoubleClicked(const File &) override {};	
+  virtual void browserRootChanged(const File &) override {};	
 
   WaveformMemoryParameters* _waveformMemoryParamsPtr;
 
-  // Slider waveSampleSlider[32];
-  RangeSlider waveRangeSlider;
-
+  RangeSliders waveRangeSlider;
+  FileBrowserComponent* _fileBrowser = nullptr;
   TextButton saveButton;
   TextButton loadButton;
   // File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
   const int BUTTON_HEIGHT = 32;
+  const int FILE_BROWSER_WIDTH = 240;
 };
 
 class FilterParametersComponent : public BaseComponent,
