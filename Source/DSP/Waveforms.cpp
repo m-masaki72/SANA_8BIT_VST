@@ -172,12 +172,10 @@ float Waveforms::quantize(float sample) {
 }
 
 // 角度（ラジアン）の値が2πを超えている場合は、変数angleの値が0～2πの範囲内に収まるよう剰余を求める。
-float Waveforms::checkAngleRanage(float angle) {
+void Waveforms::checkAngleRanage(float &angle) {
   if (angle > TWO_PI) {
     angle = fmodf(angle, TWO_PI);
   }
-
-  return angle;
 }
 
 float Waveforms::high_pass(float in) {

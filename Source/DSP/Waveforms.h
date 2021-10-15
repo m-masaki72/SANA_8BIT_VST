@@ -24,7 +24,7 @@ class Waveforms {
                        WaveformMemoryParameters* _waveformMemoryParamsPtr);
  private:
   static float quantize(float sample);
-  static float checkAngleRanage(float angle);
+  static void checkAngleRanage(float &angle);
   float high_pass(float in);
 
   std::uint16_t _longNoizeReg = 0x0002;
