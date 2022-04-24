@@ -52,7 +52,7 @@ namespace ProjectInfo
 {
     const char* const  projectName    = "SANA_8bit_VST";
     const char* const  companyName    = "";
-    const char* const  versionString  = "1.51";
-    const int          versionNumber  = 0x13300;
+    const char* const  versionString  = "2.00";
+    const int          versionNumber  = 0x20000;
 }
 #endif

@@ -28,17 +28,9 @@ class PluginProcessor : public BaseAudioProcessor {
   MidiKeyboardState& getKeyboardState() { return keyboardState; }
   AudioBufferQueue<float>& getAudioBufferQueue() { return scopeDataQueue; }
 
-  const StringArray OSC_WAVE_TYPES{
-      "NES_Square50%",    "NES_Square25%",   "NES_Square12.5%",
-      "NES_Triangle",     "Pure_Square50%",  "Pure_Square25%",
-      "Pure_Square12.5%", "Pure_Triangle",   "Pure_Sine",
-      "Pure_Saw",         "NES_LongNoise",   "NES_ShortNoise",
-      "Pure_Lo-bitNoise", "Waveform Memory",
-  };
-  const StringArray SWEEP_SWITCH{"OFF", "Positive", "Negative"};
-  const StringArray VOICING_SWITCH{"POLY", "MONO", "PORTAMENTO"};
+  const StringArray SWEEP_SWITCH {"OFF", "Positive", "Negative"};
+  const StringArray VOICING_SWITCH {"POLY", "MONO", "PORTAMENTO"};
 
-  PresetsParameters presetsParameters;
   ChipOscillatorParameters chipOscParameters;
   SweepParameters sweepParameters;
   VibratoParameters vibratoParameters;
@@ -47,6 +39,8 @@ class PluginProcessor : public BaseAudioProcessor {
   WaveformMemoryParameters waveformMemoryParameters;
   MidiEchoParameters midiEchoParameters;
   FilterParameters filterParameters;
+  PresetsParameters presetsParameters;
+  WavePatternParameters wavePatternParameters;
 
  private:
   void initProgram();

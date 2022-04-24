@@ -4,12 +4,6 @@
 #include "DSP/SimpleVoice.h"
 #include "EditorGUI.h"
 
-namespace {
-const std::int32_t NUM_OF_PRESETS = 12;
-const std::int32_t VOICE_MAX = 8;
-const std::int32_t UP_SAMPLING_FACTOR = 2;
-} // namespace
-
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
   return new PluginProcessor();
@@ -17,15 +11,16 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
 
 PluginProcessor ::PluginProcessor ()
     : BaseAudioProcessor(),
-      presetsParameters(
-        new AudioParameterInt("PROGRAM_INDEX", "Program-Index", 0, NUM_OF_PRESETS, 0)),
+      presetsParameters(),
       chipOscParameters(
         new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 0),
         new AudioParameterFloat("VOLUME", "Volume", -32.0f, 8.0f, -20.0f),
         new AudioParameterFloat("AMPENV_ATTACK", "Attack", 0.000f, 10.0f, 0.000f),
         new AudioParameterFloat("AMPENV_DECAY", "Decay", 0.000f, 10.0f, 0.000f),
         new AudioParameterFloat("AMPENV_SUSTAIN", "Sustain", 0.000f, 1.0f, 1.0f),
-        new AudioParameterFloat("AMPENV_RELEASE", "Release", 0.000f, 10.0f, 0.000f)),
+        new AudioParameterFloat("AMPENV_RELEASE", "Release", 0.000f, 10.0f, 0.000f),
+        new AudioParameterChoice("OSC_COLOR_TYPE", "Osc-ColorType", OSC_COLOR_TYPES, 0),
+        new AudioParameterFloat("COLOR_DURATION", "Color-Duration", 0.01f, 0.1f, 0.001f)),
       sweepParameters(
         new AudioParameterChoice("SWEEP_SWITCH", "Sweep-Switch", SWEEP_SWITCH, 0),
         new AudioParameterFloat("SWEEP_TIME", "Sweep-Time", 0.01f, 10.0f, 1.0f)),
@@ -52,6 +47,7 @@ PluginProcessor ::PluginProcessor ()
         new AudioParameterFloat("FILTER_HICUT-FREQ", "Filter-Hicut-Freq", 40.0f, 20000.0f, 20000.0f),
         new AudioParameterFloat("FILTER_LOWCUT-FREQ", "Filter-Lowcut-Freq", 40.0f, 20000.0f, 40.0f)),
       waveformMemoryParameters(),
+      wavePatternParameters(),
       scopeDataCollector(scopeDataQueue) {
   presetsParameters.addAllParameters(*this);
   chipOscParameters.addAllParameters(*this);
@@ -62,6 +58,7 @@ PluginProcessor ::PluginProcessor ()
   midiEchoParameters.addAllParameters(*this);
   waveformMemoryParameters.addAllParameters(*this);
   filterParameters.addAllParameters(*this);
+  wavePatternParameters.addAllParameters(*this);
 }
 
 PluginProcessor ::~PluginProcessor () {}
@@ -274,6 +271,7 @@ void PluginProcessor::getStateInformation(MemoryBlock& destData) {
   midiEchoParameters.saveParameters(*xml);
   waveformMemoryParameters.saveParameters(*xml);
   filterParameters.saveParameters(*xml);
+  wavePatternParameters.saveParameters(*xml);
 
   copyXmlToBinary(*xml, destData);
 }
@@ -297,6 +295,7 @@ void PluginProcessor::setStateInformation(const void* data,
       midiEchoParameters.loadParameters(*xmlState);
       waveformMemoryParameters.loadParameters(*xmlState);
       filterParameters.loadParameters(*xmlState);
+      wavePatternParameters.loadParameters(*xmlState);
     }
 
     // Preset用のパラメータを更新（変数をローカルintで保存しないとシンセ終了時にフリーズする
@@ -333,7 +332,7 @@ void PluginProcessor::addVoice() {
   synth.addVoice(new SimpleVoice(&chipOscParameters, &sweepParameters,
                                  &vibratoParameters, &voicingParameters,
                                  &optionsParameters, &midiEchoParameters,
-                                 &waveformMemoryParameters));
+                                 &waveformMemoryParameters, &wavePatternParameters));
 }
 
 void PluginProcessor::changeVoiceSize() {

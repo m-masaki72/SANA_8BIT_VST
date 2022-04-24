@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT name="SANA_8bit_VST" projectType="audioplug" buildStandalone="1"
-              jucerVersion="5.4.5" pluginFormats="buildAU,buildStandalone,buildVST"
-              buildVST="1" buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0"
+              jucerVersion="5.4.5" pluginFormats="buildAU,buildStandalone,buildVST3"
+              buildVST="0" buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0"
               buildAAX="0" enableIAA="0" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
               id="j6lCat" reportAppUsage="0" bundleIdentifier="com.MasakiMori.SANA"
-              pluginManufacturer="MasakiMori" version="1.51" pluginVSTCategory="kPlugCategSynth"
+              pluginManufacturer="MasakiMori" version="2.00" pluginVSTCategory="kPlugCategSynth"
               splashScreenColour="Light">
   <MAINGROUP id="IZtsAI" name="SANA_8bit_VST">
     <GROUP id="{0FF198AF-00FB-C9FF-2361-004F9332861C}" name="Source">
@@ -20,6 +20,9 @@
               file="Source/GUI/ScopeComponent.hpp" xcodeResource="0"/>
       </GROUP>
       <GROUP id="{97C69670-A71D-517E-1589-B4DF8AAE0D93}" name="DSP">
+        <FILE id="Y6zGFW" name="ColorEnvelope.cpp" compile="1" resource="0"
+              file="Source/DSP/ColorEnvelope.cpp"/>
+        <FILE id="Oysa8U" name="ColorEnvelope.h" compile="0" resource="0" file="Source/DSP/ColorEnvelope.h"/>
         <FILE id="LQAmtS" name="AmpEnvelope.cpp" compile="1" resource="0" file="Source/DSP/AmpEnvelope.cpp"/>
         <FILE id="kOw8q1" name="AmpEnvelope.h" compile="0" resource="0" file="Source/DSP/AmpEnvelope.h"/>
         <FILE id="MYHPO6" name="DspUtils.h" compile="0" resource="0" file="Source/DSP/DspUtils.h"/>

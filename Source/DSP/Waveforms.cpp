@@ -18,9 +18,13 @@ void Waveforms::init() {
 float Waveforms::sine(float angle) {
   checkAngleRanage(angle);
 
-  // 角度（ラジアン）に対応する波形のサンプルデータを返す。
   return sinf(angle);
 }
+
+float Waveforms::roughSine(float angle) {
+  return quantize(sine(angle), 4);
+}
+
 
 float Waveforms::saw(float angle) {
   checkAngleRanage(angle);
@@ -30,6 +34,10 @@ float Waveforms::saw(float angle) {
   } else {
     return -2.0f + (angle / ONE_PI);
   }
+}
+
+float Waveforms::roughSaw(float angle) {
+  return quantize(saw(angle), 2);
 }
 
 float Waveforms::square(float angle) {
@@ -104,13 +112,17 @@ float Waveforms::shortNoise(const float angleDelta) {
   return _noiseVal;
 }
 
-//乱数を時間軸と振幅軸側でクオンタイズしたもの
-float Waveforms::lobitNoise(const float angleDelta) {
+float Waveforms::noise(const float angleDelta) {
   if (++_freqCounter > TWO_PI / angleDelta / PITCH_SHIFT) {
     _freqCounter = 0;
     _noiseVal = _rand.nextFloat() * 2.0f - 1.0f;
   }
-  return quantize(_noiseVal);
+  return _noiseVal;
+}
+
+//乱数を時間軸と振幅軸側でクオンタイズしたもの
+float Waveforms::lobitNoise(const float angleDelta) {
+  return quantize(noise(angleDelta), 2);
 }
 
 float Waveforms::nesSquare(float angle) {
@@ -166,8 +178,7 @@ float Waveforms::waveformMemory(
 }
 
 // 4bitクオンタイズ関数 qNum * 2倍の数でクオンタイズする
-float Waveforms::quantize(float sample) {
-  const std::int32_t qNum = 8;
+float Waveforms::quantize(float sample, int qNum) {
   return round(sample * qNum) / qNum;
 }
 

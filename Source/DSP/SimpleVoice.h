@@ -2,6 +2,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "AmpEnvelope.h"
+#include "ColorEnvelope.h"
 #include "MIDIEcho.h"
 #include "SimpleSound.h"
 #include "Waveforms.h"
@@ -13,7 +14,8 @@ class SimpleVoice : public SynthesiserVoice {
               VoicingParameters* voicingParams,
               OptionsParameters* optionsParams,
               MidiEchoParameters* midiEchoParams,
-              WaveformMemoryParameters* waveformMemoryParams);
+              WaveformMemoryParameters* waveformMemoryParams,
+              WavePatternParameters* wavePatternParams);
 
   virtual ~SimpleVoice() = default;
 
@@ -30,6 +32,7 @@ class SimpleVoice : public SynthesiserVoice {
 
  private:
   void clear();
+  void patternWaveClear();
   float calcModulationFactor(float angle);
   float angle2wave(float angle, float angleDelta, const juce::String& waveName);
   bool canStartNote();
@@ -46,6 +49,8 @@ class SimpleVoice : public SynthesiserVoice {
   Waveforms waveForms;
   //各種エンベロープ， アンプ， ビブラート， ポルタメント用
   AmpEnvelope ampEnv, vibratoEnv, portaEnv;
+  // 音色エンベロープ
+  ColorEnvelope colorEnv;
 
   // パラメータを管理するオブジェクトのポインタ変数。
   ChipOscillatorParameters* _chipOscParamsPtr;
@@ -55,7 +60,9 @@ class SimpleVoice : public SynthesiserVoice {
   OptionsParameters* _optionsParamsPtr;
   MidiEchoParameters* _midiEchoParamsPtr;
   WaveformMemoryParameters* _waveformMemoryParamsPtr;
+  WavePatternParameters* _wavePatternParams;
 
-  // 波形の名前
-  juce::String _waveName = "";
+  int patternCounter = 0;
+  int patternIndex = 0;
+  float patternStepNum = 0.0f; 
 };

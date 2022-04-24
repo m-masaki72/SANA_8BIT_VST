@@ -38,19 +38,9 @@ struct Trail {
 };
 
 class TextSlider : public Component {
- public:
-  const float PANEL_NAME_FONT_SIZE = 24.0f;
-  const float PARAM_LABEL_FONT_SIZE = 18.0f;
-  const int PANEL_NAME_HEIGHT = 32;
-  const int LOCAL_MARGIN = 2;
-  const int LABEL_WIDTH = 80;
-  const Font panelNameFont() {
-    return Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
-  };
-  const Font paramLabelFont() {
-    return Font(PARAM_LABEL_FONT_SIZE, Font::plain)
-        .withTypefaceStyle("Regular");
-  };
+  public:
+  int LOCAL_MARGIN = 2;
+  int LABEL_WIDTH = 60;
 
   Slider slider;
   Label label;
@@ -70,8 +60,6 @@ class TextSlider : public Component {
     }
 
     label.setText(labelName, dontSendNotification);
-    label.setFont(
-        Font(PARAM_LABEL_FONT_SIZE, Font::plain).withTypefaceStyle("Regular"));
     label.setJustificationType(Justification::centred);
     label.setEditable(false, false, false);
 
@@ -134,24 +122,13 @@ class TextSliderIncDec : public TextSlider {
 
 class TextSelector : public Component {
  public:
-  const float PANEL_NAME_FONT_SIZE = 24.0f;
-  const float PARAM_LABEL_FONT_SIZE = 18.0f;
-  const int PANEL_NAME_HEIGHT = 32;
-  const int LOCAL_MARGIN = 2;
-  const int LABEL_WIDTH = 80;
-  const Font panelNameFont() {
-    return Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
-  };
-  const Font paramLabelFont() {
-    return Font(PARAM_LABEL_FONT_SIZE, Font::plain)
-        .withTypefaceStyle("Regular");
-  };
+  int LOCAL_MARGIN = 2;
+  int LABEL_WIDTH = 60;
 
   ComboBox selector;
   Label label;
 
-  TextSelector(std::string labelName, AudioParameterChoice *paramList,
-               ComboBox::Listener *listener)
+  TextSelector(std::string labelName, AudioParameterChoice *paramList, ComboBox::Listener *listener)
       : selector(labelName) {
     selector.addItemList(paramList->getAllValueStrings(), 1);
     selector.setSelectedItemIndex(paramList->getIndex(), dontSendNotification);
@@ -159,7 +136,6 @@ class TextSelector : public Component {
     selector.addListener(listener);
     addAndMakeVisible(selector);
 
-    label.setFont(paramLabelFont());
     label.setText(labelName, dontSendNotification);
     label.setJustificationType(Justification::centred);
     label.setEditable(false, false, false);
@@ -184,30 +160,24 @@ class TextSelector : public Component {
     selector.setSelectedItemIndex(index, dontSendNotification);
   }
 
+  void removeLabel() {
+    this->LABEL_WIDTH = 0;
+    this->LOCAL_MARGIN = 0;
+  }
+
  private:
   TextSelector();
 };
 
 class SwitchButton : public Component {
  public:
-  const float PANEL_NAME_FONT_SIZE = 24.0f;
-  const float PARAM_LABEL_FONT_SIZE = 18.0f;
-  const std::int32_t PANEL_NAME_HEIGHT = 32;
   const std::int32_t LOCAL_MARGIN = 2;
-  const std::int32_t LABEL_WIDTH = 80;
-  const Font panelNameFont() {
-    return Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
-  };
-  const Font paramLabelFont() {
-    return Font(PARAM_LABEL_FONT_SIZE, Font::plain)
-        .withTypefaceStyle("Regular");
-  };
+  const std::int32_t LABEL_WIDTH = 60;
 
   ToggleButton button;
 
-  SwitchButton(std::string label, AudioParameterBool *param,
-               ToggleButton::Listener *listener) {
-    button.setButtonText("ON");
+  SwitchButton(std::string label, AudioParameterBool *param, ToggleButton::Listener *listener) {
+    button.setButtonText(label);
     button.setToggleState(param->get(), dontSendNotification);
     button.addListener(listener);
     addAndMakeVisible(button);
@@ -235,18 +205,8 @@ class SwitchButton : public Component {
 
 class PageButton : public Component {
  public:
-  const float PANEL_NAME_FONT_SIZE = 24.0f;
-  const float PARAM_LABEL_FONT_SIZE = 18.0f;
-  const int PANEL_NAME_HEIGHT = 32;
   const int LOCAL_MARGIN = 2;
-  const int LABEL_WIDTH = 80;
-  const Font panelNameFont() {
-    return Font(PANEL_NAME_FONT_SIZE, Font::plain).withTypefaceStyle("Italic");
-  };
-  const Font paramLabelFont() {
-    return Font(PARAM_LABEL_FONT_SIZE, Font::plain)
-        .withTypefaceStyle("Regular");
-  };
+  const int LABEL_WIDTH = 60;
 
   TextButton button;
 
@@ -276,19 +236,20 @@ class PageButton : public Component {
   PageButton();
 };
 
-class RangeSliders : public Component, private juce::Timer {
+class WaveSampleSliders : public Component, private juce::Timer {
  public:
-  RangeSliders::RangeSliders(WaveformMemoryParameters* waveformMemoryParams)
-      : _waveformMemoryParamsPtr(waveformMemoryParams), waveSampleSlider{} {
+  WaveSampleSliders::WaveSampleSliders(WaveformMemoryParameters* waveformMemoryParams)
+      : _waveformMemoryParamsPtr(waveformMemoryParams), 
+        _sampleSliders{} {
     for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
-      waveSampleSlider[i].setRange(0, 15, 1.0);
-      waveSampleSlider[i].setValue(7, dontSendNotification);
+      _sampleSliders[i].setRange(0, 15, 1.0);
+      _sampleSliders[i].setValue(7, dontSendNotification);
     }
     startTimerHz(10);
   }
   virtual void paint(Graphics& g) override {
     // update slider Params
-    for (auto* trail : trails) {
+    for (auto* trail : _trails) {
       auto compWidth = getWidth();
       auto compHeight = getHeight();
 
@@ -298,7 +259,7 @@ class RangeSliders : public Component, private juce::Timer {
       index = std::max(index, 0);
       float point = trail->currentPosition.y;
       std::int32_t value = 15 - (std::int32_t)(point * 16.0 / compHeight);
-      waveSampleSlider[index].setValue(value, dontSendNotification);
+      _sampleSliders[index].setValue(value, dontSendNotification);
       updateValue(index);
     }
     // repaint Sliders
@@ -324,7 +285,7 @@ class RangeSliders : public Component, private juce::Timer {
 
       // Draw Slider
       for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
-        auto barHeight = getHeight() * (waveSampleSlider[i].getValue() + 1.0f) / rowSize;
+        auto barHeight = getHeight() * (_sampleSliders[i].getValue() + 1.0f) / rowSize;
         auto barWidth = compWidth / (float)WAVESAMPLE_LENGTH;
         Rectangle<float> area2 = Rectangle<float>(
           i * barWidth, getHeight() - barHeight,
@@ -338,22 +299,18 @@ class RangeSliders : public Component, private juce::Timer {
 
   void updateValue() {
     for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
-      *_waveformMemoryParamsPtr->WaveSamplesArray[i] =
-        (std::int32_t)waveSampleSlider[i].getValue();
+      *_waveformMemoryParamsPtr->WaveSamplesArray[i] = (std::int32_t)_sampleSliders[i].getValue();
     }
   };
 
   void updateValue(std::int32_t index) {
-    *_waveformMemoryParamsPtr->WaveSamplesArray[index] =
-      (std::int32_t)waveSampleSlider[index].getValue();
+    *_waveformMemoryParamsPtr->WaveSamplesArray[index] = (std::int32_t)_sampleSliders[index].getValue();
   };
 
  private:
   virtual void timerCallback() override {
     for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
-      waveSampleSlider[i].setValue(
-        _waveformMemoryParamsPtr->WaveSamplesArray[i]->get(),
-        dontSendNotification);
+      _sampleSliders[i].setValue(_waveformMemoryParamsPtr->WaveSamplesArray[i]->get(), dontSendNotification);
     }
     repaint();
   };
@@ -363,7 +320,7 @@ class RangeSliders : public Component, private juce::Timer {
     if (t == nullptr) {
       t = new Trail(e.source);
       t->path.startNewSubPath(e.position);
-      trails.add(t);
+      _trails.add(t);
     } else {
       t->pushPoint(e.position, e.mods, e.pressure);
     }
@@ -375,7 +332,7 @@ class RangeSliders : public Component, private juce::Timer {
     if (t == nullptr) {
       t = new Trail(e.source);
       t->path.startNewSubPath(e.position);
-      trails.add(t);
+      _trails.add(t);
     }
     t->pushPoint(e.position, e.mods, e.pressure);
     repaint();
@@ -384,21 +341,148 @@ class RangeSliders : public Component, private juce::Timer {
   virtual void mouseUp(const MouseEvent& e) override {
     auto* t = getTrail(e.source);
     if (t != nullptr) {
-      trails.removeObject(t);
+      _trails.removeObject(t);
     }
     repaint();
   };
-
-  Slider waveSampleSlider[32];
-
-  WaveformMemoryParameters* _waveformMemoryParamsPtr;
-  OwnedArray<Trail> trails;
-
   Trail* getTrail(const MouseInputSource& source) {
-    for (auto* trail : trails) {
+    for (auto* trail : _trails) {
       if (trail->source == source) return trail;
     }
 
     return nullptr;
+  };
+
+  Slider _sampleSliders[32];
+  WaveformMemoryParameters* _waveformMemoryParamsPtr;
+  OwnedArray<Trail> _trails;
+};
+
+class PatternSliders : public Component, private juce::Timer {
+ public:
+  PatternSliders::PatternSliders(WavePatternParameters* wavePatternParameters) 
+    : _wavePatternParameters(wavePatternParameters),
+      _sampleSliders{} {
+    for (auto i = 0; i < sampleNum; ++i) {
+      _sampleSliders[i].setRange(0, 3, 1.0);
+      _sampleSliders[i].setValue(2, dontSendNotification);
+    }
+    startTimerHz(10);
   }
+  virtual void paint(Graphics& g) override {
+    // update slider Params
+    for (auto* trail : _trails) {
+      auto compWidth = getWidth();
+      auto compHeight = getHeight();
+
+      std::int32_t index = (std::int32_t)(trail->currentPosition.x *
+                                          (float)sampleNum / compWidth);
+      index = std::min(index, sampleNum - 1);
+      index = std::max(index, 0);
+      float point = trail->currentPosition.y;
+      std::int32_t value = (valueMax - 1) - (std::int32_t)(point * valueMax / compHeight);
+      _sampleSliders[index].setValue(value, dontSendNotification);
+      updateValue(index);
+    }
+    // repaint Sliders
+    {
+      Rectangle<int> bounds = getLocalBounds();
+      float columnSize = (float)sampleNum;
+      float rowSize = valueMax;
+      float compWidth = getWidth();
+
+      // Draw Scale Line
+      for (auto i = 0; i <= valueMax; ++i) {
+        float p_y = getHeight() / float(valueMax) * i;
+        Line<float> line(0.0f, p_y, (float)getWidth(), p_y);
+        g.setColour(Colours::white);
+        g.drawLine(line, 1.0f);
+      }
+      for (auto i = 0; i <= sampleNum; ++i) {
+        float p_x = getWidth() / float(sampleNum) * i;
+        Line<float> line(p_x, 0.0f, p_x, (float)getHeight());
+        g.setColour(Colours::white);
+        g.drawLine(line, 1.0f);
+      }
+
+      // Draw Slider
+      for (auto i = 0; i < sampleNum; ++i) {
+        auto barHeight = getHeight() * (_sampleSliders[i].getValue() + 1.0f) / rowSize;
+        auto barWidth = compWidth / (float)sampleNum;
+        Rectangle<float> area2 = Rectangle<float>(
+          i * barWidth, getHeight() - barHeight,
+          barWidth, barHeight);
+        float saturateRate = (i + sampleNum / 2.f) / (sampleNum + sampleNum / 2.f);
+        g.setColour(Colours::lime.withSaturation(saturateRate));
+        g.fillRect(area2.reduced(0.5f));
+      }
+    }
+  };
+
+
+  void updateValue() {
+    for (auto i = 0; i < sampleNum; ++i) {
+      *_wavePatternParameters->WavePatternArray[i] = (std::int32_t)_sampleSliders[i].getValue();
+    }
+  };
+
+  void updateValue(std::int32_t index) {
+     *_wavePatternParameters->WavePatternArray[index] = (std::int32_t)_sampleSliders[index].getValue();
+  };
+
+ private:
+  virtual void timerCallback() override {
+    for (auto i = 0; i < sampleNum; ++i) {
+      _sampleSliders[i].setValue(_wavePatternParameters->WavePatternArray[i]->get(), dontSendNotification);
+    }
+    repaint();
+  };
+
+  virtual void mouseDrag(const MouseEvent& e) override {
+    auto* t = getTrail(e.source);
+    if (t == nullptr) {
+      t = new Trail(e.source);
+      t->path.startNewSubPath(e.position);
+      _trails.add(t);
+    } else {
+      t->pushPoint(e.position, e.mods, e.pressure);
+    }
+    repaint();
+  };
+
+  virtual void mouseDown(const MouseEvent& e) override {
+    auto* t = getTrail(e.source);
+    if (t == nullptr) {
+      t = new Trail(e.source);
+      t->path.startNewSubPath(e.position);
+      _trails.add(t);
+    }
+    t->pushPoint(e.position, e.mods, e.pressure);
+    repaint();
+  };
+
+  virtual void mouseUp(const MouseEvent& e) override {
+    auto* t = getTrail(e.source);
+    if (t != nullptr) {
+      _trails.removeObject(t);
+    }
+    repaint();
+  };
+
+  Trail* getTrail(const MouseInputSource& source) {
+    for (auto* trail : _trails) {
+      if (trail->source == source) return trail;
+    }
+
+    return nullptr;
+  };
+
+  WavePatternParameters* _wavePatternParameters;
+
+  const int valueMax = 4;
+  const int sampleNum = 16;
+  Slider _sampleSliders[16];
+  
+  OwnedArray<Trail> _trails;
+
 };

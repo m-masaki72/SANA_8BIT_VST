@@ -3,6 +3,33 @@
 
 namespace {
 const std::int32_t WAVESAMPLE_LENGTH = 32;
+const std::int32_t WAVEPATTERN_LENGTH = 16;
+const std::int32_t WAVEPATTERN_TYPES = 4;
+const std::int32_t NUM_OF_PRESETS = 12;
+const std::int32_t VOICE_MAX = 8;
+const std::int32_t UP_SAMPLING_FACTOR = 2;
+
+const StringArray OSC_WAVE_TYPES {
+  "NES_Square50%",    "NES_Square25%",  "NES_Square12.5%",
+  "NES_Triangle",     "NES_LongNoise",  "NES_ShortNoise",
+  "Pure_Square50%",   "Pure_Square25%",
+  "Pure_Square12.5%", "Pure_Triangle",
+  "Pure_Sine",        "Pure_Saw",       "Pure_Noise",       
+  "Rough_Sine",       "Rough_Saw",      "Rough_Noise",      
+  "Waveform Memory",
+};
+
+const StringArray OSC_COLOR_TYPES {
+  "NONE",
+  "ARP_Octave",
+  "ARP_4th",
+  "ARP_5th",
+  "ARP_Major",
+  "ARP_Major7th",
+  "ORC_HIT",
+  "ORC_HIT2",
+  "ORC_HIT3",
+};
 }
 
 class SynthParametersBase {
@@ -22,13 +49,17 @@ class ChipOscillatorParameters : public SynthParametersBase {
   AudioParameterFloat* Decay;
   AudioParameterFloat* Sustain;
   AudioParameterFloat* Release;
+  AudioParameterChoice* ColorType;
+  AudioParameterFloat* ColorDuration;
 
   ChipOscillatorParameters(AudioParameterChoice* OscWaveType,
                            AudioParameterFloat* volumeLevel,
                            AudioParameterFloat* attack,
                            AudioParameterFloat* decay,
                            AudioParameterFloat* sustain,
-                           AudioParameterFloat* release);
+                           AudioParameterFloat* release,
+                           AudioParameterChoice* colorType,
+                           AudioParameterFloat* colorDuration);
 
   virtual void addAllParameters(AudioProcessor& processor) override;
   virtual void saveParameters(XmlElement& xml) override;
@@ -165,12 +196,28 @@ class FilterParameters : public SynthParametersBase {
 class PresetsParameters : public SynthParametersBase {
  public:
   AudioParameterInt* ProgramIndex;
-  PresetsParameters(AudioParameterInt* programIndex);
+  PresetsParameters();
 
   virtual void addAllParameters(AudioProcessor& processor) override;
   virtual void saveParameters(XmlElement& xml) override;
   virtual void loadParameters(XmlElement& xml) override;
 
  private:
-  PresetsParameters(){};
+};
+
+class WavePatternParameters : public SynthParametersBase {
+ public:
+  AudioParameterInt* WavePatternArray[WAVEPATTERN_LENGTH];
+  AudioParameterChoice* WaveTypes[WAVEPATTERN_TYPES];
+  AudioParameterBool* PatternEnabled;
+  AudioParameterBool* LoopEnabled;
+  AudioParameterFloat* StepTime;
+
+  WavePatternParameters();
+
+  virtual void addAllParameters(AudioProcessor& processor) override;
+  virtual void saveParameters(XmlElement& xml) override;
+  virtual void loadParameters(XmlElement& xml) override;
+
+ private:
 };
