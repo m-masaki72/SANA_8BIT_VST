@@ -25,11 +25,9 @@ namespace {
 const Colour PANEL_COLOUR() { return Colours::cornsilk; }
 const Colour HEADER_COLOUR() { return Colours::darkorange; }
 const Colour FONT_COLOUR() { return Colours::black; }
-
-const float PANEL_NAME_FONT_SIZE = 24.0f;
-const float PARAM_LABEL_FONT_SIZE = 16.0f;
-const int PANEL_NAME_HEIGHT = 32;
-const int LOCAL_MARGIN = 2;
+const Colour BACKGROUND_COLOUR() { return Colour(60,14,60); }
+const float HEADER_HEIGHT = 24.0f;
+const std::int32_t LOCAL_MARGIN = 2;
 }  // namespace
 
 template <typename SampleType>
@@ -206,44 +204,40 @@ class ScopeComponent : public juce::Component, private juce::Timer {
     startTimerHz(framePerSecond);
   }
 
+  static void paintHeader(Graphics& g, Rectangle<int> bounds, std::string text) {
+    { // 枠の描画
+      auto x = 0.0f, y = HEADER_HEIGHT / 2.0f;
+      auto width = (float)bounds.getWidth(), height = (float)bounds.getHeight() - y;
+      auto cornerSize = 8.0f, thickness = 2.0f;
+      g.setColour(Colours::orange);
+      g.drawRoundedRectangle(x, y, width, height, cornerSize, thickness);
+    }
+
+    { // ヘッダー描画
+      g.setFont(Font(24, Font::bold));
+      auto x = 20.f, y = 0.0f;
+      auto width = (float)g.getCurrentFont().getStringWidth(text), height = HEADER_HEIGHT;
+
+      g.setColour(BACKGROUND_COLOUR());
+      g.fillRect(x,y,width,height);
+      g.setColour(Colours::orange);
+      g.drawText(text, x, y, width, height, Justification::centred, false);
+    }
+  }
+
   // ④SCOPEパネルの状態を描画する関数。パネルの領域を塗りつぶす処理と波形をプロットする処理を実行する。
   void paint(Graphics& g) override {
-    Font panelNameFont = Font(24.0f, Font::plain).withTypefaceStyle("Italic");
-
-    {
-      float x = 0.0f, y = 0.0f, width = (float)getWidth(),
-            height = (float)getHeight();
-      g.setColour(PANEL_COLOUR());
-      g.fillRoundedRectangle(x, y, width, height, 10.0f);
-    }
-
-    {
-      float x = 0.0f, y = 0.0f, width = (float)getWidth(),
-            height = PANEL_NAME_HEIGHT;
-      g.setColour(HEADER_COLOUR());
-      g.fillRoundedRectangle(x, y, width, height, 10.0f);
-    }
-
-    {
-      Rectangle<int> bounds = getLocalBounds();  // コンポーネント基準の値
-      String text("SCOPE");
-      Colour fillColour = Colours::white;
-      g.setColour(fillColour);
-      g.setFont(panelNameFont);
-      g.drawText(text,
-                 bounds.removeFromTop(PANEL_NAME_HEIGHT).reduced(LOCAL_MARGIN),
-                 Justification::centred, true);
-    }
+    paintHeader(g, getLocalBounds(), "Scope");
 
     // 波形を描画する矩形領域を特定する
     Rectangle<int> drawArea = getLocalBounds();
-    drawArea.removeFromTop(PANEL_NAME_HEIGHT);
-    drawArea.reduce((int)(drawArea.getWidth() * 0.05f),
-                    (int)(drawArea.getHeight() * 0.1f));
+    drawArea.removeFromTop(HEADER_HEIGHT);
 
-    // 波形を描画する矩形領域の背景を灰色に塗りつぶす
-    g.setColour(juce::Colours::darkgrey);
-    g.fillRect(drawArea);
+    { // 経線描画
+      g.setColour( Colour(240,100,240));
+      auto center = drawArea.getHeight() / 2 + HEADER_HEIGHT;
+      g.drawLine(0, center, drawArea.getWidth(), center, 1.0f);
+    }
 
     // 波形をプロットする領域をRectangle<SampleType>型に代入する
     SampleType drawX = (SampleType)drawArea.getX();
@@ -255,8 +249,7 @@ class ScopeComponent : public juce::Component, private juce::Timer {
 
     // 波形をプロットする
     g.setColour(juce::Colours::cyan);
-    plot(sampleData.data(), sampleData.size(), g, scopeRect, SampleType(1.0),
-         scopeRect.getHeight() / 2);
+    plot(sampleData.data(), sampleData.size(), g, scopeRect, SampleType(1.0));
   }
 
   void resized() override {}
@@ -271,23 +264,28 @@ class ScopeComponent : public juce::Component, private juce::Timer {
   // ⑥サンプルデータの配列から折れ線グラフをプロットする
   static void plot(const SampleType* data, size_t numSamples, Graphics& g,
                    juce::Rectangle<SampleType> rect,
-                   SampleType scaler = SampleType(1),
-                   SampleType offset = SampleType(0)) {
+                   SampleType scaler = SampleType(1)) {
     auto w = rect.getWidth();
     auto h = rect.getHeight();
     auto right = rect.getRight();
-    auto alignedCentre = rect.getBottom() - offset;
+    auto alignedCentre = rect.getBottom() - h / 2.f;
     auto gain = h * scaler;
+
+    auto clipY = [&h](float y) {
+      y = std::fmax(HEADER_HEIGHT, y);
+      y = std::fmin(h + HEADER_HEIGHT, y);
+      return y;
+    };
 
     for (size_t i = 1; i < numSamples; ++i) {
       const float x1 =
           jmap(SampleType(i - 1), SampleType(0), SampleType(numSamples - 1),
                SampleType(right - w), SampleType(right));
-      const float y1 = alignedCentre - gain * data[i - 1];
+      float y1 = clipY(alignedCentre - gain * data[i - 1]);
       const float x2 =
           jmap(SampleType(i), SampleType(0), SampleType(numSamples - 1),
                SampleType(right - w), SampleType(right));
-      const float y2 = alignedCentre - gain * data[i];
+      const float y2 = clipY(alignedCentre - gain * data[i]);
       const float t = 1.0f;
       g.drawLine(x1, y1, x2, y2, t);
     }

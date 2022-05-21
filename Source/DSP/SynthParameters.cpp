@@ -1,15 +1,23 @@
 #include "SynthParameters.h"
 
+namespace {
+const float MIN_DELTA = 0.0001f;
+}  // namespace
+
 ChipOscillatorParameters::ChipOscillatorParameters(
     AudioParameterChoice* oscWaveType, AudioParameterFloat* volumeLevel,
     AudioParameterFloat* attack, AudioParameterFloat* decay,
-    AudioParameterFloat* sustain, AudioParameterFloat* release)
+    AudioParameterFloat* sustain, AudioParameterFloat* release, 
+    AudioParameterChoice* colorType, AudioParameterFloat* colorDuration)
     : OscWaveType(oscWaveType),
       VolumeLevel(volumeLevel),
       Attack(attack),
       Decay(decay),
       Sustain(sustain),
-      Release(release) {}
+      Release(release), 
+      ColorType(colorType),
+      ColorDuration(colorDuration){
+}
 
 void ChipOscillatorParameters::addAllParameters(AudioProcessor& processor) {
   processor.addParameter(OscWaveType);
@@ -18,6 +26,8 @@ void ChipOscillatorParameters::addAllParameters(AudioProcessor& processor) {
   processor.addParameter(Decay);
   processor.addParameter(Sustain);
   processor.addParameter(Release);
+  processor.addParameter(ColorType);
+  processor.addParameter(ColorDuration);
 }
 
 void ChipOscillatorParameters::saveParameters(XmlElement& xml) {
@@ -28,6 +38,8 @@ void ChipOscillatorParameters::saveParameters(XmlElement& xml) {
   xml.setAttribute(Decay->paramID, (double)Decay->get());
   xml.setAttribute(Sustain->paramID, (double)Sustain->get());
   xml.setAttribute(Release->paramID, (double)Release->get());
+  xml.setAttribute(ColorType->paramID, ColorType->getIndex());
+  xml.setAttribute(ColorDuration->paramID, (double)ColorDuration->get());
 }
 
 void ChipOscillatorParameters::loadParameters(XmlElement& xml) {
@@ -38,6 +50,8 @@ void ChipOscillatorParameters::loadParameters(XmlElement& xml) {
   *Decay = (float)xml.getDoubleAttribute(Decay->paramID, 0.01);
   *Sustain = (float)xml.getDoubleAttribute(Sustain->paramID, 1.0);
   *Release = (float)xml.getDoubleAttribute(Release->paramID, 0.01);
+  *ColorType = xml.getIntAttribute(ColorType->paramID, 0);
+  *ColorDuration = (float)xml.getDoubleAttribute(ColorDuration->paramID, 0.01);
 }
 
 //-----------------------------------------------------------------------------------------
@@ -238,8 +252,9 @@ void FilterParameters::loadParameters(XmlElement& xml) {
 
 //-----------------------------------------------------------------------------------------
 
-PresetsParameters::PresetsParameters(AudioParameterInt* programIndex)
-    : ProgramIndex(programIndex) {}
+PresetsParameters::PresetsParameters() {
+  ProgramIndex = new AudioParameterInt("PROGRAM_INDEX", "Program-Index", 0, NUM_OF_PRESETS, 0);
+}
 
 void PresetsParameters::addAllParameters(AudioProcessor& processor) {
   processor.addParameter(ProgramIndex);
@@ -251,6 +266,60 @@ void PresetsParameters::saveParameters(XmlElement& xml) {
 
 void PresetsParameters::loadParameters(XmlElement& xml) {
   *ProgramIndex = xml.getIntAttribute(ProgramIndex->paramID, 0);
+}
+
+//-----------------------------------------------------------------------------------------
+
+WavePatternParameters::WavePatternParameters() {
+  for (auto i = 0; i < WAVEPATTERN_LENGTH; ++i) {
+    std::string name = "WavePattern" + std::to_string(i);
+    WavePatternArray[i] = new AudioParameterInt(name, name, 0, 7, 0);
+  }
+
+  for (auto i = 0; i < WAVEPATTERN_TYPES; ++i) {
+    std::string name = "WavePatternType" + std::to_string(i);
+    WaveTypes[i] = new AudioParameterChoice(name, name, OSC_WAVE_TYPES, 0);
+  }
+
+  PatternEnabled = new AudioParameterBool("PATTERN_ENABLE", "Pattern-Enable", false);
+  LoopEnabled = new AudioParameterBool("PATTERN_LOOP_ENABLE", "Pattern-Loop-Enable", true);
+  StepTime = new AudioParameterFloat("PATTERN_STEP_TIME", "Pattern-Step-Time", {0.000f, 1.0f, MIN_DELTA}, 0.10f);
+}
+
+void WavePatternParameters::addAllParameters(AudioProcessor& processor) {
+  for (auto i = 0; i < WAVEPATTERN_LENGTH; ++i) {
+    processor.addParameter(WavePatternArray[i]);
+  }
+  for (auto i = 0; i < WAVEPATTERN_TYPES; ++i) {
+    processor.addParameter(WaveTypes[i]);
+  }
+  processor.addParameter(PatternEnabled);
+  processor.addParameter(LoopEnabled);
+  processor.addParameter(StepTime);
+}
+
+void WavePatternParameters::saveParameters(XmlElement& xml) {
+  for (auto i = 0; i < WAVEPATTERN_LENGTH; ++i) {
+    xml.setAttribute(WavePatternArray[i]->paramID, (std::int32_t)WavePatternArray[i]->get());
+  }
+  for (auto i = 0; i < WAVEPATTERN_TYPES; ++i) {
+    xml.setAttribute(WaveTypes[i]->paramID, (std::int32_t)WaveTypes[i]->getIndex());
+  }
+  xml.setAttribute(PatternEnabled->paramID, (double)PatternEnabled->get());
+  xml.setAttribute(LoopEnabled->paramID, (double)LoopEnabled->get());
+  xml.setAttribute(StepTime->paramID, (double)StepTime->get());
+}
+
+void WavePatternParameters::loadParameters(XmlElement& xml) {
+  for (auto i = 0; i < WAVEPATTERN_LENGTH; ++i) {
+    *WavePatternArray[i] = xml.getIntAttribute(WavePatternArray[i]->paramID, 0);
+  }
+  for (auto i = 0; i < WAVEPATTERN_TYPES; ++i) {
+    *WaveTypes[i] = xml.getIntAttribute(WaveTypes[i]->paramID, 0);
+  }
+  *PatternEnabled = xml.getBoolAttribute(PatternEnabled->paramID, false);
+  *LoopEnabled = xml.getBoolAttribute(LoopEnabled->paramID, true);
+  *StepTime = xml.getDoubleAttribute(StepTime->paramID, 0.10f);
 }
 
 //-----------------------------------------------------------------------------------------

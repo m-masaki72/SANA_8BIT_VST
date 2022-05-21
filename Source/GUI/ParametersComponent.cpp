@@ -7,12 +7,21 @@ const Colour FONT_COLOUR() { return Colours::black; }
 const Colour TEXT_COLOUR() { return Colours::white; }
 const Colour BACKGROUND_COLOUR() { return Colour(60,14,60); }
 
+const float MIN_DELTA = 0.0001f;
+
 const float HEADER_HEIGHT = 24.0f;
 const std::int32_t LOCAL_MARGIN = 2;
 
-// static File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
-static File preFilePath = File("C:\\Users\\memen\\Desktop\\SANA_8BIT_VST\\PreBuilds\\WAVE_FORM_SAMPLES");
+static File preFilePath = File::getSpecialLocation(File::currentApplicationFile);
 }  // namespace
+
+static File getPreFileDirectory(File* file) {
+  if (file->isDirectory()) {
+    return *file;
+  } else {
+    return file->getParentDirectory();
+  }
+}
 
 static std::vector<std::string> split(std::string str, char del) {
   auto first = 0;
@@ -56,51 +65,69 @@ static void paintHeader(Graphics& g, Rectangle<int> bounds, std::string text) {
   }
 }
 
-static void saveWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr) {
-  FileChooser fileSaver("Save File As", preFilePath, "*.wfm");
-
-  if (fileSaver.browseForFileToSave(true)) {
-    File newFile(fileSaver.getResult());
-    newFile.create();
-    newFile.replaceWithText("");
-    for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
-      newFile.appendText(
-          std::to_string(*_waveformMemoryParamsPtr->WaveSamplesArray[i]));
-      newFile.appendText(" ");
+static void saveWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr, std::unique_ptr<FileChooser>& fc) {
+  auto chooser = new FileChooser("Save File As", preFilePath, "*.wfm");
+  fc.reset(chooser);
+  fc->launchAsync(FileBrowserComponent::saveMode | FileBrowserComponent::canSelectFiles,
+    [_waveformMemoryParamsPtr] (const FileChooser& chooser) {
+      const auto result = chooser.getResult();
+      if (result.getFullPathName() == "") {
+        return;
+      }
+      File newFile(result);
+      newFile.create();
+      newFile.replaceWithText("");
+      for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
+        newFile.appendText(
+            std::to_string(*_waveformMemoryParamsPtr->WaveSamplesArray[i]));
+        newFile.appendText(" ");
+      }
+      preFilePath = chooser.getResult();
     }
-    preFilePath = fileSaver.getResult();
-  }
+  );
 }
 
-static void loadWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr) {
-  FileChooser fileLoader("Load File From", preFilePath, "*.wfm");
-
-  if (fileLoader.browseForFileToOpen()) {
-    File waveformFile(fileLoader.getResult());
-    std::string data = waveformFile.loadFileAsString().toStdString();
-    auto count = 0;
-    for (const auto subStr : split(data, ' ')) {
+static void loadWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr, std::unique_ptr<FileChooser>& fc) {
+  auto chooser = new FileChooser ("Load File From", preFilePath, "*.wfm");
+  fc.reset(chooser);
+  fc->launchAsync(FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles,
+    [_waveformMemoryParamsPtr] (const FileChooser& chooser) {
+      const auto result = chooser.getResult();
+      if (result.getFullPathName() == "") {
+        return;
+      }
+      File waveformFile(result);
+      std::string data = waveformFile.loadFileAsString().toStdString();
+      auto count = 0;
+      for (const auto subStr : split(data, ' ')) {
       *_waveformMemoryParamsPtr->WaveSamplesArray[count] = atoi(subStr.c_str());
       ++count;
+      }
+      preFilePath = chooser.getResult();
     }
-    preFilePath = fileLoader.getResult();
-  }
+  );
 }
 
 ChipOscillatorComponent::ChipOscillatorComponent(ChipOscillatorParameters* oscParams)
     : _oscParamsPtr(oscParams),
-      waveTypeSelector("waveForm", _oscParamsPtr->OscWaveType, this),
+      waveTypeSelector("Wave", _oscParamsPtr->OscWaveType, this),
       volumeLevelSlider("Volume", "dB", _oscParamsPtr->VolumeLevel, this, 0.01f),
-      attackSlider("Attack", "sec", _oscParamsPtr->Attack, this, 0.0001f, 1.0f),
-      decaySlider("Decay", "sec", _oscParamsPtr->Decay, this, 0.0001f, 1.0f),
-      sustainSlider("Sustain", "", _oscParamsPtr->Sustain, this, 0.0001f),
-      releaseSlider("Release", "sec", _oscParamsPtr->Release, this, 0.0001f, 1.0f) {
+      attackSlider("Attack", "sec", _oscParamsPtr->Attack, this, MIN_DELTA, 1.0f),
+      decaySlider("Decay", "sec", _oscParamsPtr->Decay, this, MIN_DELTA, 1.0f),
+      sustainSlider("Sustain", "", _oscParamsPtr->Sustain, this, MIN_DELTA),
+      releaseSlider("Release", "sec", _oscParamsPtr->Release, this, MIN_DELTA, 1.0f),
+      colorTypeSelector("Color", _oscParamsPtr->ColorType, this),
+      colorDurationSlider("Duration", "sec", _oscParamsPtr->ColorDuration, this, MIN_DELTA, 0.2f) {
   addAndMakeVisible(waveTypeSelector);
   addAndMakeVisible(volumeLevelSlider);
   addAndMakeVisible(attackSlider);
   addAndMakeVisible(decaySlider);
   addAndMakeVisible(sustainSlider);
   addAndMakeVisible(releaseSlider);
+  addAndMakeVisible(colorTypeSelector);
+  addAndMakeVisible(colorDurationSlider);
+
+  colorDurationSlider.LABEL_WIDTH = 0.f;
 }
 
 void ChipOscillatorComponent::paint(Graphics& g) {
@@ -108,10 +135,8 @@ void ChipOscillatorComponent::paint(Graphics& g) {
 }
 
 void ChipOscillatorComponent::resized() {
-  float rowSize = 6.0f;
-  float divide = 1.0f / rowSize;
-  std::int32_t compHeight =
-      std::int32_t((getHeight() - HEADER_HEIGHT) * divide);
+  float rowSize = 7.0f;
+  auto compHeight = ((getHeight() - HEADER_HEIGHT) / rowSize);
 
   Rectangle<int> bounds = getLocalBounds();  // コンポーネント基準の値
   bounds.removeFromTop(HEADER_HEIGHT);
@@ -122,6 +147,12 @@ void ChipOscillatorComponent::resized() {
   decaySlider.setBounds(bounds.removeFromTop(compHeight));
   sustainSlider.setBounds(bounds.removeFromTop(compHeight));
   releaseSlider.setBounds(bounds.removeFromTop(compHeight));
+  {
+    auto area = bounds.removeFromTop(compHeight);
+    auto width = area.getWidth() / 2.0f;
+    colorTypeSelector.setBounds(area.removeFromLeft(width));
+    colorDurationSlider.setBounds(area);
+  }
 }
 
 void ChipOscillatorComponent::timerCallback() {
@@ -131,6 +162,8 @@ void ChipOscillatorComponent::timerCallback() {
   decaySlider.setValue(_oscParamsPtr->Decay->get());
   sustainSlider.setValue(_oscParamsPtr->Sustain->get());
   releaseSlider.setValue(_oscParamsPtr->Release->get());
+  colorTypeSelector.setSelectedItemIndex(_oscParamsPtr->ColorType->getIndex());
+  colorDurationSlider.setValue(_oscParamsPtr->ColorDuration->get());
 }
 
 void ChipOscillatorComponent::sliderValueChanged(Slider* slider) {
@@ -144,13 +177,16 @@ void ChipOscillatorComponent::sliderValueChanged(Slider* slider) {
     *_oscParamsPtr->Sustain = (float)sustainSlider.getValue();
   } else if (slider == &releaseSlider.slider) {
     *_oscParamsPtr->Release = (float)releaseSlider.getValue();
+  } else if (slider == &colorDurationSlider.slider) {
+    *_oscParamsPtr->ColorDuration = (float)colorDurationSlider.getValue();
   }
 }
 
-void ChipOscillatorComponent::comboBoxChanged(
-    ComboBox* comboBoxThatHasChanged) {
+void ChipOscillatorComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged) {
   if (comboBoxThatHasChanged == &waveTypeSelector.selector) {
     *_oscParamsPtr->OscWaveType = waveTypeSelector.getSelectedItemIndex();
+  } else if (comboBoxThatHasChanged == &colorTypeSelector.selector) {
+    *_oscParamsPtr->ColorType = colorTypeSelector.getSelectedItemIndex();
   }
 }
 
@@ -210,10 +246,10 @@ bool SweepParametersComponent::isEditable() {
 VibratoParametersComponent::VibratoParametersComponent(
     VibratoParameters* vibratoParams)
     : _vibratoParamsPtr(vibratoParams),
-      enableSwitch("Vibrato-Switch", _vibratoParamsPtr->VibratoEnable, this),
+      enableSwitch("On", _vibratoParamsPtr->VibratoEnable, this),
       attackDeleySwitch("Attack-Deley-Switch", _vibratoParamsPtr->VibratoAttackDeleySwitch, this),
-      amountSlider("Depth", "HarfTone", _vibratoParamsPtr->VibratoAmount, this, 0.01f, 2.0f),
-      speedSlider("Speed", "hz", _vibratoParamsPtr->VibratoSpeed, this, 0.001f, 10.0f),
+      amountSlider("Depth", "HarfTone", _vibratoParamsPtr->VibratoAmount, this, MIN_DELTA, 2.0f),
+      speedSlider("Speed", "hz", _vibratoParamsPtr->VibratoSpeed, this, MIN_DELTA, 10.0f),
       attackDeleyTimeSlider("Attack", "sec", _vibratoParamsPtr->VibratoAttackTime, this, 0.001f, 2.0f) {
   addAndMakeVisible(enableSwitch);
   addAndMakeVisible(attackDeleySwitch);
@@ -399,7 +435,7 @@ void OptionsParametersComponent::sliderValueChanged(Slider* slider) {
 MidiEchoParametersComponent::MidiEchoParametersComponent(
     MidiEchoParameters* midiEchoParams)
     : _midiEchoParamsPtr(midiEchoParams),
-      enableButton("ON / OFF", _midiEchoParamsPtr->IsEchoEnable, this),
+      enableButton("ON", _midiEchoParamsPtr->IsEchoEnable, this),
       durationSlider("Duration", "sec", _midiEchoParamsPtr->EchoDuration, this, 0.01f, 0.5f),
       repeatSlider("Repeat", "", _midiEchoParamsPtr->EchoRepeat, this),
       volumeOffsetSlider("Vol Offset", "%", _midiEchoParamsPtr->VolumeOffset, this, 0.1f, 100.0f) {
@@ -468,14 +504,15 @@ WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(
     : _waveformMemoryParamsPtr(waveformMemoryParams),
       waveRangeSlider(waveformMemoryParams),
       saveButton(),
-      loadButton() {
+      loadButton(),
+      fileBrowserButton() {
   auto fileMode = 
     FileBrowserComponent::FileChooserFlags::openMode + 
     FileBrowserComponent::FileChooserFlags::canSelectFiles + 
     FileBrowserComponent::FileChooserFlags::filenameBoxIsReadOnly + 
     FileBrowserComponent::FileChooserFlags::doNotClearFileNameOnRootChange;
 
-  _fileBrowser = new FileBrowserComponent(fileMode , preFilePath, nullptr, nullptr);
+  _fileBrowser = new FileBrowserComponent(fileMode , preFilePath.getParentDirectory(), nullptr, nullptr);
   _fileBrowser->addListener(this);
   addAndMakeVisible(_fileBrowser);
 
@@ -486,6 +523,10 @@ WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(
   loadButton.setButtonText("Load from File");
   loadButton.addListener(this);
   addAndMakeVisible(loadButton);
+
+  fileBrowserButton.setButtonText("Browser");
+  fileBrowserButton.addListener(this);
+  addAndMakeVisible(fileBrowserButton);
 
   waveRangeSlider.addMouseListener(this, true);
   addAndMakeVisible(waveRangeSlider);
@@ -505,20 +546,31 @@ void WaveformMemoryParametersComponent::resized() {
 
   {
     Rectangle<int> area = bounds.removeFromBottom(BUTTON_HEIGHT);
-    saveButton.setBounds(
-        area.removeFromLeft(area.getWidth() / 2).reduced(LOCAL_MARGIN));
-    loadButton.setBounds(area.reduced(LOCAL_MARGIN));
+    const auto width = area.getWidth() / 3.f;
+    fileBrowserButton.setBounds(area.removeFromLeft(width).reduced(LOCAL_MARGIN));
+    saveButton.setBounds(area.removeFromLeft(width).reduced(LOCAL_MARGIN));
+    loadButton.setBounds(area.removeFromLeft(width).reduced(LOCAL_MARGIN));
   }
-  _fileBrowser->setBounds(bounds.removeFromLeft(FILE_BROWSER_WIDTH));
+
+  if (isFileBrowserEnabled) {
+    _fileBrowser->setBounds(bounds.removeFromLeft(FILE_BROWSER_WIDTH));
+  }
+  _fileBrowser->setVisible(isFileBrowserEnabled);
 
   waveRangeSlider.setBounds(bounds);
 }
 
 void WaveformMemoryParametersComponent::buttonClicked(Button* button) {
   if (button == &saveButton) {
-    saveWaveFile(_waveformMemoryParamsPtr);
+    saveWaveFile(_waveformMemoryParamsPtr, fc);
+    _fileBrowser->setRoot(getPreFileDirectory(&preFilePath));
   } else if (button == &loadButton) {
-    loadWaveFile(_waveformMemoryParamsPtr);
+    loadWaveFile(_waveformMemoryParamsPtr, fc);
+    _fileBrowser->setRoot(getPreFileDirectory(&preFilePath));
+  } else if (button == &fileBrowserButton) {
+    isFileBrowserEnabled = !isFileBrowserEnabled;
+    _fileBrowser->setRoot(getPreFileDirectory(&preFilePath));
+    resized();
   }
 }
 
@@ -545,7 +597,7 @@ void WaveformMemoryParametersComponent::filesDropped(const StringArray& files,
 void WaveformMemoryParametersComponent::fileClicked(const File& file, const MouseEvent& event) {
   std::string filePath = file.getFullPathName().toStdString();
   
-  if (filePath.find(".wfm")) {
+  if (filePath.substr(filePath.length() - 4) == ".wfm") {
     File waveformFile(filePath);
     std::string data = waveformFile.loadFileAsString().toStdString();
     std::int32_t count = 0;
@@ -556,8 +608,11 @@ void WaveformMemoryParametersComponent::fileClicked(const File& file, const Mous
   }
 }	
 
-FilterParametersComponent::FilterParametersComponent(
-    FilterParameters* filterParams)
+void WaveformMemoryParametersComponent::browserRootChanged(const File &file) {
+  preFilePath = file.getFullPathName();
+}
+
+FilterParametersComponent::FilterParametersComponent(FilterParameters* filterParams)
     : BaseComponent(),
       _filterParamsPtr(filterParams),
       hiCutSwitch("HiCut: ON / OFF", _filterParamsPtr->HicutEnable, this),
@@ -618,4 +673,87 @@ void FilterParametersComponent::buttonClicked(Button* button) {
     *_filterParamsPtr->LowcutEnable = lowCutSwitch.getToggleState();
   }
   resized();
+}
+
+WavePatternsComponent::WavePatternsComponent(WavePatternParameters* wavePatternParameters)
+    : BaseComponent(), 
+      _wavePatternParameters(wavePatternParameters),
+      _enableSwitch("On", _wavePatternParameters->PatternEnabled, this),
+      _loopSwitch("Loop", _wavePatternParameters->LoopEnabled, this),
+      _stepTimeSlider("Duration", "sec", _wavePatternParameters->StepTime, this, MIN_DELTA, 0.25f),
+      _waveTypeSelectors{
+        {"", _wavePatternParameters->WaveTypes[0], this},
+        {"", _wavePatternParameters->WaveTypes[1], this},
+        {"", _wavePatternParameters->WaveTypes[2], this},
+        {"", _wavePatternParameters->WaveTypes[3], this}},
+      _rangeSliders(_wavePatternParameters) {
+  addAndMakeVisible(_enableSwitch);
+  addAndMakeVisible(_loopSwitch);
+  addAndMakeVisible(_rangeSliders);
+  addAndMakeVisible(_stepTimeSlider);
+
+  for (auto i = 0; i < WAVEPATTERN_TYPES; ++i) {
+    _waveTypeSelectors[i].removeLabel();
+    addAndMakeVisible(_waveTypeSelectors[i]);
+  }
+}
+
+void WavePatternsComponent::paint(Graphics& g) {
+  paintHeader(g, getLocalBounds(), "WavePatterns");
+}
+
+void WavePatternsComponent::resized() {
+  Rectangle<int> bounds = getLocalBounds();
+  bounds.removeFromTop(HEADER_HEIGHT);
+  {
+    auto area = bounds.removeFromTop(bounds.getHeight() / 4.0f);
+    auto width = area.getWidth() / 4.0f; 
+    _enableSwitch.setBounds(area.removeFromLeft(width));
+    _loopSwitch.setBounds(area.removeFromLeft(width));
+    _stepTimeSlider.setBounds(area);
+
+  }
+  {
+    auto area = bounds.removeFromLeft(200);
+    auto compHeight = area.getHeight() / (float)WAVEPATTERN_TYPES;
+    for (auto i = 0; i < WAVEPATTERN_TYPES; ++i) {
+      _waveTypeSelectors[i].setBounds(area.removeFromTop(compHeight));
+    }
+  }
+
+  _rangeSliders.setBounds(bounds);
+}
+
+void WavePatternsComponent::timerCallback() {
+  _enableSwitch.setToggleState(_wavePatternParameters->PatternEnabled->get());
+  _loopSwitch.setToggleState(_wavePatternParameters->LoopEnabled->get());
+
+  for (auto i = 0; i < WAVEPATTERN_TYPES; ++i) {
+    _waveTypeSelectors[i].setSelectedItemIndex(_wavePatternParameters->WaveTypes[i]->getIndex());
+  }
+}
+
+void WavePatternsComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged) {
+  for (auto i = 0; i < WAVEPATTERN_TYPES; ++i) {
+    if (comboBoxThatHasChanged == &_waveTypeSelectors[i].selector) {
+      *_wavePatternParameters->WaveTypes[i] = _waveTypeSelectors[i].getSelectedItemIndex();
+    }
+  }
+
+  resized();
+}
+
+void WavePatternsComponent::buttonClicked(Button* button) {
+  if (button == &_enableSwitch.button) {
+    *_wavePatternParameters->PatternEnabled = _enableSwitch.getToggleState();
+  } else if (button == &_loopSwitch.button) {
+    *_wavePatternParameters->LoopEnabled = _loopSwitch.getToggleState();
+  }
+  resized();
+}
+
+void WavePatternsComponent::sliderValueChanged(Slider* slider) {
+  if (slider == &_stepTimeSlider.slider) {
+    *_wavePatternParameters->StepTime = (float)_stepTimeSlider.getValue();
+  }
 }

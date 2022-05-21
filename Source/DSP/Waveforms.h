@@ -12,19 +12,22 @@ class Waveforms {
   float nesSquare25(float angle);
   float nesSquare125(float angle);
   float sine(float angle);
+  float roughSine(float angle);
   float saw(float angle);
+  float roughSaw(float angle);
   float square(float angle);
   float square25(float angle);
   float square125(float angle);
   float triangle(float angle);
   float longNoise(const float angleDelta);
   float shortNoise(const float angleDelta);
+  float noise(const float angleDelta);
   float lobitNoise(const float angleDelta);
   float waveformMemory(float angleDelta,
                        WaveformMemoryParameters* _waveformMemoryParamsPtr);
  private:
-  static float quantize(float sample);
-  static float checkAngleRanage(float angle);
+  static float quantize(float sample, int qNum);
+  static void checkAngleRanage(float &angle);
   float high_pass(float in);
 
   std::uint16_t _longNoizeReg = 0x0002;

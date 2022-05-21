@@ -7,27 +7,31 @@ const float TWO_PI = MathConstants<float>::twoPi;
 }  // namespace
 
 SimpleVoice::SimpleVoice(
-    ChipOscillatorParameters* chipOscParams, SweepParameters* sweepParams,
-    VibratoParameters* vibratoParams, VoicingParameters* voicingParams,
-    OptionsParameters* optionsParams, MidiEchoParameters* midiEchoParams,
-    WaveformMemoryParameters* waveformMemoryParams)
-    : _chipOscParamsPtr(chipOscParams),
-      _sweepParamsPtr(sweepParams),
-      _vibratoParamsPtr(vibratoParams),
-      _voicingParamsPtr(voicingParams),
-      _optionsParamsPtr(optionsParams),
-      _midiEchoParamsPtr(midiEchoParams),
-      _waveformMemoryParamsPtr(waveformMemoryParams),
-      ampEnv(chipOscParams->Attack->get(), chipOscParams->Decay->get(),
-             chipOscParams->Sustain->get(), chipOscParams->Release->get(),
-             midiEchoParams->EchoDuration->get() *
-                 midiEchoParams->EchoRepeat->get()),
-      vibratoEnv(vibratoParams->VibratoAttackTime->get(), 0.1f, 1.0f, 0.1f,
-                 0.0f),
-      portaEnv(voicingParams->StepTime->get(), 0.0f, 1.0f, 0.0f, 0.0f),
-      eb((std::int32_t)getSampleRate(),
-         (float)midiEchoParams->EchoDuration->get(),
-        midiEchoParams->EchoRepeat->get()) {
+  ChipOscillatorParameters* chipOscParams, 
+  SweepParameters* sweepParams,
+  VibratoParameters* vibratoParams,
+  VoicingParameters* voicingParams,
+  OptionsParameters* optionsParams, 
+  MidiEchoParameters* midiEchoParams,
+  WaveformMemoryParameters* waveformMemoryParams,
+  WavePatternParameters* wavePatternParams)
+  : _chipOscParamsPtr(chipOscParams),
+    _sweepParamsPtr(sweepParams),
+    _vibratoParamsPtr(vibratoParams),
+    _voicingParamsPtr(voicingParams),
+    _optionsParamsPtr(optionsParams),
+    _midiEchoParamsPtr(midiEchoParams),
+    _waveformMemoryParamsPtr(waveformMemoryParams),
+    _wavePatternParams(wavePatternParams),
+    ampEnv(chipOscParams->Attack->get(), chipOscParams->Decay->get(),
+            chipOscParams->Sustain->get(), chipOscParams->Release->get(),
+            midiEchoParams->EchoDuration->get() * midiEchoParams->EchoRepeat->get()),
+    vibratoEnv(vibratoParams->VibratoAttackTime->get(), 0.1f, 1.0f, 0.1f, 0.0f),
+    portaEnv(voicingParams->StepTime->get(), 0.0f, 1.0f, 0.0f, 0.0f),
+    colorEnv(chipOscParams),
+    eb((std::int32_t)getSampleRate(),
+        (float)midiEchoParams->EchoDuration->get(),
+      midiEchoParams->EchoRepeat->get()) {
   clear();
 }
 
@@ -67,6 +71,14 @@ void SimpleVoice::startNote(int midiNoteNumber, float velocity,
   ampEnv.attackStart();
   vibratoEnv.attackStart();
   portaEnv.attackStart();
+  colorEnv.clear();
+  patternWaveClear();
+
+  // 波形パターン初期設定
+  if (_wavePatternParams->PatternEnabled->get()) {
+    const auto waveType = _wavePatternParams->WaveTypes[0]->getIndex();
+    *(_chipOscParamsPtr->OscWaveType) = waveType;
+  }
 }
 
 /// キーリリースだとallowTailOff == true
@@ -119,6 +131,9 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer,
   auto isPositiveSweepEnbaled = (_sweepParamsPtr->SweepSwitch->getCurrentChoiceName() == "Positive");
   auto isNegativeSweepEnbaled = (_sweepParamsPtr->SweepSwitch->getCurrentChoiceName() == "Negative");
   auto sweepTime = (float)_sweepParamsPtr->SweepTime->get();
+  auto isPatternWaveEnabled = (float)_wavePatternParams->PatternEnabled->get();
+  auto isPatternLoopEnabled = (float)_wavePatternParams->LoopEnabled->get();
+  patternStepNum = (float)_wavePatternParams->StepTime->get() * getSampleRate();
 
   SimpleSound* playingSound =  static_cast<SimpleSound*>(getCurrentlyPlayingSound().get());
   if (playingSound == nullptr) {
@@ -172,10 +187,11 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer,
     }
 
     //ピッチ処理
-    auto pitchBendFactor = pow(2.0f, pitchBend / 13.0f * pitchBendRange);
-    auto pitchModulationFactor = pow(2.0f, modulationFactor / 13.0f);
-    auto sweepFanctor = pow(2.0f, pitchSweep);
-    currentAngle += angleDelta * pitchBendFactor * pitchModulationFactor * sweepFanctor;
+    const auto pitchBendFactor = pow(2.0f, pitchBend / 13.0f * pitchBendRange);
+    const auto pitchModulationFactor = pow(2.0f, modulationFactor / 13.0f);
+    const auto sweepFactor = pow(2.0f, pitchSweep);
+    const auto colorFactor = colorEnv.getManipulateAngle() + 1;
+    currentAngle += angleDelta * pitchBendFactor * pitchModulationFactor * sweepFactor * colorFactor;
 
     // ポルタメントをcurrentAngleに反映
     if (isPortaMode) {
@@ -193,7 +209,29 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer,
       pitchSweep = std::min(10.0f, pitchSweep);
     } else if (isNegativeSweepEnbaled) {
       pitchSweep -= 1 / (float)getSampleRate() / sweepTime;
-      pitchSweep = std::max(0.0f, pitchSweep);
+      pitchSweep = std::max(-10.0f, pitchSweep);
+    }
+
+    // パターンエンベロープ
+    if (isPatternWaveEnabled) {
+      patternCounter++;
+
+      // パターン更新処理
+      if (patternCounter >= patternStepNum) {
+        patternCounter = 0;
+
+        patternIndex++;
+        if (patternIndex >= WAVEPATTERN_LENGTH) {
+          if (isPatternLoopEnabled) {
+            patternIndex = 0;
+          } else {
+            patternIndex = WAVEPATTERN_LENGTH - 1;
+          }
+        }
+        const auto nextIndex = (WAVEPATTERN_TYPES - 1) - _wavePatternParams->WavePatternArray[patternIndex]->get();
+        const auto waveType = _wavePatternParams->WaveTypes[nextIndex]->getIndex();
+        *(_chipOscParamsPtr->OscWaveType) = waveType;
+      }
     }
 
     // 周期切り捨て
@@ -204,6 +242,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer,
     ampEnv.cycle((float)getSampleRate());
     vibratoEnv.cycle((float)getSampleRate());
     portaEnv.cycle((float)getSampleRate());
+    colorEnv.cycle((float)getSampleRate());
   }
 }
 
@@ -215,7 +254,14 @@ void SimpleVoice::clear() {
   level = 0.0f;
   pitchBend = 0.0f;
   pitchSweep = 0.0f;
+  patternWaveClear();
   waveForms.init();
+}
+
+void SimpleVoice::patternWaveClear() {
+  patternCounter = 0;
+  patternIndex = 0;
+  patternStepNum = 0.0f;
 }
 
 float SimpleVoice::calcModulationFactor(float angle) {
@@ -242,8 +288,12 @@ float SimpleVoice::angle2wave(float angle, float angleDelta, const juce::String&
     value = waveForms.shortNoise(angleDelta);
   } else if (waveName == "Pure_Sine") {
     value = waveForms.sine(angle);
+  } else if (waveName == "Rough_Sine") {
+    value = waveForms.roughSine(angle);
   } else if (waveName == "Pure_Saw") {
     value = waveForms.saw(angle);
+  } else if (waveName == "Rough_Saw") {
+    value = waveForms.roughSaw(angle);
   } else if (waveName == "Pure_Triangle") {
     value = waveForms.triangle(angle);
   } else if (waveName == "Pure_Square50%") {
@@ -252,7 +302,9 @@ float SimpleVoice::angle2wave(float angle, float angleDelta, const juce::String&
     value = waveForms.square25(angle);
   } else if (waveName == "Pure_Square12.5%") {
     value = waveForms.square125(angle);
-  } else if (waveName == "Pure_Lo-bitNoise") {
+  } else if (waveName == "Pure_Noise") {
+    value = waveForms.noise(angleDelta);
+  } else if (waveName == "Rough_Noise") {
     value = waveForms.lobitNoise(angleDelta);
   } else if (waveName == "Waveform Memory") {
     value = waveForms.waveformMemory(angle, _waveformMemoryParamsPtr);

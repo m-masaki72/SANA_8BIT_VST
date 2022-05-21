@@ -4,7 +4,7 @@
 
 class BaseComponent : public Component, private juce::Timer {
  public:
-  BaseComponent() { startTimerHz(10); };
+  BaseComponent() { startTimerHz(5); };
   virtual void paint(Graphics& g) = 0;
   virtual void resized() = 0;
 
@@ -36,6 +36,8 @@ class ChipOscillatorComponent : public BaseComponent,
   TextSlider decaySlider;
   TextSlider sustainSlider;
   TextSlider releaseSlider;
+  TextSelector colorTypeSelector;
+  TextSlider colorDurationSlider;
 };
 
 class SweepParametersComponent : public BaseComponent,
@@ -181,15 +183,18 @@ class WaveformMemoryParametersComponent : public Component,
   virtual void fileClicked(const File& file, const MouseEvent& event) override;	
   virtual void selectionChanged() override {};
   virtual void fileDoubleClicked(const File &) override {};	
-  virtual void browserRootChanged(const File &) override {};	
+  virtual void browserRootChanged(const File &file) override;	
 
   WaveformMemoryParameters* _waveformMemoryParamsPtr;
 
-  RangeSliders waveRangeSlider;
+  std::unique_ptr<FileChooser> fc;
+
+  WaveSampleSliders waveRangeSlider;
   FileBrowserComponent* _fileBrowser = nullptr;
   TextButton saveButton;
   TextButton loadButton;
-  // File preFilePath = File::getSpecialLocation(File::userDesktopDirectory);
+  TextButton fileBrowserButton;
+  bool isFileBrowserEnabled = false;
   const int BUTTON_HEIGHT = 32;
   const int FILE_BROWSER_WIDTH = 240;
 };
@@ -217,4 +222,36 @@ class FilterParametersComponent : public BaseComponent,
 
   TextSlider hicutFreqSlider;
   TextSlider lowcutFreqSlider;
+};
+
+class WavePatternsComponent : public BaseComponent,
+                              public Button::Listener,
+                              public Slider::Listener,
+                              public ComboBox::Listener {
+ public:
+  WavePatternsComponent(WavePatternParameters* wavePatternParameters);
+
+  virtual void paint(Graphics& g) override;
+  virtual void resized() override;
+
+ private:
+  virtual void timerCallback() override;
+  virtual void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
+  virtual void buttonClicked(Button* button) override;
+  virtual void sliderValueChanged(Slider* slider) override;
+
+  WavePatternParameters* _wavePatternParameters;
+  SwitchButton _enableSwitch;
+  SwitchButton _loopSwitch;
+  TextSlider _stepTimeSlider;
+  TextSelector _waveTypeSelectors[4];
+  PatternSliders _rangeSliders;
+
+  const StringArray OSC_WAVE_TYPES {
+  "NES_Square50%",    "NES_Square25%",   "NES_Square12.5%",
+  "NES_Triangle",     "Pure_Square50%",  "Pure_Square25%",
+  "Pure_Square12.5%", "Pure_Triangle",   "Pure_Sine",
+  "Pure_Saw",         "NES_LongNoise",   "NES_ShortNoise",
+  "Pure_Lo-bitNoise", "Waveform Memory",
+};
 };
