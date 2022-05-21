@@ -1,5 +1,9 @@
 #include "SynthParameters.h"
 
+namespace {
+const float MIN_DELTA = 0.0001f;
+}  // namespace
+
 ChipOscillatorParameters::ChipOscillatorParameters(
     AudioParameterChoice* oscWaveType, AudioParameterFloat* volumeLevel,
     AudioParameterFloat* attack, AudioParameterFloat* decay,
@@ -277,9 +281,9 @@ WavePatternParameters::WavePatternParameters() {
     WaveTypes[i] = new AudioParameterChoice(name, name, OSC_WAVE_TYPES, 0);
   }
 
-  PatternEnabled = new AudioParameterBool("PATTERN_ENABLE", "Pattern-Enable", true);
+  PatternEnabled = new AudioParameterBool("PATTERN_ENABLE", "Pattern-Enable", false);
   LoopEnabled = new AudioParameterBool("PATTERN_LOOP_ENABLE", "Pattern-Loop-Enable", true);
-  StepTime = new AudioParameterFloat("PATTERN_STEP_TIME", "Pattern-Step-Time", 0.000f, 1.0f, 0.10f);
+  StepTime = new AudioParameterFloat("PATTERN_STEP_TIME", "Pattern-Step-Time", {0.000f, 1.0f, MIN_DELTA}, 0.10f);
 }
 
 void WavePatternParameters::addAllParameters(AudioProcessor& processor) {

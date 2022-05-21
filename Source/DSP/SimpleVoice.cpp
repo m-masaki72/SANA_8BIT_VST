@@ -209,7 +209,7 @@ void SimpleVoice::renderNextBlock(AudioBuffer<float>& outputBuffer,
       pitchSweep = std::min(10.0f, pitchSweep);
     } else if (isNegativeSweepEnbaled) {
       pitchSweep -= 1 / (float)getSampleRate() / sweepTime;
-      pitchSweep = std::max(0.0f, pitchSweep);
+      pitchSweep = std::max(-10.0f, pitchSweep);
     }
 
     // パターンエンベロープ

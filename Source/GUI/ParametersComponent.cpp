@@ -7,11 +7,21 @@ const Colour FONT_COLOUR() { return Colours::black; }
 const Colour TEXT_COLOUR() { return Colours::white; }
 const Colour BACKGROUND_COLOUR() { return Colour(60,14,60); }
 
+const float MIN_DELTA = 0.0001f;
+
 const float HEADER_HEIGHT = 24.0f;
 const std::int32_t LOCAL_MARGIN = 2;
 
-static File preFilePath = File::getSpecialLocation(File::currentExecutableFile);
+static File preFilePath = File::getSpecialLocation(File::currentApplicationFile);
 }  // namespace
+
+static File getPreFileDirectory(File* file) {
+  if (file->isDirectory()) {
+    return *file;
+  } else {
+    return file->getParentDirectory();
+  }
+}
 
 static std::vector<std::string> split(std::string str, char del) {
   auto first = 0;
@@ -55,47 +65,59 @@ static void paintHeader(Graphics& g, Rectangle<int> bounds, std::string text) {
   }
 }
 
-static void saveWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr) {
-  FileChooser fileSaver("Save File As", preFilePath, "*.wfm");
-
-  if (fileSaver.browseForFileToSave(true)) {
-    File newFile(fileSaver.getResult());
-    newFile.create();
-    newFile.replaceWithText("");
-    for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
-      newFile.appendText(
-          std::to_string(*_waveformMemoryParamsPtr->WaveSamplesArray[i]));
-      newFile.appendText(" ");
+static void saveWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr, std::unique_ptr<FileChooser>& fc) {
+  auto chooser = new FileChooser("Save File As", preFilePath, "*.wfm");
+  fc.reset(chooser);
+  fc->launchAsync(FileBrowserComponent::saveMode | FileBrowserComponent::canSelectFiles,
+    [_waveformMemoryParamsPtr] (const FileChooser& chooser) {
+      const auto result = chooser.getResult();
+      if (result.getFullPathName() == "") {
+        return;
+      }
+      File newFile(result);
+      newFile.create();
+      newFile.replaceWithText("");
+      for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
+        newFile.appendText(
+            std::to_string(*_waveformMemoryParamsPtr->WaveSamplesArray[i]));
+        newFile.appendText(" ");
+      }
+      preFilePath = chooser.getResult();
     }
-    preFilePath = fileSaver.getResult();
-  }
+  );
 }
 
-static void loadWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr) {
-  FileChooser fileLoader("Load File From", preFilePath, "*.wfm");
-
-  if (fileLoader.browseForFileToOpen()) {
-    File waveformFile(fileLoader.getResult());
-    std::string data = waveformFile.loadFileAsString().toStdString();
-    auto count = 0;
-    for (const auto subStr : split(data, ' ')) {
+static void loadWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr, std::unique_ptr<FileChooser>& fc) {
+  auto chooser = new FileChooser ("Load File From", preFilePath, "*.wfm");
+  fc.reset(chooser);
+  fc->launchAsync(FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles,
+    [_waveformMemoryParamsPtr] (const FileChooser& chooser) {
+      const auto result = chooser.getResult();
+      if (result.getFullPathName() == "") {
+        return;
+      }
+      File waveformFile(result);
+      std::string data = waveformFile.loadFileAsString().toStdString();
+      auto count = 0;
+      for (const auto subStr : split(data, ' ')) {
       *_waveformMemoryParamsPtr->WaveSamplesArray[count] = atoi(subStr.c_str());
       ++count;
+      }
+      preFilePath = chooser.getResult();
     }
-    preFilePath = fileLoader.getResult();
-  }
+  );
 }
 
 ChipOscillatorComponent::ChipOscillatorComponent(ChipOscillatorParameters* oscParams)
     : _oscParamsPtr(oscParams),
       waveTypeSelector("Wave", _oscParamsPtr->OscWaveType, this),
       volumeLevelSlider("Volume", "dB", _oscParamsPtr->VolumeLevel, this, 0.01f),
-      attackSlider("Attack", "sec", _oscParamsPtr->Attack, this, 0.0001f, 1.0f),
-      decaySlider("Decay", "sec", _oscParamsPtr->Decay, this, 0.0001f, 1.0f),
-      sustainSlider("Sustain", "", _oscParamsPtr->Sustain, this, 0.0001f),
-      releaseSlider("Release", "sec", _oscParamsPtr->Release, this, 0.0001f, 1.0f),
+      attackSlider("Attack", "sec", _oscParamsPtr->Attack, this, MIN_DELTA, 1.0f),
+      decaySlider("Decay", "sec", _oscParamsPtr->Decay, this, MIN_DELTA, 1.0f),
+      sustainSlider("Sustain", "", _oscParamsPtr->Sustain, this, MIN_DELTA),
+      releaseSlider("Release", "sec", _oscParamsPtr->Release, this, MIN_DELTA, 1.0f),
       colorTypeSelector("Color", _oscParamsPtr->ColorType, this),
-      colorDurationSlider("Duration", "sec", _oscParamsPtr->ColorDuration, this, 0.001f) {
+      colorDurationSlider("Duration", "sec", _oscParamsPtr->ColorDuration, this, MIN_DELTA, 0.2f) {
   addAndMakeVisible(waveTypeSelector);
   addAndMakeVisible(volumeLevelSlider);
   addAndMakeVisible(attackSlider);
@@ -226,8 +248,8 @@ VibratoParametersComponent::VibratoParametersComponent(
     : _vibratoParamsPtr(vibratoParams),
       enableSwitch("On", _vibratoParamsPtr->VibratoEnable, this),
       attackDeleySwitch("Attack-Deley-Switch", _vibratoParamsPtr->VibratoAttackDeleySwitch, this),
-      amountSlider("Depth", "HarfTone", _vibratoParamsPtr->VibratoAmount, this, 0.01f, 2.0f),
-      speedSlider("Speed", "hz", _vibratoParamsPtr->VibratoSpeed, this, 0.001f, 10.0f),
+      amountSlider("Depth", "HarfTone", _vibratoParamsPtr->VibratoAmount, this, MIN_DELTA, 2.0f),
+      speedSlider("Speed", "hz", _vibratoParamsPtr->VibratoSpeed, this, MIN_DELTA, 10.0f),
       attackDeleyTimeSlider("Attack", "sec", _vibratoParamsPtr->VibratoAttackTime, this, 0.001f, 2.0f) {
   addAndMakeVisible(enableSwitch);
   addAndMakeVisible(attackDeleySwitch);
@@ -490,7 +512,7 @@ WaveformMemoryParametersComponent::WaveformMemoryParametersComponent(
     FileBrowserComponent::FileChooserFlags::filenameBoxIsReadOnly + 
     FileBrowserComponent::FileChooserFlags::doNotClearFileNameOnRootChange;
 
-  _fileBrowser = new FileBrowserComponent(fileMode , preFilePath, nullptr, nullptr);
+  _fileBrowser = new FileBrowserComponent(fileMode , preFilePath.getParentDirectory(), nullptr, nullptr);
   _fileBrowser->addListener(this);
   addAndMakeVisible(_fileBrowser);
 
@@ -540,12 +562,14 @@ void WaveformMemoryParametersComponent::resized() {
 
 void WaveformMemoryParametersComponent::buttonClicked(Button* button) {
   if (button == &saveButton) {
-    saveWaveFile(_waveformMemoryParamsPtr);
+    saveWaveFile(_waveformMemoryParamsPtr, fc);
+    _fileBrowser->setRoot(getPreFileDirectory(&preFilePath));
   } else if (button == &loadButton) {
-    loadWaveFile(_waveformMemoryParamsPtr);
+    loadWaveFile(_waveformMemoryParamsPtr, fc);
+    _fileBrowser->setRoot(getPreFileDirectory(&preFilePath));
   } else if (button == &fileBrowserButton) {
     isFileBrowserEnabled = !isFileBrowserEnabled;
-    _fileBrowser->setRoot(preFilePath);
+    _fileBrowser->setRoot(getPreFileDirectory(&preFilePath));
     resized();
   }
 }
@@ -656,7 +680,7 @@ WavePatternsComponent::WavePatternsComponent(WavePatternParameters* wavePatternP
       _wavePatternParameters(wavePatternParameters),
       _enableSwitch("On", _wavePatternParameters->PatternEnabled, this),
       _loopSwitch("Loop", _wavePatternParameters->LoopEnabled, this),
-      _stepTimeSlider("Duration", "sec", _wavePatternParameters->StepTime, this, 0.01f, 0.25f),
+      _stepTimeSlider("Duration", "sec", _wavePatternParameters->StepTime, this, MIN_DELTA, 0.25f),
       _waveTypeSelectors{
         {"", _wavePatternParameters->WaveTypes[0], this},
         {"", _wavePatternParameters->WaveTypes[1], this},

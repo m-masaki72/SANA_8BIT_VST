@@ -38,7 +38,7 @@ class SimpleVoice : public SynthesiserVoice {
   bool canStartNote();
   void updateEnvParams(AmpEnvelope& ampEnv, AmpEnvelope& vibratoEnv, AmpEnvelope& portaEnv);
 
-  float currentAngle, vibratoAngle, angleDelta, portaAngleDelta;
+  float currentAngle, vibratoAngle, angleDelta, portaAngleDelta = 0.0f;
   float level;
   float pitchBend, pitchSweep;
   std::vector<float> echoSamples;

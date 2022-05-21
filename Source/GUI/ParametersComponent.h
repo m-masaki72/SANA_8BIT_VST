@@ -187,6 +187,8 @@ class WaveformMemoryParametersComponent : public Component,
 
   WaveformMemoryParameters* _waveformMemoryParamsPtr;
 
+  std::unique_ptr<FileChooser> fc;
+
   WaveSampleSliders waveRangeSlider;
   FileBrowserComponent* _fileBrowser = nullptr;
   TextButton saveButton;
