@@ -17,7 +17,7 @@ SimpleVoice::SimpleVoice(
   WavePatternParameters* wavePatternParams)
   : eb((std::int32_t)getSampleRate(),
     (float)midiEchoParams->EchoDuration->get(),
-  midiEchoParams->EchoRepeat->get()),
+    midiEchoParams->EchoRepeat->get()),
     ampEnv(chipOscParams->Attack->get(), chipOscParams->Decay->get(),
             chipOscParams->Sustain->get(), chipOscParams->Release->get(),
             midiEchoParams->EchoDuration->get() * midiEchoParams->EchoRepeat->get()),
