@@ -24,7 +24,7 @@ static File getPreFileDirectory(File* file) {
 }
 
 static std::vector<std::string> split(std::string str, char del) {
-  auto first = 0;
+  size_t first = 0;
   auto last = str.find_first_of(del);
 
   std::vector<std::string> result;
