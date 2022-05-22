@@ -48,8 +48,8 @@ PluginProcessor ::PluginProcessor ()
       filterParameters(
         new AudioParameterBool("HICUT_ENABLE", "Filter-Hicut-Enable", false),
         new AudioParameterBool("LOWCUT_ENABLE", "Filter-Lowcut-Enable", false),
-          new AudioParameterFloat("FILTER_HICUT-FREQ", "Filter-Hicut-Freq", 40.0f, 20000.0f, 20000.0f),
-          new AudioParameterFloat("FILTER_LOWCUT-FREQ", "Filter-Lowcut-Freq", 40.0f, 20000.0f, 40.0f)),
+        new AudioParameterFloat("FILTER_HICUT-FREQ", "Filter-Hicut-Freq", 40.0f, 20000.0f, 20000.0f),
+        new AudioParameterFloat("FILTER_LOWCUT-FREQ", "Filter-Lowcut-Freq", 40.0f, 20000.0f, 40.0f)),
       presetsParameters(),
       wavePatternParameters(),
       scopeDataCollector(scopeDataQueue) {
