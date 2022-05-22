@@ -56,7 +56,7 @@ class TextSlider : public Component {
     slider.setTextValueSuffix(std::string(" ") + unit);
     slider.addListener(listener);
 
-    if (!pivot) {
+    if (pivot.has_value()) {
       slider.setSkewFactorFromMidPoint(*pivot);
     }
 
