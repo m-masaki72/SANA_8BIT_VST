@@ -1,5 +1,6 @@
 #pragma once
 #include "JuceHeader.h"
+#include <optional>
 
 struct Trail {
   Trail(const MouseInputSource& ms) : source(ms) {}
@@ -47,7 +48,7 @@ class TextSlider : public Component {
 
   TextSlider(std::string labelName, std::string unit, float value, float start,
              float end, Slider::Listener *listener, float degree = 0.1f,
-             float pivot = NULL)
+             std::optional<float> pivot = {})
       : slider(Slider::SliderStyle::LinearHorizontal,
                Slider::TextEntryBoxPosition::TextBoxLeft) {
     slider.setRange(start, end, degree);
@@ -55,8 +56,8 @@ class TextSlider : public Component {
     slider.setTextValueSuffix(std::string(" ") + unit);
     slider.addListener(listener);
 
-    if (pivot != NULL) {
-      slider.setSkewFactorFromMidPoint(pivot);
+    if (!pivot) {
+      slider.setSkewFactorFromMidPoint(*pivot);
     }
 
     label.setText(labelName, dontSendNotification);
