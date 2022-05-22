@@ -1,4 +1,4 @@
-﻿#include "SimpleVoice.h"
+#include "SimpleVoice.h"
 
 namespace {
 const float HALF_PI = MathConstants<float>::halfPi;
@@ -15,23 +15,23 @@ SimpleVoice::SimpleVoice(
   MidiEchoParameters* midiEchoParams,
   WaveformMemoryParameters* waveformMemoryParams,
   WavePatternParameters* wavePatternParams)
-  : _chipOscParamsPtr(chipOscParams),
-    _sweepParamsPtr(sweepParams),
-    _vibratoParamsPtr(vibratoParams),
-    _voicingParamsPtr(voicingParams),
-    _optionsParamsPtr(optionsParams),
-    _midiEchoParamsPtr(midiEchoParams),
-    _waveformMemoryParamsPtr(waveformMemoryParams),
-    _wavePatternParams(wavePatternParams),
+  : eb((std::int32_t)getSampleRate(),
+    (float)midiEchoParams->EchoDuration->get(),
+  midiEchoParams->EchoRepeat->get()),
     ampEnv(chipOscParams->Attack->get(), chipOscParams->Decay->get(),
             chipOscParams->Sustain->get(), chipOscParams->Release->get(),
             midiEchoParams->EchoDuration->get() * midiEchoParams->EchoRepeat->get()),
     vibratoEnv(vibratoParams->VibratoAttackTime->get(), 0.1f, 1.0f, 0.1f, 0.0f),
     portaEnv(voicingParams->StepTime->get(), 0.0f, 1.0f, 0.0f, 0.0f),
     colorEnv(chipOscParams),
-    eb((std::int32_t)getSampleRate(),
-        (float)midiEchoParams->EchoDuration->get(),
-      midiEchoParams->EchoRepeat->get()) {
+    _chipOscParamsPtr(chipOscParams),
+    _sweepParamsPtr(sweepParams),
+    _vibratoParamsPtr(vibratoParams),
+    _voicingParamsPtr(voicingParams),
+    _optionsParamsPtr(optionsParams),
+    _midiEchoParamsPtr(midiEchoParams),
+    _waveformMemoryParamsPtr(waveformMemoryParams),
+    _wavePatternParams(wavePatternParams) {
   clear();
 }
 

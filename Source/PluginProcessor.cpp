@@ -15,7 +15,6 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
 
 PluginProcessor ::PluginProcessor ()
     : BaseAudioProcessor(),
-      presetsParameters(),
       chipOscParameters(
         new AudioParameterChoice("OSC_WAVE_TYPE", "Osc-WaveType", OSC_WAVE_TYPES, 0),
         new AudioParameterFloat("VOLUME", "Volume", -32.0f, 8.0f, -20.0f),
@@ -40,6 +39,7 @@ PluginProcessor ::PluginProcessor ()
       optionsParameters(
         new AudioParameterInt("PITCH_BEND_RANGE", "Pitch-Bend-Range", 1, 13, 2),
         new AudioParameterInt("PITCH_STANDARD", "Pitch-Standard", 400, 500, 440)),
+      waveformMemoryParameters(),
       midiEchoParameters(
         new AudioParameterBool("ECHO_ENABLE", "Echo-Enable", false),
         new AudioParameterFloat("ECHO_DURATION", "Echo-Duration", {0.01f, 3.0f, MIN_DELTA}, 0.1f),
@@ -48,9 +48,9 @@ PluginProcessor ::PluginProcessor ()
       filterParameters(
         new AudioParameterBool("HICUT_ENABLE", "Filter-Hicut-Enable", false),
         new AudioParameterBool("LOWCUT_ENABLE", "Filter-Lowcut-Enable", false),
-        new AudioParameterFloat("FILTER_HICUT-FREQ", "Filter-Hicut-Freq", 40.0f, 20000.0f, 20000.0f),
-        new AudioParameterFloat("FILTER_LOWCUT-FREQ", "Filter-Lowcut-Freq", 40.0f, 20000.0f, 40.0f)),
-      waveformMemoryParameters(),
+          new AudioParameterFloat("FILTER_HICUT-FREQ", "Filter-Hicut-Freq", 40.0f, 20000.0f, 20000.0f),
+          new AudioParameterFloat("FILTER_LOWCUT-FREQ", "Filter-Lowcut-Freq", 40.0f, 20000.0f, 40.0f)),
+      presetsParameters(),
       wavePatternParameters(),
       scopeDataCollector(scopeDataQueue) {
   presetsParameters.addAllParameters(*this);

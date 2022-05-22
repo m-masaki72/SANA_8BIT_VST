@@ -18,6 +18,7 @@ EditorGUI::EditorGUI(PluginProcessor &p)
                         MidiKeyboardComponent::Orientation::horizontalKeyboard),
       OscButton("Wave", this),
       EffectButton("Effects", this),
+      scopeComponent(p.getAudioBufferQueue()),
       chipOscComponent(&p.chipOscParameters),
       sweepParamsComponent(&p.sweepParameters),
       vibratoParamsComponent(&p.vibratoParameters),
@@ -26,8 +27,7 @@ EditorGUI::EditorGUI(PluginProcessor &p)
       waveformMemoryParamsComponent(&p.waveformMemoryParameters),
       midiEchoParamsComponent(&p.midiEchoParameters),
       filterParamsComponent(&p.filterParameters),
-      wavePatternsComponent(&p.wavePatternParameters),
-      scopeComponent(p.getAudioBufferQueue()) {
+      wavePatternsComponent(&p.wavePatternParameters) {
   /*
           TabComponentを使いたかったが，Tabだとメモリリークが収まらないので現在の形に．
           デストラクタ時にメモリリーク，CustomLookAndFeelまわりでエラーが取れない．

@@ -22,16 +22,16 @@ const float RELEASE_MIN = 0.001f;
 
 AmpEnvelope::AmpEnvelope(float attackTime, float decayTime, float sustain,
                          float releaseTime, float echoTime)
-    : _attackTime(attackTime),
+    : _ampState(AMPENV_STATE::WAIT),
+      _attackTime(attackTime),
       _decayTime(decayTime),
       _sustainValue(sustain),
       _releaseTime(releaseTime),
       _echoTime(echoTime),
-      _sampleRate(0.0f),
       _value(0.0f),
       _valueOnReleaseStart(0.0f),
       _timer(0.0f),
-      _ampState(AMPENV_STATE::WAIT) {
+      _sampleRate(0.0f) {
   checkVarRange();
 }
 
