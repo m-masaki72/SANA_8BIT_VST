@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AudioComponents</key>
+	<array>
+		<dict>
+			<key>description</key>
+			<string>SANA_8bit_VST</string>
+			<key>factoryFunction</key>
+			<string>SANA_8bit_VSTAUFactory</string>
+			<key>manufacturer</key>
+			<string>Manu</string>
+			<key>name</key>
+			<string>MasakiMori: SANA_8bit_VST</string>
+			<key>resourceUsage</key>
+			<dict>
+				<key>network.client</key>
+				<true/>
+				<key>temporary-exception.files.all.read-write</key>
+				<true/>
+			</dict>
+			<key>subtype</key>
+			<string>J6lc</string>
+			<key>type</key>
+			<string>aumu</string>
+			<key>version</key>
+			<integer>131072</integer>
+		</dict>
+	</array>
+	<key>BuildMachineOSBuild</key>
+	<string>20G624</string>
+	<key>CFBundleDisplayName</key>
+	<string>SANA_8bit_VST</string>
+	<key>CFBundleExecutable</key>
+	<string>SANA_8bit_VST</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.MasakiMori.SANA</string>
+	<key>CFBundleName</key>
+	<string>SANA_8bit_VST</string>
+	<key>CFBundlePackageType</key>
+	<string>BNDL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>2.00</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleSupportedPlatforms</key>
+	<array>
+		<string>MacOSX</string>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>2.00</string>
+	<key>DTCompiler</key>
+	<string>com.apple.compilers.llvm.clang.1_0</string>
+	<key>DTPlatformBuild</key>
+	<string>12D4e</string>
+	<key>DTPlatformName</key>
+	<string>macosx</string>
+	<key>DTPlatformVersion</key>
+	<string>11.1</string>
+	<key>DTSDKBuild</key>
+	<string>20C63</string>
+	<key>DTSDKName</key>
+	<string>macosx11.1</string>
+	<key>DTXcode</key>
+	<string>1240</string>
+	<key>DTXcodeBuild</key>
+	<string>12D4e</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.7</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string></string>
+</dict>
+</plist>

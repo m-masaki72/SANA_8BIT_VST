@@ -238,7 +238,7 @@ class PageButton : public Component {
 
 class WaveSampleSliders : public Component, private juce::Timer {
  public:
-  WaveSampleSliders::WaveSampleSliders(WaveformMemoryParameters* waveformMemoryParams)
+  WaveSampleSliders(WaveformMemoryParameters* waveformMemoryParams)
       : _waveformMemoryParamsPtr(waveformMemoryParams), 
         _sampleSliders{} {
     for (auto i = 0; i < WAVESAMPLE_LENGTH; ++i) {
@@ -360,7 +360,7 @@ class WaveSampleSliders : public Component, private juce::Timer {
 
 class PatternSliders : public Component, private juce::Timer {
  public:
-  PatternSliders::PatternSliders(WavePatternParameters* wavePatternParameters) 
+  PatternSliders(WavePatternParameters* wavePatternParameters) 
     : _wavePatternParameters(wavePatternParameters),
       _sampleSliders{} {
     for (auto i = 0; i < sampleNum; ++i) {
