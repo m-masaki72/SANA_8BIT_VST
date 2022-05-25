@@ -70,6 +70,7 @@ float ColorEnvelope::getManipulateAngle() {
       return 0;
     }
   }
+  return 0;
 }
 
 void ColorEnvelope::clear() {

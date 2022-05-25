@@ -24,7 +24,7 @@ static File getPreFileDirectory(File* file) {
 }
 
 static std::vector<std::string> split(std::string str, char del) {
-  auto first = 0;
+  size_t first = 0;
   auto last = str.find_first_of(del);
 
   std::vector<std::string> result;
@@ -99,7 +99,7 @@ static void loadWaveFile(WaveformMemoryParameters* _waveformMemoryParamsPtr, std
       File waveformFile(result);
       std::string data = waveformFile.loadFileAsString().toStdString();
       auto count = 0;
-      for (const auto subStr : split(data, ' ')) {
+      for (const auto &subStr : split(data, ' ')) {
       *_waveformMemoryParamsPtr->WaveSamplesArray[count] = atoi(subStr.c_str());
       ++count;
       }
@@ -587,7 +587,7 @@ void WaveformMemoryParametersComponent::filesDropped(const StringArray& files,
     File waveformFile(filePath);
     std::string data = waveformFile.loadFileAsString().toStdString();
     std::int32_t count = 0;
-    for (const auto subStr : split(data, ' ')) {
+    for (const auto &subStr : split(data, ' ')) {
       *_waveformMemoryParamsPtr->WaveSamplesArray[count] = atoi(subStr.c_str());
       ++count;
     }
@@ -601,7 +601,7 @@ void WaveformMemoryParametersComponent::fileClicked(const File& file, const Mous
     File waveformFile(filePath);
     std::string data = waveformFile.loadFileAsString().toStdString();
     std::int32_t count = 0;
-    for (const auto subStr : split(data, ' ')) {
+    for (const auto &subStr : split(data, ' ')) {
       *_waveformMemoryParamsPtr->WaveSamplesArray[count] = atoi(subStr.c_str());
       ++count;
     }
