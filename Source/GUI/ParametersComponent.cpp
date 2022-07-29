@@ -248,8 +248,8 @@ VibratoParametersComponent::VibratoParametersComponent(
     : _vibratoParamsPtr(vibratoParams),
       enableSwitch("On", _vibratoParamsPtr->VibratoEnable, this),
       attackDeleySwitch("Attack-Deley-Switch", _vibratoParamsPtr->VibratoAttackDeleySwitch, this),
-      amountSlider("Depth", "HarfTone", _vibratoParamsPtr->VibratoAmount, this, MIN_DELTA, 2.0f),
-      speedSlider("Speed", "hz", _vibratoParamsPtr->VibratoSpeed, this, MIN_DELTA, 10.0f),
+      amountSlider("Depth", "Half tone(s)", _vibratoParamsPtr->VibratoAmount, this, MIN_DELTA, 2.0f),
+      speedSlider("Speed", "Hz", _vibratoParamsPtr->VibratoSpeed, this, MIN_DELTA, 10.0f),
       attackDeleyTimeSlider("Attack", "sec", _vibratoParamsPtr->VibratoAttackTime, this, 0.001f, 2.0f) {
   addAndMakeVisible(enableSwitch);
   addAndMakeVisible(attackDeleySwitch);
@@ -258,7 +258,7 @@ VibratoParametersComponent::VibratoParametersComponent(
   addAndMakeVisible(attackDeleyTimeSlider);
 
   // 切り替えSwitchのカスタマイズ
-  { attackDeleySwitch.button.setButtonText("Attack / Deley"); }
+  { attackDeleySwitch.button.setButtonText("Attack / Delay"); }
 }
 
 void VibratoParametersComponent::paint(Graphics& g) {
@@ -293,7 +293,7 @@ void VibratoParametersComponent::resized() {
   if (_vibratoParamsPtr->VibratoAttackDeleySwitch->get() == true) {
     attackDeleyTimeSlider.label.setText("Attack", dontSendNotification);
   } else {
-    attackDeleyTimeSlider.label.setText("Deley", dontSendNotification);
+    attackDeleyTimeSlider.label.setText("Delay", dontSendNotification);
   }
 }
 
