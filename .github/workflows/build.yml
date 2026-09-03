@@ -18,6 +18,7 @@ jobs:
   build-windows:
     if: ${{ inputs.build_windows }}
     runs-on: windows-latest
+    timeout-minutes: 30
 
     steps:
     - name: Checkout repository
@@ -43,6 +44,7 @@ jobs:
   build-macos:
     if: ${{ inputs.build_macos }}
     runs-on: macos-latest
+    timeout-minutes: 30
 
     steps:
     - name: Checkout repository
