@@ -66,3 +66,8 @@ I tested following DAW.
 * JUCE for the framework/library
 * Steinberg VST SDK
 * Visual Studio for the IDE
+
+## 紹介ページ
+
+- [制作物ページ（Mori Lab）](https://morilab-garage.com/projects/sana-8bit-vst/)
+- [開発ブログ記事（はてなブログ）](https://mementomori7272.hatenablog.com/entry/sana_8bit_vst)
